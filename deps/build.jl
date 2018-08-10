@@ -22,8 +22,6 @@ libFTD2XX_glx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/Linux/libftd2x
 libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
 
 provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".", installed_libpath = joinpath(@__DIR__, "libFTD2XX", "amd64"), os = :Windows)
-provides(Binaries, libFTD2XX_glx_x64_URI, libFTD2XX, os = :Linux)
-provides(Binaries, libFTD2XX_osx_x64_URI, libFTD2XX, os = :Darwin)
 
 @BinDeps.install Dict(:libFTD2XX => :libFTD2XX)
 
