@@ -1,18 +1,14 @@
-# LibFTD2XX.jl
-
-module LibFTD2XX
-
-# Get library
-const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if isfile(depsfile)
-    include(depsfile)
-else
-    error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
-end
+module FTD2XX
 
 export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
        close, baudrate, status, FTOpenBy, OPEN_BY_SERIAL_NUMBER,
        OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
+
+if is_windows()
+  const lib_path =  Pkg.dir("FTD2XX") * "\\lib\\WIN\\amd64\\ftd2xx64"
+else
+  error("not supported on this platform")
+end
 
 const lib = Ref{Ptr{Void}}(0)
 
@@ -33,7 +29,7 @@ const cfuncn = [
 const cfunc = Dict{Symbol, Ptr{Void}}()
 
 function __init__()
-  lib[] = Libdl.dlopen(LibFTD2XX)
+  lib[] = Libdl.dlopen(lib_path)
   for n in cfuncn
     cfunc[n] = Libdl.dlsym(lib[], n)
   end
@@ -269,4 +265,4 @@ function Base.isopen(handle::FT_HANDLE)
   open
 end
 
-end
+end # module FTD2XX
