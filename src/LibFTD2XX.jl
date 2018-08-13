@@ -33,7 +33,7 @@ const cfuncn = [
 const cfunc = Dict{Symbol, Ptr{Void}}()
 
 function __init__()
-  lib[] = Libdl.dlopen(LibFTD2XX)
+  lib[] = Libdl.dlopen(libFTD2XX)
   for n in cfuncn
     cfunc[n] = Libdl.dlsym(lib[], n)
   end
