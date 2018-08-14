@@ -2,6 +2,8 @@
 
 using BinDeps
 
+Sys.WORD_SIZE != 64 && error("Build script configured only for x64")
+
 @BinDeps.setup
 
 function validate_libFTD2XX_version(name, handle)
@@ -20,7 +22,7 @@ libFTD2XX_glx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/Linux/libftd2x
 libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
 
 provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".",
-        installed_libpath = joinpath(@__DIR__, "libFTD2XX", Sys.WORD_SIZE == 64 ? "amd64" : "i386"), os = :Windows)
+         installed_libpath = joinpath(@__DIR__, "libFTD2XX", Sys.WORD_SIZE == 64 ? "amd64" : "i386"), os = :Windows)
 
 @BinDeps.install Dict(:libFTD2XX => :libFTD2XX)
 
