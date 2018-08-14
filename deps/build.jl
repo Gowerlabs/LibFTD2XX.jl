@@ -2,8 +2,6 @@
 
 using BinDeps
 
-Sys.WORD_SIZE == 64 || error("Build script configured only for x64")
-
 @BinDeps.setup
 
 function validate_libFTD2XX_version(name, handle)
