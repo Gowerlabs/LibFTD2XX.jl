@@ -2,19 +2,23 @@
 
 module LibFTD2XX
 
-# Get library
-const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if isfile(depsfile)
-    include(depsfile)
-else
-    error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
-end
-
 export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
        close, baudrate, status, FTOpenBy, OPEN_BY_SERIAL_NUMBER,
        OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
 
+include("wrapper.jl")
+
+# Library
+# 
+const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
+if isfile(depsfile)
+  include(depsfile)
+else
+  error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
+end
+
 const lib = Ref{Ptr{Void}}(0)
+const cfunc = Dict{Symbol, Ptr{Void}}()
 
 const cfuncn = [
   :FT_CreateDeviceInfoList
@@ -27,10 +31,7 @@ const cfuncn = [
   :FT_GetModemStatus
   :FT_GetQueueStatus
   :FT_OpenEx
-  :FT_Purge
-  ]
-
-const cfunc = Dict{Symbol, Ptr{Void}}()
+  :FT_Purge]
 
 function __init__()
   lib[] = Libdl.dlopen(libFTD2XX)
@@ -39,9 +40,17 @@ function __init__()
   end
 end
 
-const DWORD = Cuint
-const ULONG = Culong
-const FT_STATUS = ULONG
+# Types
+# 
+struct FT_DEVICE_LIST_INFO_NODE
+  flags::ULONG
+  typ::ULONG
+  id::ULONG
+  locid::DWORD
+  serialnumber::NTuple{16, Cchar}
+  description::NTuple{64, Cchar}
+  fthandle::Ptr{Void}
+end
 
 mutable struct FT_HANDLE<:IO 
   p::Ptr{Void} 
@@ -61,50 +70,19 @@ function destroy!(handle::FT_HANDLE)
   handle.p = C_NULL
 end
 
-@enum(
-  FT_STATUS_ENUM,
-  FT_OK,
-  FT_INVALID_HANDLE,
-  FT_DEVICE_NOT_FOUND,
-  FT_DEVICE_NOT_OPENED,
-  FT_IO_ERROR,
-  FT_INSUFFICIENT_RESOURCES,
-  FT_INVALID_PARAMETER,
-  FT_INVALID_BAUD_RATE,
-  FT_DEVICE_NOT_OPENED_FOR_ERASE,
-  FT_DEVICE_NOT_OPENED_FOR_WRITE,
-  FT_FAILED_TO_WRITE_DEVICE,
-  FT_EEPROM_READ_FAILED,
-  FT_EEPROM_WRITE_FAILED,
-  FT_EEPROM_ERASE_FAILED,
-  FT_EEPROM_NOT_PRESENT,
-  FT_EEPROM_NOT_PROGRAMMED,
-  FT_INVALID_ARGS,
-  FT_NOT_SUPPORTED,
-  FT_OTHER_ERROR,
-  FT_DEVICE_LIST_NOT_READY,
-)
+function listdevices(arg1, arg2, flags)
+  cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
+  flagsarg = DWORD(flags)
+  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Void}, Ptr{Void}, DWORD),
+                                           arg1,      arg1,      flagsarg)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  arg1, arg2
+end
 
-include("rarelyused.jl")
-
-@enum(
-  FTOpenBy,
-  OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
-  OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION,
-  OPEN_BY_LOCATION = FT_OPEN_BY_LOCATION,
-)
-
-const FT_PURGE_RX = 1
-const FT_PURGE_TX = 2
-
-struct FT_DEVICE_LIST_INFO_NODE
-  flags::ULONG
-  typ::ULONG
-  id::ULONG
-  locid::DWORD
-  serialnumber::NTuple{16, Cchar}
-  description::NTuple{64, Cchar}
-  fthandle::Ptr{Void}
+function listdevices(flags)
+  arg1 = Ref{DWORD}(0)
+  arg2 = Ref{DWORD}(0)
+  listdevices(arg1, arg2, flags)
 end
 
 function Base.String(input::NTuple{N, Cchar} where N)
@@ -201,14 +179,14 @@ function status(handle::FT_HANDLE)
   linestatus = (flags[] >> 8) & 0xFF
   mflaglist = Dict{String, Bool}()
   lflaglist = Dict{String, Bool}()
-  mflaglist["CTS"] = modemstatus & 0x10
-  mflaglist["DSR"] = modemstatus & 0x20
-  mflaglist["RI"]  = modemstatus & 0x40
-  mflaglist["DCD"] = modemstatus & 0x80
-  lflaglist["OE"] = linestatus & 0x02
-  lflaglist["PE"] = linestatus & 0x04
-  lflaglist["FE"] = linestatus & 0x08
-  lflaglist["BI"] = linestatus & 0x10
+  mflaglist["CTS"]  = modemstatus & 0x10
+  mflaglist["DSR"]  = modemstatus & 0x20
+  mflaglist["RI"]   = modemstatus & 0x40
+  mflaglist["DCD"]  = modemstatus & 0x80
+  lflaglist["OE"]   = linestatus  & 0x02
+  lflaglist["PE"]   = linestatus  & 0x04
+  lflaglist["FE"]   = linestatus  & 0x08
+  lflaglist["BI"]   = linestatus  & 0x10
   mflaglist, lflaglist
 end
 
