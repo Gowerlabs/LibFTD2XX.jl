@@ -1,5 +1,5 @@
+# LibFTD2XX.jl
+
 using LibFTD2XX
 using Base.Test
 
-# write your own tests here
-@test 1 == 2
