@@ -61,7 +61,7 @@ end
 
 function FT_HANDLE()
   handle = FT_HANDLE(C_NULL)
-  finalizer(handle, destroy!)
+  @compat finalizer(destroy!, handle)
   handle
 end
 
@@ -90,7 +90,7 @@ end
 
 function Base.String(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
-    endidx = find(input .== 0)[1]-1
+    @compat endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
     endidx = length(input)
   else
@@ -109,7 +109,7 @@ function createdeviceinfolist()
 end
 
 function getdeviceinfolist(numdevs)
-  list  = Vector{FT_DEVICE_LIST_INFO_NODE}(numdevs)
+  @compat list  = Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
   elnum = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
