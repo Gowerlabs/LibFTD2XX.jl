@@ -7,7 +7,7 @@ Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide]
 The below is a demonstration for a port which echos what it received.
 
 ```Julia
-julia> using LibFTD2XX
+julia> using Compat, LibFTD2XX
 
 julia> devs = createdeviceinfolist() # find out how many devices there are
 4
@@ -41,7 +41,7 @@ julia> nb_available(handle)
 julia> String(read(handle, 5))
 "Hello"
 
-julia> write(handle, Vector{UInt8}("world!"))
+julia> write(handle, codeunits("world!"))
 6
 
 julia> String(readavailable(handle))
