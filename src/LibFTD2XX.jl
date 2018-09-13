@@ -213,7 +213,7 @@ end
 Base.eof(handle::FT_HANDLE) = (nb_available(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
-  b = Vector{UInt8}(nb_available(handle))
+  @compat b = Vector{UInt8}(undef, nb_available(handle))
   readbytes!(handle, b)
   b
 end
