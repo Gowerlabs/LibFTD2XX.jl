@@ -2,6 +2,9 @@
 
 module LibFTD2XX
 
+using Compat
+using Compat.Libdl
+
 export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
        close, baudrate, status, FTOpenBy, OPEN_BY_SERIAL_NUMBER,
        OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
@@ -17,8 +20,8 @@ else
   error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
 end
 
-const lib = Ref{Ptr{Void}}(0)
-const cfunc = Dict{Symbol, Ptr{Void}}()
+const lib = Ref{Ptr{Cvoid}}(0)
+const cfunc = Dict{Symbol, Ptr{Cvoid}}()
 
 const cfuncn = [
   :FT_CreateDeviceInfoList
@@ -49,16 +52,16 @@ struct FT_DEVICE_LIST_INFO_NODE
   locid::DWORD
   serialnumber::NTuple{16, Cchar}
   description::NTuple{64, Cchar}
-  fthandle::Ptr{Void}
+  fthandle::Ptr{Cvoid}
 end
 
 mutable struct FT_HANDLE<:IO 
-  p::Ptr{Void} 
+  p::Ptr{Cvoid} 
 end
 
 function FT_HANDLE()
   handle = FT_HANDLE(C_NULL)
-  finalizer(handle, destroy!)
+  @compat finalizer(destroy!, handle)
   handle
 end
 
@@ -73,7 +76,7 @@ end
 function listdevices(arg1, arg2, flags)
   cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
   flagsarg = DWORD(flags)
-  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Void}, Ptr{Void}, DWORD),
+  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
                                            arg1,      arg1,      flagsarg)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   arg1, arg2
@@ -87,7 +90,7 @@ end
 
 function Base.String(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
-    endidx = find(input .== 0)[1]-1
+    @compat endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
     endidx = length(input)
   else
@@ -106,7 +109,7 @@ function createdeviceinfolist()
 end
 
 function getdeviceinfolist(numdevs)
-  list  = Vector{FT_DEVICE_LIST_INFO_NODE}(numdevs)
+  list =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
   elnum = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),

@@ -1,5 +1,7 @@
 # LibFTD2XX.jl
 
+using Compat
+using Compat.Libdl
 using BinDeps
 
 Sys.WORD_SIZE != 64 && error("Build script configured only for x64")
