@@ -1,0 +1,10 @@
+using Compat, LibFTD2XX
+devs = createdeviceinfolist()
+list, elnum = getdeviceinfolist(devs)
+description = String(list[3].description)
+handle = open(description, OPEN_BY_DESCRIPTION)
+datacharacteristics(handle)
+baudrate(handle,2000000)
+@compat write(handle, Vector{UInt8}(codeunits("hello")))
+String(read(handle, 5))
+close(handle)
