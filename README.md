@@ -2,12 +2,14 @@
 
 Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
 
+It has been tested on Julia 0.6.x and 0.7.
+
 ## Example Code
 
 The below is a demonstration for a port which echos what it received.
 
 ```Julia
-julia> using LibFTD2XX
+julia> using LibFTD2XX, Compat # Compat for codeunits 
 
 julia> devs = createdeviceinfolist() # find out how many devices there are
 4
@@ -32,7 +34,7 @@ false
 julia> handle = open(description, OPEN_BY_DESCRIPTION)
 FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000db4e20)
 
-julia> write(handle, Vector{UInt8}("Hello"))
+julia> @compat write(handle, Vector{UInt8}(codeunits("Hello")))
 5
 
 julia> nb_available(handle)
@@ -41,13 +43,13 @@ julia> nb_available(handle)
 julia> String(read(handle, 5))
 "Hello"
 
-julia> write(handle, Vector{UInt8}("world!"))
+julia> @compat write(handle, Vector{UInt8}(codeunits("world!")))
 6
 
 julia> String(readavailable(handle))
 "world!"
 
-julia> write(handle, Vector{UInt8}("I will be deleted."))
+julia> @compat write(handle, Vector{UInt8}(codeunits("I will be deleted.")))
 18
 
 julia> nb_available(handle)
