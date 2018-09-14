@@ -6,8 +6,7 @@ using Compat
 using Compat.Libdl
 
 export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
-       close, baudrate, status, FTOpenBy, OPEN_BY_SERIAL_NUMBER,
-       OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
+       close, baudrate, datacharacteristics, status
 
 include("wrapper.jl")
 
@@ -31,6 +30,7 @@ const cfuncn = [
   :FT_Read
   :FT_Write
   :FT_SetBaudRate
+  :FT_SetDataCharacteristics
   :FT_GetModemStatus
   :FT_GetQueueStatus
   :FT_OpenEx
@@ -167,7 +167,15 @@ end
 function baudrate(handle::FT_HANDLE, baud)
   status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD),
-                  handle,    DWORD(baud))
+                  handle,    baud)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
+function datacharacteristics(handle::FT_HANDLE; wordlength::FTWordLength = BITS_8, stopbits::FTStopBits = STOP_BITS_1, parity::FTParity = PARITY_NONE)
+  status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
+                 (FT_HANDLE, UCHAR,      UCHAR,    UCHAR),
+                  handle,    wordlength, stopbits, parity)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
 end
@@ -205,7 +213,7 @@ end
 Base.eof(handle::FT_HANDLE) = (nb_available(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
-  b = Vector{UInt8}(nb_available(handle))
+  @compat b = Vector{UInt8}(undef, nb_available(handle))
   readbytes!(handle, b)
   b
 end
