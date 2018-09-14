@@ -6,7 +6,7 @@ It has been tested on Julia 0.6.x and 0.7.
 
 ## Example Code
 
-The below is a demonstration for a port which echos what it received.
+The below is a demonstration for a port running at 2MBaud which echos what it receives.
 
 ```Julia
 julia> using LibFTD2XX, Compat # Compat for codeunits 
@@ -33,6 +33,10 @@ false
 
 julia> handle = open(description, OPEN_BY_DESCRIPTION)
 FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000db4e20)
+
+julia> datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
+
+julia> baudrate(handle,2000000)
 
 julia> @compat write(handle, Vector{UInt8}(codeunits("Hello")))
 5
