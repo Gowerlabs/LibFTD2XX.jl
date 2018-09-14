@@ -77,7 +77,7 @@ function listdevices(arg1, arg2, flags)
   cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
   flagsarg = DWORD(flags)
   status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-                                           arg1,      arg1,      flagsarg)
+                                           arg1,       arg1,       flagsarg)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   arg1, arg2
 end
@@ -146,10 +146,9 @@ function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(
     resize!(b, nb)
   end
   nbrx = Ref{DWORD}()
-  buffer = Vector{UInt8}(b)
   status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ptr{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    buffer,     nb,    nbrx)
+                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
+                  handle,    b,          nb,    nbrx)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   nbrx[]
 end
@@ -158,7 +157,7 @@ function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
   nb = DWORD(length(buffer))
   nbtx = Ref{DWORD}()
   status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ptr{UInt8}, DWORD, Ref{DWORD}),
+                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
                   handle,    buffer,     nb,    nbtx)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   nbtx[]
