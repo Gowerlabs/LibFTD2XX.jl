@@ -90,7 +90,7 @@ end
 
 function Base.String(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
-    @compat endidx = findall(input .== 0)[1]-1
+    endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
     endidx = length(input)
   else
@@ -138,7 +138,7 @@ function Base.close(handle::FT_HANDLE)
 end
 
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
-  @compat nbav = bytesavailable(handle)
+  nbav = bytesavailable(handle)
   if nbav < nb
     nb = nbav
   end
@@ -220,7 +220,7 @@ else
   end
 end
 
-@compat Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
+Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
   @compat b = Vector{UInt8}(undef, bytesavailable(handle))
