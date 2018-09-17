@@ -41,7 +41,7 @@ julia> baudrate(handle,2000000)
 julia> @compat write(handle, Vector{UInt8}(codeunits("Hello")))
 5
 
-julia> nb_available(handle)
+julia> bytesavailable(handle)
 5
 
 julia> String(read(handle, 5))
@@ -56,12 +56,12 @@ julia> String(readavailable(handle))
 julia> @compat write(handle, Vector{UInt8}(codeunits("I will be deleted.")))
 18
 
-julia> nb_available(handle)
+julia> bytesavailable(handle)
 18
 
 julia> flush(handle)
 
-julia> nb_available(handle)
+julia> bytesavailable(handle)
 0
 
 julia> close(handle)
