@@ -90,7 +90,7 @@ end
 
 function Base.String(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
-    @compat endidx = findall(input .== 0)[1]-1
+    endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
     endidx = length(input)
   else
@@ -138,7 +138,7 @@ function Base.close(handle::FT_HANDLE)
 end
 
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
-  nbav = nb_available(handle)
+  nbav = bytesavailable(handle)
   if nbav < nb
     nb = nbav
   end
@@ -200,19 +200,19 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
-function Base.nb_available(handle::FT_HANDLE)
+function Compat.bytesavailable(handle::FT_HANDLE)
   nbrx = Ref{DWORD}()
   status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{DWORD}),
+                  (FT_HANDLE, Ref{DWORD}),
                   handle,    nbrx)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   nbrx[]
 end
 
-Base.eof(handle::FT_HANDLE) = (nb_available(handle) == 0)
+Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
-  @compat b = Vector{UInt8}(undef, nb_available(handle))
+  b = @compat Vector{UInt8}(undef, bytesavailable(handle))
   readbytes!(handle, b)
   b
 end
