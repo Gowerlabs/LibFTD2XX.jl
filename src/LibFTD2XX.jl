@@ -138,7 +138,7 @@ function Base.close(handle::FT_HANDLE)
 end
 
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
-  nbav = nb_available(handle)
+  @compat nbav = bytesavailable(handle)
   if nbav < nb
     nb = nbav
   end
@@ -200,19 +200,30 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
-function Base.nb_available(handle::FT_HANDLE)
-  nbrx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{DWORD}),
-                  handle,    nbrx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
+if VERSION < v"0.7"
+  function Base.nb_available(handle::FT_HANDLE)
+    nbrx = Ref{DWORD}()
+    status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
+                   (FT_HANDLE, Ref{DWORD}),
+                    handle,    nbrx)
+    FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+    nbrx[]
+  end
+else
+  function Base.bytesavailable(handle::FT_HANDLE)
+    nbrx = Ref{DWORD}()
+    status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
+                   (FT_HANDLE, Ref{DWORD}),
+                    handle,    nbrx)
+    FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+    nbrx[]
+  end
 end
 
-Base.eof(handle::FT_HANDLE) = (nb_available(handle) == 0)
+@compat Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
-  @compat b = Vector{UInt8}(undef, nb_available(handle))
+  @compat b = Vector{UInt8}(undef, bytesavailable(handle))
   readbytes!(handle, b)
   b
 end
