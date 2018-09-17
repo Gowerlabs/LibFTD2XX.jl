@@ -200,24 +200,13 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
-if VERSION < v"0.7"
-  function Base.nb_available(handle::FT_HANDLE)
-    nbrx = Ref{DWORD}()
-    status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                   (FT_HANDLE, Ref{DWORD}),
-                    handle,    nbrx)
-    FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-    nbrx[]
-  end
-else
-  function Base.bytesavailable(handle::FT_HANDLE)
-    nbrx = Ref{DWORD}()
-    status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                   (FT_HANDLE, Ref{DWORD}),
-                    handle,    nbrx)
-    FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-    nbrx[]
-  end
+function Compat.bytesavailable(handle::FT_HANDLE)
+  nbrx = Ref{DWORD}()
+  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
+                  (FT_HANDLE, Ref{DWORD}),
+                  handle,    nbrx)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  nbrx[]
 end
 
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
