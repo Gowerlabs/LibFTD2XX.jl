@@ -109,7 +109,7 @@ function createdeviceinfolist()
 end
 
 function getdeviceinfolist(numdevs)
-  list =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
+  list =  Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
   elnum = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
@@ -212,7 +212,7 @@ end
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 function Base.readavailable(handle::FT_HANDLE)
-  b = @compat Vector{UInt8}(undef, bytesavailable(handle))
+  b = Vector{UInt8}(undef, bytesavailable(handle))
   readbytes!(handle, b)
   b
 end
