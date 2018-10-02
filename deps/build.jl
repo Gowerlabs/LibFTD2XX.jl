@@ -6,6 +6,8 @@ using BinDeps
 
 Sys.WORD_SIZE != 64 && error("Build script configured only for x64")
 
+download_dir = joinpath(@__DIR__, "downloads")
+
 @BinDeps.setup
 
 function validate_libFTD2XX_version(name, handle)
@@ -14,17 +16,47 @@ function validate_libFTD2XX_version(name, handle)
     v = Ref{Cuint}()
     s = ccall(f, Culong, (Ref{Cuint},), v)
     s == C_NULL && return false
-    return v[] >= 0x00021228
+    if Compat.Sys.iswindows()
+        return v[] >= 0x00021228
+    else
+        return true         # OS X library returns version 0x0000000
+    end
 end
 
-libFTD2XX = library_dependency("libFTD2XX", aliases = ["ftd2xx64", "ftd2xx", "libftd2xx"], validate=validate_libFTD2XX_version)
+libFTD2XX = library_dependency("libFTD2XX", aliases = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4"], validate=validate_libFTD2XX_version)
 
 libFTD2XX_win_x64_URI = URI("http://www.ftdichip.com/Drivers/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip")
 libFTD2XX_glx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
 libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
 
+
+# Windows 
+#
 provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".",
          installed_libpath = joinpath(@__DIR__, "libFTD2XX", Sys.WORD_SIZE == 64 ? "amd64" : "i386"), os = :Windows)
+
+         
+# MacOS
+#
+# Whilst binaries are provided, they are in a .dmg file which must be mounted, files extracted
+# and unmounted. Hence this is performed as a build process calling a simple external script.         
+libFTD2XX_osx_dir = joinpath(@__DIR__, "usr", "lib")
+
+provides(BuildProcess,
+    (@build_steps begin
+        CreateDirectory(libFTD2XX_osx_dir)
+        CreateDirectory(download_dir)
+        FileDownloader(string(libFTD2XX_osx_x64_URI), joinpath(download_dir, "D2XX1.4.4.dmg"))
+        @build_steps begin
+            FileRule(joinpath(libFTD2XX_osx_dir, "libftd2xx.1.4.4.dylib"), @build_steps begin
+                `./build_osx.sh`
+            end)
+        end
+    end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Darwin)
+
+    # Linux
+    #
+    
 
 @BinDeps.install Dict(:libFTD2XX => :libFTD2XX)
 
