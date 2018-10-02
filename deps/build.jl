@@ -16,7 +16,7 @@ function validate_libFTD2XX_version(name, handle)
     v = Ref{Cuint}()
     s = ccall(f, Culong, (Ref{Cuint},), v)
     s == C_NULL && return false
-    if Sys.iswindows()
+    if Compat.Sys.iswindows()
         return v[] >= 0x00021228
     else
         return true         # OS X library returns version 0x0000000
