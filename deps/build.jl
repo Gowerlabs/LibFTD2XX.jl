@@ -54,31 +54,33 @@ provides(BuildProcess,
 
 # Linux
 #
-libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
-
-# ARMv7 hard float, 32-bit
 libFTD2XX_glx_armv7hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz")
 libFTD2XX_glx_armv8hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz")
+libFTD2XX_glx_x86_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-i386-1.4.8.gz")
+libFTD2XX_glx_x64_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
+libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
 
-if (Sys.ARCH == :arm) && (Sys.MACHINE == "arm-linux-gnueabihf")
+if Compat.Sys.islinux()
 
-    # Driver layout is identical for ARMv7 and v8, so just choose the correct download
-    libFTD2XX_glx_arm_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
-    
+    if (Sys.ARCH == :arm) && (Sys.MACHINE == "arm-linux-gnueabihf")
+        libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
+    else
+        libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_x86_URI : libFTD2XX_glx_x64_URI
+    end
+
     provides(BuildProcess,
     (@build_steps begin
         CreateDirectory(libFTD2XX_glx_dir)
         CreateDirectory(download_dir)
-        FileDownloader(string(libFTD2XX_glx_armv7hf_URI), joinpath(download_dir, "libftd2xx-arm.gz"))
+        FileDownloader(string(libFTD2XX_glx_URI), joinpath(download_dir, "libftd2xx.gz"))
         FileRule(joinpath(libFTD2XX_glx_dir, "libftd2xx.so.1.4.8"), @build_steps begin
-            `./build_glx_arm.sh`
+            `./build_glx.sh`
         end)
     end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Linux)
 
     # BinDeps doesn't do something sensible with .gz, so the following approach fails
     # provides(Binaries, libFTD2XX_glx_armv7hf_URI, libFTD2XX, #unpacked_dir = ".",
     #          installed_libpath = joinpath(@__DIR__, "release", "build"), os = :Linux)
-
 end
 
 
