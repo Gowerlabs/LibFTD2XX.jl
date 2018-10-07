@@ -60,7 +60,7 @@ libFTD2XX_glx_x86_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2
 libFTD2XX_glx_x64_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
 libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
 
-if Sys.islinux()
+if Compat.Sys.islinux()
 
     if (Sys.ARCH == :arm) && (Sys.MACHINE == "arm-linux-gnueabihf")
         libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
