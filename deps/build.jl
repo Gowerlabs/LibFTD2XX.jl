@@ -4,8 +4,6 @@ using Compat
 using Compat.Libdl
 using BinDeps
 
-Sys.WORD_SIZE != 64 && error("Build script configured only for x64")
-
 download_dir = joinpath(@__DIR__, "downloads")
 
 @BinDeps.setup
@@ -23,15 +21,14 @@ function validate_libFTD2XX_version(name, handle)
     end
 end
 
-libFTD2XX = library_dependency("libFTD2XX", aliases = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4"], validate=validate_libFTD2XX_version)
-
-libFTD2XX_win_x64_URI = URI("http://www.ftdichip.com/Drivers/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip")
-libFTD2XX_glx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
-libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
-
+libFTD2XX = library_dependency("libFTD2XX", 
+    aliases = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"], 
+    validate=validate_libFTD2XX_version)
 
 # Windows 
 #
+libFTD2XX_win_x64_URI = URI("http://www.ftdichip.com/Drivers/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip")
+
 provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".",
          installed_libpath = joinpath(@__DIR__, "libFTD2XX", Sys.WORD_SIZE == 64 ? "amd64" : "i386"), os = :Windows)
 
@@ -40,6 +37,7 @@ provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".",
 #
 # Whilst binaries are provided, they are in a .dmg file which must be mounted, files extracted
 # and unmounted. Hence this is performed as a build process calling a simple external script.         
+libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
 libFTD2XX_osx_dir = joinpath(@__DIR__, "usr", "lib")
 
 provides(BuildProcess,
@@ -54,9 +52,35 @@ provides(BuildProcess,
         end
     end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Darwin)
 
-    # Linux
-    #
+# Linux
+#
+libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
+
+# ARMv7 hard float, 32-bit
+libFTD2XX_glx_armv7hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz")
+libFTD2XX_glx_armv8hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz")
+
+if (Sys.ARCH == :arm) && (Sys.MACHINE == "arm-linux-gnueabihf")
+
+    # Driver layout is identical for ARMv7 and v8, so just choose the correct download
+    libFTD2XX_glx_arm_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
     
+    provides(BuildProcess,
+    (@build_steps begin
+        CreateDirectory(libFTD2XX_glx_dir)
+        CreateDirectory(download_dir)
+        FileDownloader(string(libFTD2XX_glx_armv7hf_URI), joinpath(download_dir, "libftd2xx-arm.gz"))
+        FileRule(joinpath(libFTD2XX_glx_dir, "libftd2xx.so.1.4.8"), @build_steps begin
+            `./build_glx_arm.sh`
+        end)
+    end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Linux)
+
+    # BinDeps doesn't do something sensible with .gz, so the following approach fails
+    # provides(Binaries, libFTD2XX_glx_armv7hf_URI, libFTD2XX, #unpacked_dir = ".",
+    #          installed_libpath = joinpath(@__DIR__, "release", "build"), os = :Linux)
+
+end
+
 
 @BinDeps.install Dict(:libFTD2XX => :libFTD2XX)
 
