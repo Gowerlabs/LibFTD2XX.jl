@@ -247,7 +247,7 @@ function Base.isopen(handle::FT_HANDLE)
     try
       status(handle)
     catch ex
-      if ex == FT_INVALID_HANDLE
+      if ex == FT_INVALID_HANDLE || ex == FT_IO_ERROR
         open = false
       else
         rethrow(ex)
