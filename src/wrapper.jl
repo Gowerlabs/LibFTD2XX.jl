@@ -160,7 +160,7 @@ end
 
 
 # """
-# Wrapper for FT_ListDevices. See D2XX Programmer's Guide (FT_000071) for more
+# Wrapper for `FT_ListDevices`. See D2XX Programmer's Guide (FT_000071) for more
 # information.
 # Call with `pvArg1 = Ref{DWORD}()` and/or `pvArg2 = Ref{DWORD}()` for cases 
 # where `pvArg1` and/or `pvArg2` return or are given DWORD information.
@@ -184,14 +184,20 @@ function FT_CreateDeviceInfoList()
   numdevs[]
 end
 
-function FT_GetDeviceInfoList(numdevs)
-  list =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
-  elnum = Ref{DWORD}(0)
-  status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
-                 (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
-                  list,                          elnum)
+"""
+Wrapper for `FT_GetDeviceInfoDetail`. See D2XX Programmer's Guide (FT_000071) 
+for more information.
+"""
+function FT_GetDeviceInfoDetail(dwIndex)
+  lpdwFlags, lpdwType, lpdwID, lpdwLocId = Ref{DWORD}(), Ref{DWORD}(), Ref{DWORD}(), Ref{DWORD}()
+  pcSerialNumber, pcDescription = pointer(Vector{Cchar}(undef, 16)), pointer(Vector{Cchar}(undef, 64))
+  ft_handle = FT_HANDLE()
+  status = ccall(cfunc[:FT_GetDeviceInfoDetail], cdecl, FT_STATUS, 
+  (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Cstring,        Cstring,       Ref{FT_HANDLE}),
+   dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ft_handle)
+  
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  list, elnum[]
+  dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
 end
 
 function ftopen(devidx::Int)

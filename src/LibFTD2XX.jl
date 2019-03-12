@@ -25,6 +25,7 @@ const cfunc = Dict{Symbol, Ptr{Cvoid}}()
 const cfuncn = [
   :FT_CreateDeviceInfoList
   :FT_GetDeviceInfoList
+  :FT_GetDeviceInfoDetail
   :FT_Open
   :FT_Close
   :FT_Read
