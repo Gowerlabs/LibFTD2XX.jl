@@ -325,7 +325,7 @@ function FT_ListDevices(pvArg1, pvArg2, dwFlags)
 end
 
 
-function ftopen(devidx::Int)
+function FT_Open(devidx::Int)
   handle = FT_HANDLE()
   status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,    Ref{FT_HANDLE}),
                                                      devidx, handle)

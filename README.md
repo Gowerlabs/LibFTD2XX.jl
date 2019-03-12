@@ -20,7 +20,7 @@ julia> list, elnum = FT_GetDeviceInfoList(devs)
 julia> description = String(list[1].description)
 "USB <-> Serial Converter A"
 
-julia> handle = ftopen(0) # open device by index (from zero)
+julia> handle = FT_Open(0) # open device by index (from zero)
 FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000d908b0)
 
 julia> isopen(handle)
