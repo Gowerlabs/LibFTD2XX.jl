@@ -175,18 +175,44 @@ end
 #   pvArg1, pvArg2
 # end
 
+"""
+    FT_CreateDeviceInfoList()
+
+Wrapper for D2XX library function `FT_CreateDeviceInfoList`. 
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Examples
+```julia-repl
+julia> devs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> "Number of devices is \$devs"
+"Number of devices is 4"
+```
+"""
 function FT_CreateDeviceInfoList()
-  numdevs = Ref{DWORD}(0)
+  lpdwNumDevs = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_CreateDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{DWORD},),
-                  numdevs)
+                 lpdwNumDevs)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  numdevs[]
+  lpdwNumDevs[]
 end
 
 """
-Wrapper for `FT_GetDeviceInfoDetail`. See D2XX Programmer's Guide (FT_000071) 
-for more information.
+    FT_GetDeviceInfoDetail(dwIndex)
+
+Wrapper for D2XX library function `FT_GetDeviceInfoDetail`. 
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Examples
+```julia-repl
+julia> 
+
+julia> 
+```
 """
 function FT_GetDeviceInfoDetail(dwIndex)
   lpdwFlags, lpdwType  = Ref{DWORD}(), Ref{DWORD}()
