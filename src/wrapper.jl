@@ -283,8 +283,8 @@ See D2XX Programmer's Guide (FT_000071) for more information.
  - `pvArg2`: Depends on dwFlags.
 - `dwFlags`: Flag which determines format of returned information.
 
-Call with `pvArg1 = Ref{UInt32}()` and/or `pvArg2 = Ref{UInt32}()` for cases 
-where `pvArg1` and/or `pvArg2` return or are given DWORD information.
+E.g. call with `pvArg1 = Ref{UInt32}()` and/or `pvArg2 = Ref{UInt32}()` for 
+cases where `pvArg1` and/or `pvArg2` return or are given DWORD information.
 
 # Examples
 
@@ -325,15 +325,34 @@ function FT_ListDevices(pvArg1, pvArg2, dwFlags)
 end
 
 
-function FT_Open(devidx::Int)
-  handle = FT_HANDLE()
-  status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,    Ref{FT_HANDLE}),
-                                                     devidx, handle)
+"""
+    FT_Open(iDevice)
+
+Wrapper for D2XX library function `FT_Open`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `iDevice`: Zero-base index of device to open
+
+# Example
+
+```julia-repl
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000000c4970)
+
+```
+"""
+function FT_Open(iDevice)
+  ftHandle = FT_HANDLE()
+  status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,     Ref{FT_HANDLE}),
+                                                     iDevice, ftHandle)
   if FT_STATUS_ENUM(status) != FT_OK
     handle.p = C_NULL
     throw(FT_STATUS_ENUM(status))
   end
-  handle
+  ftHandle
 end
 
 
