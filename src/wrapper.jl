@@ -3,7 +3,8 @@
 export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
        FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
-       FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
+       FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION,
+       FT_OPEN_BY_SERIAL_NUMBER, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX
 
 # Constants
 # 
@@ -157,24 +158,6 @@ end
 # wrapper functions
 #
 
-
-
-# """
-# Wrapper for `FT_ListDevices`. See D2XX Programmer's Guide (FT_000071) for more
-# information.
-# Call with `pvArg1 = Ref{DWORD}()` and/or `pvArg2 = Ref{DWORD}()` for cases 
-# where `pvArg1` and/or `pvArg2` return or are given DWORD information.
-# NOT RECOMMENDED FOR USE.
-# """
-# function FT_ListDevices(pvArg1, pvArg2, dwFlags)
-#   cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
-#   flagsarg = DWORD(dwFlags)
-#   status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-#                                            pvArg1,     pvArg2,     dwFlags)
-#   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-#   pvArg1, pvArg2
-# end
-
 """
     FT_CreateDeviceInfoList()
 
@@ -284,6 +267,63 @@ function FT_GetDeviceInfoDetail(dwIndex)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription), ftHandle
 end
+
+
+"""
+    FT_ListDevices(pvArg1, pvArg2, dwFlags)
+
+**NOT FULLY FUNCTIONAL: NOT RECOMMENDED FOR USE**.
+
+Wrapper for D2XX library function `FT_ListDevices`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `pvArg1`: Depends on dwFlags.
+ - `pvArg2`: Depends on dwFlags.
+- `dwFlags`: Flag which determines format of returned information.
+
+Call with `pvArg1 = Ref{UInt32}()` and/or `pvArg2 = Ref{UInt32}()` for cases 
+where `pvArg1` and/or `pvArg2` return or are given DWORD information.
+
+# Examples
+
+1. Get number of devices...
+```julia-repl
+
+julia> numdevs = Ref{UInt32}();
+
+julia> FT_ListDevices(numdevs, Ref{UInt32}(), FT_LIST_NUMBER_ONLY);
+
+julia> numdevs[]
+0x00000004
+```
+
+2. Get serial number of first device... *NOT CURRENTLY WORKING*
+```julia-repl
+
+julia> devidx = Ref{UInt32}(0)
+Base.RefValue{UInt32}(0x00000000)
+
+julia> buffer = pointer(Vector{Cchar}(undef, 64))
+Ptr{Int8} @0x00000000065a8690
+
+julia> FT_ListDevices(devidx, buffer, FT_LIST_BY_INDEX|FT_OPEN_BY_SERIAL_NUMBER)
+ERROR: FT_DEVICE_NOT_FOUND::FT_STATUS_ENUM = 2
+Stacktrace:
+...
+
+```
+"""
+function FT_ListDevices(pvArg1, pvArg2, dwFlags)
+  cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
+  flagsarg = DWORD(dwFlags)
+  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
+                                           pvArg1,     pvArg2,     dwFlags)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  pvArg1, pvArg2
+end
+
 
 function ftopen(devidx::Int)
   handle = FT_HANDLE()
