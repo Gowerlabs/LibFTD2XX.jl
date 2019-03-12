@@ -1,6 +1,6 @@
 using Compat, LibFTD2XX
 devs = FT_CreateDeviceInfoList()
-list, elnum = getdeviceinfolist(devs)
+list, elnum = FT_GetDeviceInfoList(devs)
 description = String(list[3].description)
 handle = open(description, OPEN_BY_DESCRIPTION)
 datacharacteristics(handle)

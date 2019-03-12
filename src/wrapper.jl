@@ -184,7 +184,7 @@ function FT_CreateDeviceInfoList()
   numdevs[]
 end
 
-function getdeviceinfolist(numdevs)
+function FT_GetDeviceInfoList(numdevs)
   list =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
   elnum = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
