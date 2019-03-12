@@ -189,15 +189,18 @@ Wrapper for `FT_GetDeviceInfoDetail`. See D2XX Programmer's Guide (FT_000071)
 for more information.
 """
 function FT_GetDeviceInfoDetail(dwIndex)
-  lpdwFlags, lpdwType, lpdwID, lpdwLocId = Ref{DWORD}(), Ref{DWORD}(), Ref{DWORD}(), Ref{DWORD}()
-  pcSerialNumber, pcDescription = pointer(Vector{Cchar}(undef, 16)), pointer(Vector{Cchar}(undef, 64))
-  ft_handle = FT_HANDLE()
+  lpdwFlags, lpdwType  = Ref{DWORD}(), Ref{DWORD}()
+  lpdwID,    lpdwLocId = Ref{DWORD}(), Ref{DWORD}()
+  pcSerialNumber = pointer(Vector{Cchar}(undef, 16))
+  pcDescription  = pointer(Vector{Cchar}(undef, 64))
+  ftHandle = FT_HANDLE()
+  
   status = ccall(cfunc[:FT_GetDeviceInfoDetail], cdecl, FT_STATUS, 
   (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Cstring,        Cstring,       Ref{FT_HANDLE}),
-   dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ft_handle)
+   dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ftHandle)
   
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
+  dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription), ftHandle
 end
 
 function ftopen(devidx::Int)
