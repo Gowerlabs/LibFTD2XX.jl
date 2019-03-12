@@ -182,12 +182,12 @@ Wrapper for D2XX library function `FT_CreateDeviceInfoList`.
 
 See D2XX Programmer's Guide (FT_000071) for more information.
 
-# Examples
+# Example
 ```julia-repl
-julia> devs = FT_CreateDeviceInfoList()
+julia> numdevs = FT_CreateDeviceInfoList()
 0x00000004
 
-julia> "Number of devices is \$devs"
+julia> "Number of devices is \$numdevs"
 "Number of devices is 4"
 ```
 """
@@ -201,17 +201,73 @@ function FT_CreateDeviceInfoList()
 end
 
 """
+    FT_GetDeviceInfoList(lpdwNumDevs)
+
+Wrapper for D2XX library function `FT_GetDeviceInfoList`. 
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `lpdwNumDevs`: The number of devices.
+
+# Example
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> devinfolist, numdevs = FT_GetDeviceInfoList(numdevs);
+
+julia> numdevs
+0x00000004
+
+julia> ntuple2string(devinfolist[1].description)
+"USB <-> Serial Converter D"
+
+julia> devinfolist[1].fthandle
+Ptr{Nothing} @0x0000000000000000
+
+julia> devinfolist[1].locid
+0x00000000
+
+julia> devinfolist[1].typ
+0x00000007
+
+julia> devinfolist[1].flags
+0x00000002
+
+julia> devinfolist[1].id
+0x04036011
+
+julia> ntuple2string(devinfolist[1].serialnumber)
+"FT3AD2HCD"
+
+```
+"""
+function FT_GetDeviceInfoList(lpdwNumDevs)
+  pDest =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, lpdwNumDevs)
+  status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
+                 (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
+                  pDest,                         Ref{DWORD}(lpdwNumDevs))
+  pDest, lpdwNumDevs
+end
+
+"""
     FT_GetDeviceInfoDetail(dwIndex)
 
 Wrapper for D2XX library function `FT_GetDeviceInfoDetail`. 
 
 See D2XX Programmer's Guide (FT_000071) for more information.
 
-# Examples
-```julia-repl
-julia> 
+# Arguments
+ - `dwIndex`: Index of entry in the device info list.
 
-julia> 
+# Example
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0) # zero indexed
+(0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
 ```
 """
 function FT_GetDeviceInfoDetail(dwIndex)
