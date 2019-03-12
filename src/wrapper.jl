@@ -157,21 +157,23 @@ end
 # wrapper functions
 #
 
-"""
-Wrapper for FT_ListDevices. See D2XX Programmer's Guide (FT_000071) for more
-information.
-Call with `pvArg1 = Ref{DWORD}()` and/or `pvArg2 = Ref{DWORD}()` for cases 
-where `pvArg1` and/or `pvArg2` return or are given DWORD information.
-NOT RECOMMENDED FOR USE.
-"""
-function FT_ListDevices(pvArg1, pvArg2, dwFlags)
-  cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
-  flagsarg = DWORD(dwFlags)
-  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-                                           pvArg1,     pvArg2,     dwFlags)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  pvArg1, pvArg2
-end
+
+
+# """
+# Wrapper for FT_ListDevices. See D2XX Programmer's Guide (FT_000071) for more
+# information.
+# Call with `pvArg1 = Ref{DWORD}()` and/or `pvArg2 = Ref{DWORD}()` for cases 
+# where `pvArg1` and/or `pvArg2` return or are given DWORD information.
+# NOT RECOMMENDED FOR USE.
+# """
+# function FT_ListDevices(pvArg1, pvArg2, dwFlags)
+#   cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
+#   flagsarg = DWORD(dwFlags)
+#   status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
+#                                            pvArg1,     pvArg2,     dwFlags)
+#   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+#   pvArg1, pvArg2
+# end
 
 function createdeviceinfolist()
   numdevs = Ref{DWORD}(0)
