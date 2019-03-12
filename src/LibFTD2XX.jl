@@ -5,7 +5,7 @@ module LibFTD2XX
 using Compat
 using Compat.Libdl
 
-export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
+export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, FT_ListDevices, ftopen, 
        close, baudrate, datacharacteristics, status
 
 include("wrapper.jl")

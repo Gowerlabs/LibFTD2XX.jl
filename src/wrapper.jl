@@ -16,12 +16,11 @@ const FT_STATUS = ULONG
 const FT_OPEN_BY_SERIAL_NUMBER  = 1
 const FT_OPEN_BY_DESCRIPTION    = 2
 const FT_OPEN_BY_LOCATION       = 4
-
 const FT_OPEN_MASK  = (FT_OPEN_BY_SERIAL_NUMBER | 
-                      FT_OPEN_BY_DESCRIPTION | 
-                      FT_OPEN_BY_LOCATION)
+                       FT_OPEN_BY_DESCRIPTION | 
+                       FT_OPEN_BY_LOCATION)
 
-# FT_ListDevices Flags (used in conjunction with FT_OpenEx Flags
+# FT_ListDevices Flags (used in conjunction with FT_OpenEx Flags)
 const FT_LIST_NUMBER_ONLY     = 0x80000000
 const FT_LIST_BY_INDEX        = 0x40000000
 const FT_LIST_ALL             = 0x20000000
@@ -158,19 +157,20 @@ end
 # wrapper functions
 #
 
-function listdevices(arg1, arg2, flags)
+"""
+Wrapper for FT_ListDevices. See D2XX Programmer's Guide (FT_000071) for more
+information.
+Call with `pvArg1 = Ref{DWORD}()` and/or `pvArg2 = Ref{DWORD}()` for cases 
+where `pvArg1` and/or `pvArg2` return or are given DWORD information.
+NOT RECOMMENDED FOR USE.
+"""
+function FT_ListDevices(pvArg1, pvArg2, dwFlags)
   cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
-  flagsarg = DWORD(flags)
+  flagsarg = DWORD(dwFlags)
   status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-                                           arg1,       arg1,       flagsarg)
+                                           pvArg1,     pvArg2,     dwFlags)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  arg1, arg2
-end
-
-function listdevices(flags)
-  arg1 = Ref{DWORD}(0)
-  arg2 = Ref{DWORD}(0)
-  listdevices(arg1, arg2, flags)
+  pvArg1, pvArg2
 end
 
 function createdeviceinfolist()
