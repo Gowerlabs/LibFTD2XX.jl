@@ -175,7 +175,7 @@ end
 #   pvArg1, pvArg2
 # end
 
-function createdeviceinfolist()
+function FT_CreateDeviceInfoList()
   numdevs = Ref{DWORD}(0)
   status = ccall(cfunc[:FT_CreateDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{DWORD},),

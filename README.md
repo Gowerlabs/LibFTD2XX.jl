@@ -11,7 +11,7 @@ The below is a demonstration for a port running at 2MBaud which echos what it re
 ```Julia
 julia> using LibFTD2XX, Compat # Compat for codeunits 
 
-julia> devs = createdeviceinfolist() # find out how many devices there are
+julia> devs = FT_CreateDeviceInfoList() # find out how many devices there are
 4
 
 julia> list, elnum = getdeviceinfolist(devs)

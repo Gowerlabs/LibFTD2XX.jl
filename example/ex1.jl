@@ -1,5 +1,5 @@
 using Compat, LibFTD2XX
-devs = createdeviceinfolist()
+devs = FT_CreateDeviceInfoList()
 list, elnum = getdeviceinfolist(devs)
 description = String(list[3].description)
 handle = open(description, OPEN_BY_DESCRIPTION)
