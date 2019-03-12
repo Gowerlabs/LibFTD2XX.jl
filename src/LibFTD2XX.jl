@@ -6,7 +6,7 @@ using Compat
 using Compat.Libdl
 
 export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_ListDevices, ftopen, 
-       close, baudrate, datacharacteristics, status
+       close, baudrate, datacharacteristics, status, ntuple2string
 
 include("wrapper.jl")
 
@@ -45,7 +45,7 @@ function __init__()
 end
 
 
-function Base.String(input::NTuple{N, Cchar} where N)
+function ntuple2string(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
     endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
