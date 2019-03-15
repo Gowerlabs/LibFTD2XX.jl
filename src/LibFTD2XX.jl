@@ -44,7 +44,22 @@ function __init__()
   end
 end
 
+"""
+    ntuple2string(input::NTuple{N, Cchar} where N)
 
+Convert an NTuple of Cchars (optionally null terminated) to a julia string.
+
+# Example
+
+```jldoctest
+julia> ntuple2string(Cchar.(('h','e','l','l','o')))
+"hello"
+
+julia> ntuple2string(Cchar.(('h','e','l','l','o', '\0', 'x'))) # null terminated
+"hello"
+```
+
+"""
 function ntuple2string(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
     endidx = findall(input .== 0)[1]-1
