@@ -134,7 +134,7 @@ struct FT_DEVICE_LIST_INFO_NODE
   locid::DWORD
   serialnumber::NTuple{16, Cchar}
   description::NTuple{64, Cchar}
-  fthandle::Ptr{Cvoid}
+  fthandle_ptr::Ptr{Cvoid}
 end
 
 mutable struct FT_HANDLE<:IO 
@@ -146,6 +146,8 @@ function FT_HANDLE()
   @compat finalizer(destroy!, handle)
   handle
 end
+
+ptr(handle::FT_HANDLE) = handle.p
 
 function destroy!(handle::FT_HANDLE)
   if handle.p != C_NULL
@@ -206,7 +208,7 @@ julia> numdevs
 julia> ntuple2string(devinfolist[1].description)
 "USB <-> Serial Converter D"
 
-julia> devinfolist[1].fthandle
+julia> devinfolist[1].fthandle_ptr
 Ptr{Nothing} @0x0000000000000000
 
 julia> devinfolist[1].locid
