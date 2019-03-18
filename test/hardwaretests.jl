@@ -128,8 +128,8 @@ end
   buffer = zeros(UInt8, 5000);
   tread = @elapsed nread = FT_Read(handle, buffer, 5000)
   twr = @elapsed nwr = FT_Write(handle, buffer, 5000)
-  @test tread*1000 > timeout_read
-  @test twr*1000 > timeout_wr
+  @test tread*1000 < 2*timeout_read
+  @test twr*1000 < 2*timeout_wr
   @test_throws InexactError FT_SetTimeouts(handle, timeout_read, -1)
   @test_throws InexactError FT_SetTimeouts(handle, -1, timeout_wr)
   FT_Close(handle)
