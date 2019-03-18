@@ -5,7 +5,7 @@ export FTWordLength, BITS_8, BITS_7,
        FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
        FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION,
        FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
-       FT_STATUS_ENUM
+       FT_STATUS_ENUM, FT_PURGE_RX, FT_PURGE_TX
 
 export FT_DEVICE
 
@@ -935,6 +935,46 @@ function FT_SetBreakOff(ftHandle::FT_HANDLE)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
 end
+
+
+"""
+    FT_Purge(ftHandle::FT_HANDLE, dwMask)
+
+Wrapper for D2XX library function `FT_Purge`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `ftHandle::FT_HANDLE` : handle to open device
+ - `dwMask` : must be `FT_PURGE_RX`, `FT_PURGE_TX` or 
+   `FT_PURGE_TX | FT_PURGE_RX`.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+
+julia> nbrx, nbtx, eventstatus = FT_GetStatus(handle) # All queues empty!
+(0x00000000, 0x00000000, 0x00000000)
+
+julia> FT_Close(handle)
+```
+"""
+function FT_Purge(ftHandle::FT_HANDLE, dwMask)
+  @assert (dwMask == FT_PURGE_RX) || (dwMask == FT_PURGE_TX) || 
+          (dwMask == FT_PURGE_RX|FT_PURGE_RX)
+  status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE, DWORD),
+                                                           ftHandle,   dwMask)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
 
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
