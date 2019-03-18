@@ -120,5 +120,19 @@ end
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE)
 
+  # FT_SetTimeouts tests...
+  handle = FT_Open(0)
+  FT_SetBaudRate(handle, 9600)
+  timeout_read, timeout_wr = 50, 10 # milliseconds
+  FT_SetTimeouts(handle, timeout_read, timeout_wr)
+  buffer = zeros(UInt8, 5000);
+  tread = @elapsed nread = FT_Read(handle, buffer, 5000)
+  twr = @elapsed nwr = FT_Write(handle, buffer, 5000)
+  @test tread*1000 > timeout_read
+  @test twr*1000 > timeout_wr
+  @test_throws InexactError FT_SetTimeouts(handle, timeout_read, -1)
+  @test_throws InexactError FT_SetTimeouts(handle, -1, timeout_wr)
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetTimeouts(handle, timeout_read, timeout_wr)
 end
 

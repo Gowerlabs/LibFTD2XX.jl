@@ -606,6 +606,52 @@ function FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, 
 end
 
 """
+    FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
+
+Wrapper for D2XX library function `FT_SetTimeouts`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `ftHandle` : device handle
+ - `dwReadTimeout` : Read timeout (milliseconds)
+ - `dwWriteTimeout` : Write timeout (milliseconds)
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_SetBaudRate(handle, 9600)
+
+julia> FT_SetTimeouts(handle, 50, 10) # 50ms read timeout, 10 ms write timeout
+
+julia> buffer = zeros(UInt8, 5000);
+
+julia> @time nwr = FT_Write(handle, buffer, 5000) # writes nothing if timesout
+  0.014323 seconds (4 allocations: 160 bytes)
+0x00000000
+
+julia> @time nread = FT_Read(handle, buffer, 5000)
+  0.049545 seconds (4 allocations: 160 bytes)
+0x00000000
+
+julia> FT_Close(handle)
+```
+"""
+function FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
+  status = ccall(cfunc[:FT_SetTimeouts], cdecl, FT_STATUS, 
+                 (FT_HANDLE, DWORD,         DWORD,),
+                  ftHandle,  dwReadTimeout, dwWriteTimeout)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
+"""
     Base.close(handle::FT_HANDLE)
 
 Closes an open FTD2XX device and marks its handle as closed.
