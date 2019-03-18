@@ -2,9 +2,6 @@
 
 module LibFTD2XX
 
-using Compat
-using Compat.Libdl
-
 export close, baudrate, datacharacteristics, status
 
 include("util.jl")

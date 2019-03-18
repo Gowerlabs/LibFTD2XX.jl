@@ -15,6 +15,9 @@ export FT_BITS_8, FT_BITS_7,
 FT_STOP_BITS_1, FT_STOP_BITS_2, 
 FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
 
+using Compat
+using Compat.Libdl
+
 # Library
 # 
 const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
