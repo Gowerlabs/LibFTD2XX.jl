@@ -7,6 +7,10 @@ export FTWordLength, BITS_8, BITS_7,
        FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
        FT_STATUS_ENUM
 
+export FT_BITS_8, FT_BITS_7, 
+FT_STOP_BITS_1, FT_STOP_BITS_2, 
+FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
+
 # Constants
 # 
 const DWORD     = Cuint
@@ -556,6 +560,47 @@ function FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
   status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD),
                   ftHandle,    dwBaudRate)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
+"""
+    FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, uParity)
+
+Wrapper for D2XX library function `FT_SetDataCharacteristics`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `ftHandle` : device handle
+ - `uWordLength` : Bits per word - either FT_BITS_8 or FT_BITS_7
+ - `uStopBits` : Stop bits - either FT_STOP_BITS_1 or FT_STOP_BITS_2
+ - `uParity` : Parity - either FT_PARITY_EVEN, FT_PARITY_ODD, FT_PARITY_MARK, 
+   FT_PARITY_SPACE, or FT_PARITY_NONE.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE) 
+
+julia> FT_Close(handle)
+```
+"""
+function FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, uParity)
+  @assert (uWordLength == FT_BITS_8) || (uWordLength == FT_BITS_7)
+  @assert (uStopBits == FT_STOP_BITS_1) || (uStopBits == FT_STOP_BITS_2)
+  @assert (uParity == FT_PARITY_EVEN) || (uParity == FT_PARITY_ODD) || 
+          (uParity == FT_PARITY_MARK) || (uParity == FT_PARITY_SPACE) || 
+          (uParity == FT_PARITY_NONE)
+  status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
+                 (FT_HANDLE, UCHAR,       UCHAR,     UCHAR),
+                  ftHandle,  uWordLength, uStopBits, uParity)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
 end

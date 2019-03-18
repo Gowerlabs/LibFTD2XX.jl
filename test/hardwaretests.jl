@@ -53,103 +53,69 @@ end
   # @test ntuple2string(description) == unsafe_string(buffer)
 
   # FT_Open tests...
-  local handle
-  try
-    handle = FT_Open(0)
-    @test handle isa FT_HANDLE
-    @test isopen(handle)
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  handle = FT_Open(0)
+  @test handle isa FT_HANDLE
+  @test LibFTD2XX.ptr(handle) != C_NULL
+  FT_Close(handle)
 
   # FT_OpenEx tests...
-  try
-    handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
-    @test handle isa FT_HANDLE
-    @test isopen(handle)
-    close(handle)
+  handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
+  @test handle isa FT_HANDLE
+  @test LibFTD2XX.ptr(handle) != C_NULL
+  FT_Close(handle)
 
-    handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
-    @test handle isa FT_HANDLE
-    @test isopen(handle)
-    close(handle)
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
+  @test handle isa FT_HANDLE
+  @test LibFTD2XX.ptr(handle) != C_NULL
+  FT_Close(handle)
 
   # FT_Close tests...
-  try
-    handle = FT_Open(0)
-    retval = FT_Close(handle)
-    @test retval == nothing
-    @test isopen(handle) == false
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  handle = FT_Open(0)
+  retval = FT_Close(handle)
+  @test retval == nothing
+  @test_throws FT_STATUS_ENUM FT_Close(handle) # can't close twice...
 
   # FT_Read tests...
-  try
-    handle = FT_Open(0)
-    buffer = zeros(UInt8, 5)
-    nread = FT_Read(handle, buffer, 0) # read 0 bytes
-    @test nread == 0
-    @test buffer == zeros(UInt8, 5)
-    @test_throws AssertionError FT_Read(handle, buffer, 6) # read 5 bytes
-    @test_throws AssertionError FT_Read(handle, buffer, -1) # read -1 bytes
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  handle = FT_Open(0)
+  buffer = zeros(UInt8, 5)
+  nread = FT_Read(handle, buffer, 0) # read 0 bytes
+  @test nread == 0
+  @test buffer == zeros(UInt8, 5)
+  @test_throws AssertionError FT_Read(handle, buffer, 6) # read 5 bytes
+  @test_throws AssertionError FT_Read(handle, buffer, -1) # read -1 bytes
+  FT_Close(handle)
 
   # FT_Write tests...
-  try
-    handle = FT_Open(0)
-    buffer = ones(UInt8, 5)
-    nwr = FT_Write(handle, buffer, 0) # write 0 bytes
-    @test nwr == 0
-    @test buffer == ones(UInt8, 5)
-    nwr = FT_Write(handle, buffer, 2) # write 2 bytes
-    @test nwr == 2
-    @test buffer == ones(UInt8, 5)
-    @test_throws AssertionError FT_Write(handle, buffer, 6) # write 6 bytes
-    @test_throws AssertionError FT_Write(handle, buffer, -1) # write -1 bytes
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  handle = FT_Open(0)
+  buffer = ones(UInt8, 5)
+  nwr = FT_Write(handle, buffer, 0) # write 0 bytes
+  @test nwr == 0
+  @test buffer == ones(UInt8, 5)
+  nwr = FT_Write(handle, buffer, 2) # write 2 bytes
+  @test nwr == 2
+  @test buffer == ones(UInt8, 5)
+  @test_throws AssertionError FT_Write(handle, buffer, 6) # write 6 bytes
+  @test_throws AssertionError FT_Write(handle, buffer, -1) # write -1 bytes
+  FT_Close(handle)
 
-  # FT_SetBaudRate tests...
-  try
-    handle = FT_Open(0)
-    retval = FT_SetBaudRate(handle, 115200)
-    @test retval == nothing
-    @test_throws AssertionError FT_SetBaudRate(handle, 0)
-    @test_throws AssertionError FT_SetBaudRate(handle, -1)
-  catch ex
-    rethrow(ex)
-  finally
-    if isopen(handle)
-      close(handle)
-    end
-  end
+  # FT_SetDataCharacteristics tests...
+  handle = FT_Open(0)
+  retval = FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE)
+  @test retval == nothing
+  # other combinations...
+  FT_SetDataCharacteristics(handle, FT_BITS_7, FT_STOP_BITS_1, FT_PARITY_NONE)
+  FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_2, FT_PARITY_NONE)
+  FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_EVEN)
+  FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_ODD)
+  FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_MARK)
+  FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_SPACE)
+  # Bad values
+  @test_throws AssertionError FT_SetDataCharacteristics(handle, ~(FT_BITS_8 | FT_BITS_7), FT_STOP_BITS_1, FT_PARITY_NONE)
+  @test_throws AssertionError FT_SetDataCharacteristics(handle, FT_BITS_8, ~(FT_STOP_BITS_1 | FT_STOP_BITS_2), FT_PARITY_NONE)
+  @test_throws AssertionError FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, ~(FT_PARITY_NONE | FT_PARITY_EVEN))
+  # closed handle
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetDataCharacteristics(handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE)
 
 end
 
