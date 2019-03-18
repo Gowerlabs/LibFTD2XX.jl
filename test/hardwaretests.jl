@@ -43,7 +43,8 @@ end
 
   # FT_GetDeviceInfoDetail tests...
   numdevs2 = Ref{UInt32}()
-  FT_ListDevices(numdevs2, Ref{UInt32}(), FT_LIST_NUMBER_ONLY)
+  retval = FT_ListDevices(numdevs2, Ref{UInt32}(), FT_LIST_NUMBER_ONLY)
+  @test retval == nothing
   @test numdevs2[] == numdevs
 
   # devidx = Ref{UInt32}(0)

@@ -295,7 +295,7 @@ cases where `pvArg1` and/or `pvArg2` return or are given DWORD information.
 
 julia> numdevs = Ref{UInt32}();
 
-julia> FT_ListDevices(numdevs, Ref{UInt32}(), FT_LIST_NUMBER_ONLY);
+julia> FT_ListDevices(numdevs, Ref{UInt32}(), FT_LIST_NUMBER_ONLY)
 
 julia> numdevs[]
 0x00000004
@@ -323,7 +323,7 @@ function FT_ListDevices(pvArg1, pvArg2, dwFlags)
   status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
                                            pvArg1,     pvArg2,     dwFlags)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  pvArg1, pvArg2
+  return
 end
 
 
