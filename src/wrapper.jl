@@ -976,6 +976,55 @@ function FT_Purge(ftHandle::FT_HANDLE, dwMask)
 end
 
 
+"""
+    FT_StopInTask(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_StopInTask`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_StopInTask(handle) # The driver's IN task is now stopped.
+
+julia> FT_RestartInTask(handle) # The driver's IN task is now restarted.
+
+julia> FT_Close(handle)
+```
+"""
+function FT_StopInTask(ftHandle::FT_HANDLE)
+  status = ccall(cfunc[:FT_StopInTask], cdecl, FT_STATUS, (FT_HANDLE,),
+                                                           ftHandle)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
+
+"""
+    FT_RestartInTask(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_RestartInTask`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+See `FT_StopInTask`.
+"""
+function FT_RestartInTask(ftHandle::FT_HANDLE)
+  status = ccall(cfunc[:FT_RestartInTask], cdecl, FT_STATUS, (FT_HANDLE,),
+                                                           ftHandle)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
   @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs

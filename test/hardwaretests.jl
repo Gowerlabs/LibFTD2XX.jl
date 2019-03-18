@@ -213,5 +213,20 @@ end
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_RX | FT_PURGE_TX))
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+
+  # FT_StopInTask and FT_RestartInTask tests
+  handle = FT_Open(0)
+  retval = FT_StopInTask(handle)
+  @test retval == nothing
+  nbrx, nbtx, eventstatus = FT_GetStatus(handle)
+  sleep(0.1)
+  nbrx_2, nbtx, eventstatus = FT_GetStatus(handle)
+  @test nbrx == nbrx_2
+  retval = FT_RestartInTask(handle)
+  @test retval == nothing
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_StopInTask(handle)
+  @test_throws FT_STATUS_ENUM FT_RestartInTask(handle)
+  
 end
 
