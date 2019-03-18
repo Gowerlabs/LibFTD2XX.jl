@@ -446,7 +446,6 @@ Wrapper for D2XX library function `FT_Read`. Returns number of bytes read.
 See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
-Read 0 bytes from a device...
 
 ```julia-repl
 julia> numdevs = FT_CreateDeviceInfoList()
@@ -489,7 +488,6 @@ Wrapper for D2XX library function `FT_Write`. Returns number of bytes written.
 See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
-Write 2 bytes to a device...
 
 ```julia-repl
 julia> numdevs = FT_CreateDeviceInfoList()
@@ -530,6 +528,36 @@ function FT_Write(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesT
                   ftHandle,  lpBuffer,   dwBytesToWrite, lpdwBytesWritten)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   lpdwBytesWritten[]
+end
+
+"""
+    FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
+
+Wrapper for D2XX library function `FT_SetBaudRate`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_SetBaudRate(handle, 115200) # Set baud rate to 115200
+
+julia> FT_Close(handle)
+```
+"""
+function FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
+  @assert 0 < dwBaudRate <= typemax(DWORD)
+  status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
+                 (FT_HANDLE, DWORD),
+                  ftHandle,    dwBaudRate)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
 end
 
 """

@@ -136,5 +136,20 @@ end
     end
   end
 
+  # FT_SetBaudRate tests...
+  try
+    handle = FT_Open(0)
+    retval = FT_SetBaudRate(handle, 115200)
+    @test retval == nothing
+    @test_throws AssertionError FT_SetBaudRate(handle, 0)
+    @test_throws AssertionError FT_SetBaudRate(handle, -1)
+  catch ex
+    rethrow(ex)
+  finally
+    if isopen(handle)
+      close(handle)
+    end
+  end
+
 end
 
