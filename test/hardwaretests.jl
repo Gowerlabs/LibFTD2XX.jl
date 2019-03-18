@@ -175,5 +175,15 @@ end
   @test version isa LibFTD2XX.DWORD
   @test version > 0
   @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+
+  # FT_GetStatus tests
+  handle = FT_Open(0)
+  nbrx, nbtx, eventstatus = FT_GetStatus(handle)
+  @test nbrx isa LibFTD2XX.DWORD
+  @test nbtx isa LibFTD2XX.DWORD
+  @test eventstatus isa LibFTD2XX.DWORD
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_GetStatus(handle)
+
 end
 
