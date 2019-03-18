@@ -2,7 +2,7 @@
 
 module LibFTD2XX
 
-export close, baudrate, datacharacteristics, status
+export close, baudrate, datacharacteristics, status, driverversion, libversion
 
 include("util.jl")
 include("wrapper.jl")
@@ -49,8 +49,10 @@ end
 Closes an open FTD2XX device and marks its handle as closed.
 """
 function Base.close(handle::FT_HANDLE)
-  FT_Close(handle)
-  handle.p = C_NULL
+  if isopen(handle)
+    FT_Close(handle)
+    handle.p = C_NULL
+  end
   return
 end
 
@@ -148,7 +150,7 @@ true
 julia> close(handle)
 ```
 """
-function open(str::AbstractString, openby::FTOpenBy)
+function Base.open(str::AbstractString, openby::FTOpenBy)
   flagsarg = DWORD(openby)
   handle = FT_HANDLE()
   status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
