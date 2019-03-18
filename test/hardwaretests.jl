@@ -89,8 +89,8 @@ end
   try
     handle = FT_Open(0)
     retval = FT_Close(handle)
-    @assert retval == nothing
-    @assert isopen(handle) == false
+    @test retval == nothing
+    @test isopen(handle) == false
   catch ex
     rethrow(ex)
   finally
@@ -104,8 +104,9 @@ end
     handle = FT_Open(0)
     buffer = zeros(UInt8, 5)
     nread = FT_Read(handle, buffer, 0) # read 0 bytes
-    @assert nread == 0
-    @assert buffer == zeros(UInt8, 5)
+    @test nread == 0
+    @test buffer == zeros(UInt8, 5)
+    
   catch ex
     rethrow(ex)
   finally
