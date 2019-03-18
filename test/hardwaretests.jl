@@ -160,5 +160,14 @@ end
   @test description == description_buf
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetDeviceInfo(handle)
+
+  # FT_GetDriverVersion tests
+  handle = FT_Open(0)
+  version = FT_GetDriverVersion(handle)
+  @test version isa LibFTD2XX.DWORD
+  @test version > 0
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_GetDriverVersion(handle)
+
 end
 
