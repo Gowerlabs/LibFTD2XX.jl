@@ -480,6 +480,56 @@ function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesTo
 end
 
 """
+    FT_Write(ftHandle::FT_HANDLE, lpBuffer::Vector{UInt8}, dwBytesToWrite::Integer)
+
+Wrapper for D2XX library function `FT_Write`. Returns number of bytes written.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+Write 2 bytes to a device...
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> buffer = ones(UInt8, 2)
+2-element Array{UInt8,1}:
+ 0x01
+ 0x01
+
+julia> nwr = FT_Write(handle, buffer, 0) # Write 0 bytes...
+0x00000000
+
+julia> buffer # should be unmodified...
+2-element Array{UInt8,1}:
+ 0x01
+ 0x01
+
+julia> nwr = FT_Write(handle, buffer, 2) # Write 2 bytes...
+0x00000002
+
+julia> buffer # should be unmodified...
+2-element Array{UInt8,1}:
+ 0x01
+ 0x01
+
+julia> FT_Close(handle)
+```
+"""
+function FT_Write(ftHandle::FT_HANDLE, lpBuffer::Vector{UInt8}, dwBytesToWrite::Integer)
+  lpdwBytesWritten = Ref{DWORD}()
+  status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
+                 (FT_HANDLE, Ref{UInt8}, DWORD,          Ref{DWORD}),
+                  ftHandle,  lpBuffer,   dwBytesToWrite, lpdwBytesWritten)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  lpdwBytesWritten[]
+end
+
+"""
     Base.close(handle::FT_HANDLE)
 
 Closes an open FTD2XX device and marks its handle as closed.
