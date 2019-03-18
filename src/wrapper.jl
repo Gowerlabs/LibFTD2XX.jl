@@ -337,10 +337,10 @@ Stacktrace:
 ```
 """
 function FT_ListDevices(pvArg1, pvArg2, dwFlags)
-  cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
   flagsarg = DWORD(dwFlags)
-  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-                                           pvArg1,     pvArg2,     dwFlags)
+  status = ccall(cfunc[:FT_ListDevices], cdecl, FT_STATUS, 
+                 (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
+                  pvArg1,     pvArg2,     dwFlags)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
 end

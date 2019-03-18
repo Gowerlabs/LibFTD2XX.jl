@@ -26,7 +26,9 @@ const cfuncn = [
   :FT_CreateDeviceInfoList
   :FT_GetDeviceInfoList
   :FT_GetDeviceInfoDetail
+  :FT_ListDevices
   :FT_Open
+  :FT_OpenEx
   :FT_Close
   :FT_Read
   :FT_Write
@@ -36,7 +38,6 @@ const cfuncn = [
   :FT_GetModemStatus
   :FT_GetQueueStatus
   :FT_GetDeviceInfo
-  :FT_OpenEx
   :FT_Purge]
 
 function __init__()
