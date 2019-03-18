@@ -357,6 +357,56 @@ function FT_Open(iDevice)
   ftHandle
 end
 
+"""
+    FT_OpenEx(str::AbstractString, openby::FTOpenBy)
+
+Wrapper for D2XX library function `FT_OpenEx`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Arguments
+ - `str::AbstractString` : Device identifier. Type depends on `openby`
+ - `openby::FTOpenBy` : Indicator of device identifier `str` type.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
+(0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
+
+julia> handle = FT_OpenEx(description, OPEN_BY_DESCRIPTION)
+FT_HANDLE(Ptr{Nothing} @0x0000000000dfe740)
+
+julia> isopen(handle)
+true
+
+julia> close(handle)
+
+julia> handle = FT_OpenEx(serialnumber, OPEN_BY_SERIAL_NUMBER)
+FT_HANDLE(Ptr{Nothing} @0x0000000005448ea0)
+
+julia> isopen(handle)
+true
+
+julia> close(handle)
+```
+"""
+function FT_OpenEx(str::AbstractString, openby::FTOpenBy)
+  flagsarg = DWORD(openby)
+  handle = FT_HANDLE()
+  status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
+                 (Cstring, DWORD,    Ref{FT_HANDLE}),
+                  str,     flagsarg, handle)
+  if FT_STATUS_ENUM(status) != FT_OK
+    handle.p = C_NULL
+    throw(FT_STATUS_ENUM(status))
+  end
+  handle
+end
+
 
 function Base.close(handle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
