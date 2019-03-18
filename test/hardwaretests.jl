@@ -166,8 +166,14 @@ end
   version = FT_GetDriverVersion(handle)
   @test version isa LibFTD2XX.DWORD
   @test version > 0
+  @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetDriverVersion(handle)
 
+  # FT_GetLibraryVersion tests
+  version = FT_GetLibraryVersion()
+  @test version isa LibFTD2XX.DWORD
+  @test version > 0
+  @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
 end
 

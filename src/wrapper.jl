@@ -766,7 +766,8 @@ end
 """
     FT_GetDriverVersion(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_GetDriverVersion`.
+Wrapper for D2XX library function `FT_GetDriverVersion`. Returns a julia 
+version number type.
 
 See D2XX Programmer's Guide (FT_000071) for more information.
 
@@ -804,6 +805,44 @@ function FT_GetDriverVersion(ftHandle::FT_HANDLE)
                   ftHandle,  lpdwDriverVersion)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   lpdwDriverVersion[]
+end
+
+
+"""
+    FT_GetLibraryVersion()
+
+Wrapper for D2XX library function `FT_GetLibraryVersion`. Returns a julia 
+version number type.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+
+julia> version = FT_GetLibraryVersion()
+0x00021212
+
+julia> patch = version & 0xFF
+0x00000012
+
+julia> minor = (version >> 8) & 0xFF
+0x00000012
+
+julia> major = (version >> 16) & 0xFF
+0x00000002
+
+julia> VersionNumber(major,minor,patch)
+v"2.18.18"
+```
+"""
+function FT_GetLibraryVersion()
+  lpdwDLLVersion = Ref{DWORD}()
+  status = ccall(cfunc[:FT_GetLibraryVersion], cdecl, FT_STATUS, 
+                 (Ref{DWORD},),
+                  lpdwDLLVersion)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  version = lpdwDLLVersion[]
 end
 
 function status(handle::FT_HANDLE)
