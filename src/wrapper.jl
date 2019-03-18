@@ -453,10 +453,13 @@ function FT_Read(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
   nbrx[]
 end
 
+"""
+    Base.close(handle::FT_HANDLE)
+
+Closes an open FTD2XX device and marks its handle as closed.
+"""
 function Base.close(handle::FT_HANDLE)
-  status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
-                                                       handle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  FT_Close(handle)
   handle.p = C_NULL
   return
 end
