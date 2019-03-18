@@ -652,6 +652,55 @@ function FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
 end
 
 """
+    FT_GetModemStatus(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_GetModemStatus`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> flags = FT_GetModemStatus(handle)
+0x00006400
+
+julia> FT_Close(handle)
+```
+"""
+function FT_GetModemStatus(ftHandle::FT_HANDLE)
+  flags = Ref{DWORD}()
+  status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
+                 (FT_HANDLE, Ref{DWORD}),
+                  ftHandle,  flags)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  flags[]
+end
+
+function status(handle::FT_HANDLE)
+  flags = FT_GetModemStatus(handle)
+  modemstatus = flags & 0xFF
+  linestatus = (flags >> 8) & 0xFF
+  mflaglist = Dict{String, Bool}()
+  lflaglist = Dict{String, Bool}()
+  mflaglist["CTS"]  = (modemstatus & 0x10) == 0x10
+  mflaglist["DSR"]  = (modemstatus & 0x20) == 0x20
+  mflaglist["RI"]   = (modemstatus & 0x40) == 0x40
+  mflaglist["DCD"]  = (modemstatus & 0x80) == 0x89
+  # Below is only non-zero for windows
+  lflaglist["OE"]   = (linestatus  & 0x02) == 0x02
+  lflaglist["PE"]   = (linestatus  & 0x04) == 0x04
+  lflaglist["FE"]   = (linestatus  & 0x08) == 0x08
+  lflaglist["BI"]   = (linestatus  & 0x10) == 0x10
+  mflaglist, lflaglist
+end
+
+"""
     Base.close(handle::FT_HANDLE)
 
 Closes an open FTD2XX device and marks its handle as closed.
@@ -702,27 +751,6 @@ function datacharacteristics(handle::FT_HANDLE; wordlength::FTWordLength = BITS_
                   handle,    wordlength, stopbits, parity)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
-end
-
-function status(handle::FT_HANDLE)
-  flags = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{DWORD}),
-                  handle,    flags)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  modemstatus = flags[] & 0xFF
-  linestatus = (flags[] >> 8) & 0xFF
-  mflaglist = Dict{String, Bool}()
-  lflaglist = Dict{String, Bool}()
-  mflaglist["CTS"]  = modemstatus & 0x10
-  mflaglist["DSR"]  = modemstatus & 0x20
-  mflaglist["RI"]   = modemstatus & 0x40
-  mflaglist["DCD"]  = modemstatus & 0x80
-  lflaglist["OE"]   = linestatus  & 0x02
-  lflaglist["PE"]   = linestatus  & 0x04
-  lflaglist["FE"]   = linestatus  & 0x08
-  lflaglist["BI"]   = linestatus  & 0x10
-  mflaglist, lflaglist
 end
 
 function Compat.bytesavailable(handle::FT_HANDLE)

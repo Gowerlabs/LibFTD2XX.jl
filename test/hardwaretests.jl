@@ -134,5 +134,15 @@ end
   @test_throws InexactError FT_SetTimeouts(handle, -1, timeout_wr)
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_SetTimeouts(handle, timeout_read, timeout_wr)
+
+  # FT_GetModemStatus tests
+  handle = FT_Open(0)
+  flags = FT_GetModemStatus(handle)
+  @test flags isa Unsigned
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_GetModemStatus(handle)
+
+
+
 end
 
