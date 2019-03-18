@@ -213,5 +213,12 @@ end
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_RX | FT_PURGE_TX))
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+
+  # FT_ResetDevice tests
+  handle = FT_Open(0)
+  retval = FT_ResetDevice(handle)
+  @test retval == nothing
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_ResetDevice(handle)
 end
 
