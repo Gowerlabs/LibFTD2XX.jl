@@ -412,7 +412,7 @@ end
 
 
 """
-    FT_Close(handle::FT_HANDLE)
+    FT_Close(ftHandle::FT_HANDLE)
 
 Wrapper for D2XX library function `FT_Close`. Closes an open device.
 
@@ -430,12 +430,27 @@ FT_HANDLE(Ptr{Nothing} @0x000000000010a870)
 julia> FT_Close(handle)
 ```
 """
-function FT_Close(handle::FT_HANDLE)
+function FT_Close(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
-                                                       handle)
+                                                      ftHandle)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  handle.p = C_NULL
   return
+end
+
+function FT_Read(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
+  nbav = bytesavailable(handle)
+  if nbav < nb
+    nb = nbav
+  end
+  if length(b) < nb
+    resize!(b, nb)
+  end
+  nbrx = Ref{DWORD}()
+  status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
+                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
+                  handle,    b,          nb,    nbrx)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  nbrx[]
 end
 
 function Base.close(handle::FT_HANDLE)
