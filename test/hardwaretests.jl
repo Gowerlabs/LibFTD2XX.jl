@@ -67,12 +67,12 @@ end
 
   # FT_OpenEx tests...
   try
-    handle = FT_OpenEx(description, OPEN_BY_DESCRIPTION)
+    handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
     @test handle isa FT_HANDLE
     @test isopen(handle)
     close(handle)
 
-    handle = FT_OpenEx(serialnumber, OPEN_BY_SERIAL_NUMBER)
+    handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
     @test handle isa FT_HANDLE
     @test isopen(handle)
     close(handle)

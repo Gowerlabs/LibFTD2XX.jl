@@ -4,7 +4,7 @@ export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
        FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
        FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION,
-       FT_OPEN_BY_SERIAL_NUMBER, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX
+       FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX
 
 # Constants
 # 
@@ -358,15 +358,17 @@ function FT_Open(iDevice)
 end
 
 """
-    FT_OpenEx(str::AbstractString, openby::FTOpenBy)
+    FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
 
 Wrapper for D2XX library function `FT_OpenEx`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
+See D2XX Programmer's Guide (FT_000071) for more information. Note that 
+FT_OPEN_BY_LOCATION is not currently supported.
 
 # Arguments
- - `str::AbstractString` : Device identifier. Type depends on `openby`
- - `openby::FTOpenBy` : Indicator of device identifier `str` type.
+ - `pvArg1::AbstractString` : Either description or serial number depending on 
+   `dwFlags`.
+ - `dwFlags::Integer` : FT_OPEN_BY_DESCRIPTION or FT_OPEN_BY_SERIAL_NUMBER.
 
 # Example
 
@@ -377,7 +379,7 @@ julia> numdevs = FT_CreateDeviceInfoList()
 julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
 (0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
 
-julia> handle = FT_OpenEx(description, OPEN_BY_DESCRIPTION)
+julia> handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
 FT_HANDLE(Ptr{Nothing} @0x0000000000dfe740)
 
 julia> isopen(handle)
@@ -385,7 +387,7 @@ true
 
 julia> close(handle)
 
-julia> handle = FT_OpenEx(serialnumber, OPEN_BY_SERIAL_NUMBER)
+julia> handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
 FT_HANDLE(Ptr{Nothing} @0x0000000005448ea0)
 
 julia> isopen(handle)
@@ -394,19 +396,19 @@ true
 julia> close(handle)
 ```
 """
-function FT_OpenEx(str::AbstractString, openby::FTOpenBy)
-  flagsarg = DWORD(openby)
+function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
+  @assert (dwFlags == FT_OPEN_BY_DESCRIPTION) | (dwFlags == FT_OPEN_BY_SERIAL_NUMBER)
+  flagsarg = DWORD(dwFlags)
   handle = FT_HANDLE()
   status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
-                 (Cstring, DWORD,    Ref{FT_HANDLE}),
-                  str,     flagsarg, handle)
+                 (Cstring , DWORD,    Ref{FT_HANDLE}),
+                  pvArg1,      flagsarg, handle)
   if FT_STATUS_ENUM(status) != FT_OK
     handle.p = C_NULL
     throw(FT_STATUS_ENUM(status))
   end
   handle
 end
-
 
 function Base.close(handle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
@@ -496,7 +498,42 @@ function Base.readavailable(handle::FT_HANDLE)
   b
 end
 
-function Base.open(str::AbstractString, openby::FTOpenBy)
+"""
+    open(str::AbstractString, openby::FTOpenBy)
+
+Open an FTD2XX device.
+
+# Arguments
+ - `str::AbstractString` : Device identifier. Type depends on `openby`
+ - `openby::FTOpenBy` : Indicator of device identifier `str` type.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
+(0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
+
+julia> handle = open(description, OPEN_BY_DESCRIPTION)
+FT_HANDLE(Ptr{Nothing} @0x0000000000dfe740)
+
+julia> isopen(handle)
+true
+
+julia> close(handle)
+
+julia> handle = open(serialnumber, OPEN_BY_SERIAL_NUMBER)
+FT_HANDLE(Ptr{Nothing} @0x0000000005448ea0)
+
+julia> isopen(handle)
+true
+
+julia> close(handle)
+```
+"""
+function open(str::AbstractString, openby::FTOpenBy)
   flagsarg = DWORD(openby)
   handle = FT_HANDLE()
   status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
