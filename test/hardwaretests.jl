@@ -59,11 +59,12 @@ end
   FT_Close(handle)
 
   # FT_OpenEx tests...
+  # by description
   handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
   @test handle isa FT_HANDLE
   @test LibFTD2XX.ptr(handle) != C_NULL
   FT_Close(handle)
-
+  # by serialnumber
   handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
   @test handle isa FT_HANDLE
   @test LibFTD2XX.ptr(handle) != C_NULL
@@ -84,6 +85,7 @@ end
   @test_throws AssertionError FT_Read(handle, buffer, 6) # read 5 bytes
   @test_throws AssertionError FT_Read(handle, buffer, -1) # read -1 bytes
   FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_Read(handle, buffer, 0)
 
   # FT_Write tests...
   handle = FT_Open(0)
@@ -97,6 +99,7 @@ end
   @test_throws AssertionError FT_Write(handle, buffer, 6) # write 6 bytes
   @test_throws AssertionError FT_Write(handle, buffer, -1) # write -1 bytes
   FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_Write(handle, buffer, 0)
 
   # FT_SetDataCharacteristics tests...
   handle = FT_Open(0)
