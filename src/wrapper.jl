@@ -878,6 +878,64 @@ function FT_GetStatus(ftHandle::FT_HANDLE)
   lpdwAmountInRxQueue[], lpdwAmountInTxQueue[], lpdwEventStatus[]
 end
 
+
+"""
+    FT_SetBreakOn(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_SetBreakOn`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_SetBreakOn(handle) # break now on...
+
+julia> FT_Close(handle)
+```
+"""
+function FT_SetBreakOn(ftHandle::FT_HANDLE)
+  status = ccall(cfunc[:FT_SetBreakOn], cdecl, FT_STATUS, (FT_HANDLE,),
+                                                           ftHandle)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
+
+"""
+    FT_SetBreakOff(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_SetBreakOff`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> FT_SetBreakOff(handle) # break now off...
+
+julia> FT_Close(handle)
+```
+"""
+function FT_SetBreakOff(ftHandle::FT_HANDLE)
+  status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE,),
+                                                           ftHandle)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  return
+end
+
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
   @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs

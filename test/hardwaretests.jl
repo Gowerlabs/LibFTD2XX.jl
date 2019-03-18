@@ -185,5 +185,18 @@ end
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetStatus(handle)
 
+  # FT_SetBreakOn tests
+  handle = FT_Open(0)
+  retval = FT_SetBreakOn(handle)
+  @test retval == nothing
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetBreakOn(handle)
+
+  # FT_SetBreakOff tests
+  handle = FT_Open(0)
+  retval = FT_SetBreakOff(handle)
+  @test retval == nothing
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetBreakOff(handle)
 end
 
