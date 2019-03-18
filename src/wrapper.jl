@@ -7,6 +7,8 @@ export FTWordLength, BITS_8, BITS_7,
        FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
        FT_STATUS_ENUM
 
+export FT_DEVICE
+
 export FT_BITS_8, FT_BITS_7, 
 FT_STOP_BITS_1, FT_STOP_BITS_2, 
 FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
@@ -22,9 +24,21 @@ const FT_STATUS = ULONG
 const FT_OPEN_BY_SERIAL_NUMBER  = 1
 const FT_OPEN_BY_DESCRIPTION    = 2
 const FT_OPEN_BY_LOCATION       = 4
-const FT_OPEN_MASK  = (FT_OPEN_BY_SERIAL_NUMBER | 
-                       FT_OPEN_BY_DESCRIPTION | 
-                       FT_OPEN_BY_LOCATION)
+
+# FT_GetDeviceInfo FT_DEVICE Type Enum
+@enum(
+  FT_DEVICE,
+  FT_DEVICE_232BM    = DWORD(0),
+  FT_DEVICE_232AM    = DWORD(1),
+  FT_DEVICE_100AX    = DWORD(2),
+  FT_DEVICE_UNKNOWN  = DWORD(3),
+  FT_DEVICE_2232C    = DWORD(4),
+  FT_DEVICE_232R     = DWORD(5),
+  FT_DEVICE_2232H    = DWORD(6),
+  FT_DEVICE_4232H    = DWORD(7),
+  FT_DEVICE_232H     = DWORD(8),
+  FT_DEVICE_X_SERIES = DWORD(9)
+)
 
 # FT_ListDevices Flags (used in conjunction with FT_OpenEx Flags)
 const FT_LIST_NUMBER_ONLY     = 0x80000000
@@ -356,7 +370,7 @@ function FT_Open(iDevice)
   status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,     Ref{FT_HANDLE}),
                                                      iDevice, ftHandle)
   if FT_STATUS_ENUM(status) != FT_OK
-    handle.p = C_NULL
+    ftHandle.p = C_NULL
     throw(FT_STATUS_ENUM(status))
   end
   ftHandle
@@ -407,7 +421,7 @@ function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
   handle = FT_HANDLE()
   status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
                  (Cstring , DWORD,    Ref{FT_HANDLE}),
-                  pvArg1,      flagsarg, handle)
+                  pvArg1,   flagsarg, handle)
   if FT_STATUS_ENUM(status) != FT_OK
     handle.p = C_NULL
     throw(FT_STATUS_ENUM(status))
@@ -674,12 +688,79 @@ julia> FT_Close(handle)
 ```
 """
 function FT_GetModemStatus(ftHandle::FT_HANDLE)
-  flags = Ref{DWORD}()
+  lpdwModemStatus = Ref{DWORD}()
   status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD}),
-                  ftHandle,  flags)
+                  ftHandle,  lpdwModemStatus)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  flags[]
+  lpdwModemStatus[]
+end
+
+"""
+    FT_GetQueueStatus(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_GetQueueStatus`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> nbrx = FT_GetQueueStatus(handle) # get number of items in recieve queue
+0x00000000
+
+julia> FT_Close(handle)
+```
+"""
+function FT_GetQueueStatus(ftHandle::FT_HANDLE)
+  lpdwAmountInRxQueue = Ref{DWORD}()
+  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
+                  (FT_HANDLE, Ref{DWORD}),
+                   ftHandle,  lpdwAmountInRxQueue)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  lpdwAmountInRxQueue[]
+end
+
+"""
+    FT_GetDeviceInfo(ftHandle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_GetDeviceInfo`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> type, id, serialnumber, description = FT_GetDeviceInfo(handle);
+
+julia> FT_Close(handle)
+```
+"""
+function FT_GetDeviceInfo(ftHandle::FT_HANDLE)
+  pftType = Ref{FT_DEVICE}()
+  lpdwID = Ref{DWORD}()
+  pcSerialNumber = pointer(Vector{Cchar}(undef, 16))
+  pcDescription  = pointer(Vector{Cchar}(undef, 64))
+  pvDummy = C_NULL
+
+  status = ccall(cfunc[:FT_GetDeviceInfo], cdecl, FT_STATUS, 
+  (FT_HANDLE, Ref{FT_DEVICE}, Ref{DWORD}, Cstring,        Cstring,       Ptr{Cvoid}),
+   ftHandle,  pftType,        lpdwID,     pcSerialNumber, pcDescription, pvDummy)
+  
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  pftType[], lpdwID[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
 end
 
 function status(handle::FT_HANDLE)

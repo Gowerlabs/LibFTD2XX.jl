@@ -5,7 +5,7 @@ module LibFTD2XX
 using Compat
 using Compat.Libdl
 
-export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus,
+export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo,
        close, baudrate, datacharacteristics, status, ntuple2string
 
 include("wrapper.jl")
@@ -35,6 +35,7 @@ const cfuncn = [
   :FT_SetTimeouts
   :FT_GetModemStatus
   :FT_GetQueueStatus
+  :FT_GetDeviceInfo
   :FT_OpenEx
   :FT_Purge]
 

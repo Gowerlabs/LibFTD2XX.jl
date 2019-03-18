@@ -138,11 +138,27 @@ end
   # FT_GetModemStatus tests
   handle = FT_Open(0)
   flags = FT_GetModemStatus(handle)
-  @test flags isa Unsigned
+  @test flags isa LibFTD2XX.DWORD
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetModemStatus(handle)
 
+  # FT_GetQueueStatus tests
+  handle = FT_Open(0)
+  nbrx = FT_GetQueueStatus(handle)
+  @test nbrx isa LibFTD2XX.DWORD
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_GetQueueStatus(handle)
 
-
+  # FT_GetDeviceInfo tests
+  id_buf = id
+  serialnumber_buf = serialnumber
+  description_buf = description
+  handle = FT_Open(0)
+  type, id, serialnumber, description = FT_GetDeviceInfo(handle)
+  @test type isa FT_DEVICE
+  @test serialnumber == serialnumber_buf
+  @test description == description_buf
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_GetDeviceInfo(handle)
 end
 
