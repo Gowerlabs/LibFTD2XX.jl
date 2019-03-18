@@ -410,6 +410,34 @@ function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
   handle
 end
 
+
+"""
+    FT_Close(handle::FT_HANDLE)
+
+Wrapper for D2XX library function `FT_Close`. Closes an open device.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+
+```julia-repl
+julia> julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x000000000010a870)
+
+julia> FT_Close(handle)
+```
+"""
+function FT_Close(handle::FT_HANDLE)
+  status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
+                                                       handle)
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  handle.p = C_NULL
+  return
+end
+
 function Base.close(handle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
                                                        handle)

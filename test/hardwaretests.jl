@@ -84,5 +84,19 @@ end
     end
   end
 
+  # FT_Close tests...
+  try
+    handle = FT_Open(0)
+    retval = FT_Close(handle)
+    @assert retval == nothing
+    @assert isopen(handle) == false
+  catch ex
+    rethrow(ex)
+  finally
+    if isopen(handle)
+      close(handle)
+    end
+  end
+
 end
 
