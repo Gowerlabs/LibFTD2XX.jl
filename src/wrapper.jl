@@ -845,6 +845,24 @@ function FT_GetLibraryVersion()
   version = lpdwDLLVersion[]
 end
 
+function driverversion(handle::FT_HANDLE)
+  version = FT_GetDriverVersion(handle)
+  @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+  patch = version & 0xFF
+  minor = (version >> 8) & 0xFF
+  major = (version >> 16) & 0xFF
+  VersionNumber(major,minor,patch)
+end
+
+function libversion()
+  version = FT_GetLibraryVersion()
+  @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+  patch = version & 0xFF
+  minor = (version >> 8) & 0xFF
+  major = (version >> 16) & 0xFF
+  VersionNumber(major,minor,patch)
+end
+
 function status(handle::FT_HANDLE)
   flags = FT_GetModemStatus(handle)
   modemstatus = flags & 0xFF
