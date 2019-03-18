@@ -106,7 +106,28 @@ end
     nread = FT_Read(handle, buffer, 0) # read 0 bytes
     @test nread == 0
     @test buffer == zeros(UInt8, 5)
-    
+    @test_throws AssertionError FT_Read(handle, buffer, 6) # read 5 bytes
+    @test_throws AssertionError FT_Read(handle, buffer, -1) # read -1 bytes
+  catch ex
+    rethrow(ex)
+  finally
+    if isopen(handle)
+      close(handle)
+    end
+  end
+
+  # FT_Write tests...
+  try
+    handle = FT_Open(0)
+    buffer = ones(UInt8, 5)
+    nwr = FT_Write(handle, buffer, 0) # write 0 bytes
+    @test nwr == 0
+    @test buffer == ones(UInt8, 5)
+    nwr = FT_Write(handle, buffer, 2) # write 2 bytes
+    @test nwr == 2
+    @test buffer == ones(UInt8, 5)
+    @test_throws AssertionError FT_Write(handle, buffer, 6) # write 6 bytes
+    @test_throws AssertionError FT_Write(handle, buffer, -1) # write -1 bytes
   catch ex
     rethrow(ex)
   finally

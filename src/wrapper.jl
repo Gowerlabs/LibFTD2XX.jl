@@ -4,7 +4,8 @@ export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
        FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
        FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION,
-       FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX
+       FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
+       FT_STATUS_ENUM
 
 # Constants
 # 
@@ -440,7 +441,7 @@ end
 """
     FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
 
-Wrapper for D2XX library function `FT_Read`.
+Wrapper for D2XX library function `FT_Read`. Returns number of bytes read.
 
 See D2XX Programmer's Guide (FT_000071) for more information.
 
@@ -471,6 +472,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
+  @assert 0 <= dwBytesToRead <= length(lpBuffer)
   lpdwBytesReturned = Ref{DWORD}()
   status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,         Ref{DWORD}),
@@ -520,7 +522,8 @@ julia> buffer # should be unmodified...
 julia> FT_Close(handle)
 ```
 """
-function FT_Write(ftHandle::FT_HANDLE, lpBuffer::Vector{UInt8}, dwBytesToWrite::Integer)
+function FT_Write(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToWrite::Integer)
+  @assert 0 <= dwBytesToWrite <= length(lpBuffer)
   lpdwBytesWritten = Ref{DWORD}()
   status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,          Ref{DWORD}),
