@@ -1,4 +1,6 @@
-# LibFTD2XX.jl
+# LibFTD2XX.jl - C Library Wrapper
+
+export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask
 
 export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
@@ -12,6 +14,50 @@ export FT_DEVICE
 export FT_BITS_8, FT_BITS_7, 
 FT_STOP_BITS_1, FT_STOP_BITS_2, 
 FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
+
+# Library
+# 
+const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
+if isfile(depsfile)
+  include(depsfile)
+else
+  error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
+end
+
+const lib = Ref{Ptr{Cvoid}}(0)
+const cfunc = Dict{Symbol, Ptr{Cvoid}}()
+
+const cfuncn = [
+  :FT_CreateDeviceInfoList
+  :FT_GetDeviceInfoList
+  :FT_GetDeviceInfoDetail
+  :FT_ListDevices
+  :FT_Open
+  :FT_OpenEx
+  :FT_Close
+  :FT_Read
+  :FT_Write
+  :FT_SetBaudRate
+  :FT_SetDataCharacteristics
+  :FT_SetTimeouts
+  :FT_GetModemStatus
+  :FT_GetQueueStatus
+  :FT_GetDeviceInfo
+  :FT_GetDriverVersion
+  :FT_GetLibraryVersion
+  :FT_GetStatus
+  :FT_SetBreakOn
+  :FT_SetBreakOff
+  :FT_Purge
+  :FT_StopInTask
+  :FT_RestartInTask]
+
+function __init__()
+  lib[] = Libdl.dlopen(libFTD2XX)
+  for n in cfuncn
+    cfunc[n] = Libdl.dlsym(lib[], n)
+  end
+end
 
 # Constants
 # 

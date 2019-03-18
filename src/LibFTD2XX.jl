@@ -5,55 +5,10 @@ module LibFTD2XX
 using Compat
 using Compat.Libdl
 
-export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask,
-       close, baudrate, datacharacteristics, status
+export close, baudrate, datacharacteristics, status
 
 include("util.jl")
 include("wrapper.jl")
-
-# Library
-# 
-const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if isfile(depsfile)
-  include(depsfile)
-else
-  error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
-end
-
-const lib = Ref{Ptr{Cvoid}}(0)
-const cfunc = Dict{Symbol, Ptr{Cvoid}}()
-
-const cfuncn = [
-  :FT_CreateDeviceInfoList
-  :FT_GetDeviceInfoList
-  :FT_GetDeviceInfoDetail
-  :FT_ListDevices
-  :FT_Open
-  :FT_OpenEx
-  :FT_Close
-  :FT_Read
-  :FT_Write
-  :FT_SetBaudRate
-  :FT_SetDataCharacteristics
-  :FT_SetTimeouts
-  :FT_GetModemStatus
-  :FT_GetQueueStatus
-  :FT_GetDeviceInfo
-  :FT_GetDriverVersion
-  :FT_GetLibraryVersion
-  :FT_GetStatus
-  :FT_SetBreakOn
-  :FT_SetBreakOff
-  :FT_Purge
-  :FT_StopInTask
-  :FT_RestartInTask]
-
-function __init__()
-  lib[] = Libdl.dlopen(libFTD2XX)
-  for n in cfuncn
-    cfunc[n] = Libdl.dlsym(lib[], n)
-  end
-end
 
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
