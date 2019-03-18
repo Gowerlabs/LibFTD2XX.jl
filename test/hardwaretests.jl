@@ -99,5 +99,20 @@ end
     end
   end
 
+  # FT_Read tests...
+  try
+    handle = FT_Open(0)
+    buffer = zeros(UInt8, 5)
+    nread = FT_Read(handle, buffer, 0) # read 0 bytes
+    @assert nread == 0
+    @assert buffer == zeros(UInt8, 5)
+  catch ex
+    rethrow(ex)
+  finally
+    if isopen(handle)
+      close(handle)
+    end
+  end
+
 end
 

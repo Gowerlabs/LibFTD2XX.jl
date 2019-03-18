@@ -437,20 +437,46 @@ function FT_Close(ftHandle::FT_HANDLE)
   return
 end
 
-function FT_Read(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
-  nbav = bytesavailable(handle)
-  if nbav < nb
-    nb = nbav
-  end
-  if length(b) < nb
-    resize!(b, nb)
-  end
-  nbrx = Ref{DWORD}()
+"""
+    FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
+
+Wrapper for D2XX library function `FT_Read`.
+
+See D2XX Programmer's Guide (FT_000071) for more information.
+
+# Example
+Read 0 bytes from a device...
+
+```julia-repl
+julia> numdevs = FT_CreateDeviceInfoList()
+0x00000004
+
+julia> handle = FT_Open(0)
+FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+
+julia> buffer = zeros(UInt8, 2)
+2-element Array{UInt8,1}:
+ 0x00
+ 0x00
+
+julia> nread = FT_Read(handle, buffer, 0) # read 0 bytes. Returns number read...
+0x00000000
+
+julia> buffer # should be unmodified...
+2-element Array{UInt8,1}:
+ 0x00
+ 0x00
+
+julia> FT_Close(handle)
+```
+"""
+function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
+  lpdwBytesReturned = Ref{DWORD}()
   status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    b,          nb,    nbrx)
+                 (FT_HANDLE, Ref{UInt8}, DWORD,         Ref{DWORD}),
+                 ftHandle,   lpBuffer,   dwBytesToRead, lpdwBytesReturned)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
+  lpdwBytesReturned[]
 end
 
 """
