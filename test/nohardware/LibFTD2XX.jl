@@ -49,12 +49,20 @@ using Test
     # baudrate
     @test_throws D2XXException baudrate(handle, 9600)
 
+    # flush and eof
+    @test_throws D2XXException flush(handle)
+    @test_throws D2XXException eof(handle)
+
     # driverversion 
     @test_throws D2XXException driverversion(handle)
 
-    # isopen
+    # datacharacteristics
+    @test_throws D2XXException datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
 
-    # close 
+    # status
+    @test_throws D2XXException status(handle)
+
+    # close and isopen
     retval = close(handle)
     @test retval == nothing
     @test !isopen(handle)
@@ -72,7 +80,54 @@ using Test
     # getdevices
     devices = getdevices()
     @test length(devices) == numdevs == 0
+
+    device = D2XXDevice(0, 0, 0, 0, 0, "", "", FT_HANDLE()) # blank device...
+
+    # isopen
+    @test !isopen(device)
+
+    # open
+    @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(device)
     
+    # bytesavailable
+    @test_throws D2XXException bytesavailable(device)
+
+    nb = 1
+
+    # read
+    @test_throws D2XXException read(device, nb)
+
+    # write
+    txbuf = ones(UInt8, 10)
+    @test_throws D2XXException write(device, txbuf)
+    @test txbuf == ones(UInt8, 10)
+
+    # readavailable
+    @test_throws D2XXException readavailable(device)
+
+    # baudrate
+    @test_throws D2XXException baudrate(device, 9600)
+
+    # flush and eof
+    @test_throws D2XXException flush(device)
+    @test_throws D2XXException eof(device)
+
+    # driverversion 
+    @test_throws D2XXException driverversion(device)
+
+    # datacharacteristics
+    @test_throws D2XXException datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
+
+    # status
+    @test_throws D2XXException status(device)
+    
+    # close and isopen (all devices)
+    retval = close.(devices)
+    @test all(retval .== nothing)
+    @test all(.!isopen.(devices))
+    @test all(LibFTD2XX.Wrapper.ptr.(fthandle.(devices)) .== C_NULL)
+    close.(devices) # check can close more than once without issue...
+    @test all(.!isopen.(devices))
   end
 
 end

@@ -64,7 +64,8 @@ end
 """
     D2XXDevice(deviceidx::Integer)
 
-Construct a D2XXDevice without opening it.
+Construct a D2XXDevice without opening it. D2XX hardware must pre present to 
+work.
 """
 function D2XXDevice(deviceidx::Integer)
   idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
