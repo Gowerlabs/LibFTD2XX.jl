@@ -64,48 +64,21 @@ function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(
   if length(b) < nb
     resize!(b, nb)
   end
-  nbrx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    b,          nb,    nbrx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
+  nbrx = FT_Read(handle, b, nb)
 end
 
-function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
-  nb = DWORD(length(buffer))
-  nbtx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    buffer,     nb,    nbtx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbtx[]
-end
+Base.write(handle::FT_HANDLE, buffer::Vector{UInt8}) = 
+FT_Write(handle, buffer, length(buffer))
 
-function baudrate(handle::FT_HANDLE, baud)
-  status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
-                 (FT_HANDLE, DWORD),
-                  handle,    baud)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
-end
+baudrate(handle::FT_HANDLE, baud) = FT_SetBaudRate(handle, baud)
 
-function datacharacteristics(handle::FT_HANDLE; wordlength::FTWordLength = BITS_8, stopbits::FTStopBits = STOP_BITS_1, parity::FTParity = PARITY_NONE)
-  status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
-                 (FT_HANDLE, UCHAR,      UCHAR,    UCHAR),
-                  handle,    wordlength, stopbits, parity)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
-end
+datacharacteristics(handle::FT_HANDLE; 
+                    wordlength::FTWordLength = BITS_8, 
+                    stopbits::FTStopBits = STOP_BITS_1, 
+                    parity::FTParity = PARITY_NONE) = 
+FT_SetDataCharacteristics(handle, wordlength, stopbits, parity)
 
-function Compat.bytesavailable(handle::FT_HANDLE)
-  nbrx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                  (FT_HANDLE, Ref{DWORD}),
-                  handle,    nbrx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
-end
+Compat.bytesavailable(handle::FT_HANDLE) = FT_GetQueueStatus(handle)
 
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
@@ -164,12 +137,9 @@ function Base.open(str::AbstractString, openby::FTOpenBy)
 end
 
 function Base.flush(handle::FT_HANDLE)
-  flagsarg = DWORD(FT_PURGE_RX | FT_PURGE_TX)
-  status = ccall(cfunc[:FT_Purge], cdecl, FT_STATUS, 
-                 (FT_HANDLE, DWORD),
-                  handle,    flagsarg)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
+  FT_StopInTask(handle)
+  FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+  FT_RestartInTask(handle)
 end
 
 function Base.isopen(handle::FT_HANDLE)
