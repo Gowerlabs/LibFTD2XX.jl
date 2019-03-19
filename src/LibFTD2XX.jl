@@ -3,6 +3,8 @@
 module LibFTD2XX
 
 export D2XXException
+export D2XXDevice
+export deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, description, fthandle
 export FT_HANDLE
 export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
@@ -44,6 +46,83 @@ using Compat
 struct D2XXException <: Exception
   str::String
 end
+
+struct D2XXDevice <: IO
+  idx::Int
+  flags::Int
+  type::Int
+  id::Int
+  locid::Int
+  serialnumber::String
+  description::String
+  fthandle::FT_HANDLE
+end
+
+"""
+    D2XXDevice(deviceidx::Integer)
+
+Construct a D2XXDevice without opening it.
+"""
+function D2XXDevice(deviceidx::Integer)
+  idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
+  D2XXDevice(idx, flags, typ, id, locid, serialnumber, description, fthandle)
+end
+
+"""
+    deviceidx(d::D2XXDevice)
+
+Get D2XXDevice index.
+"""
+deviceidx(d::D2XXDevice) = d.idx
+
+"""
+    deviceflags(d::D2XXDevice)
+
+Get the D2XXDevice flags list.
+"""
+deviceflags(d::D2XXDevice) = d.flags
+
+"""
+    devicetype(d::D2XXDevice)
+
+Get the D2XXDevice device type.
+"""
+devicetype(d::D2XXDevice) = d.type
+
+  """
+  deviceid(d::D2XXDevice)
+
+Get the D2XXDevice device id.
+"""
+deviceid(d::D2XXDevice) = d.id
+
+"""
+    locationid(d::D2XXDevice)
+
+Get the D2XXDevice location id. This is zero for windows devices.
+"""
+locationid(d::D2XXDevice) = d.locid
+
+"""
+    serialnumber(d::D2XXDevice)
+
+Get the D2XXDevice device serial number.
+"""
+serialnumber(d::D2XXDevice) = d.serialnumber
+
+"""
+    description(d::D2XXDevice)
+
+Get the D2XXDevice device description.
+"""
+description(d::D2XXDevice) = d.description
+
+"""
+    fthandle(d::D2XXDevice)
+
+Get the D2XXDevice device D2XX handle of type ``::FT_HANDLE`.
+"""
+fthandle(d::D2XXDevice) = d.fthandle
 
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)

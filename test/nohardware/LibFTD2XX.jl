@@ -60,6 +60,13 @@ using Test
   # libversion 
   ver = libversion()
   @test ver isa VersionNumber
+
+  # D2XXDevice
+  @testset "D2XXDevice" begin
+    # by index...
+    @test_throws D2XXException D2XXDevice(0)
+  end
+
 end
 
 end # module TestLibFTD2XX

@@ -15,33 +15,33 @@ using Test
   # LibFTD2XX.getdeviceinfodetail
   @test_throws D2XXException LibFTD2XX.getdeviceinfodetail(numdevs)
   for deviceidx = 0:(numdevs-1)
-    idx, flags, typ, id, locid, serialnumber, description, fthandle = LibFTD2XX.getdeviceinfodetail(deviceidx)
+    idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(deviceidx)
     @test idx == deviceidx
     if Sys.iswindows() # should not have a locid on windows
       @test locid == 0
     end
-    @test serialnumber isa String
-    @test description isa String
-    @test fthandle isa FT_HANDLE
+    @test serialn isa String
+    @test descr isa String
+    @test fthand isa FT_HANDLE
   end
-  idx, flags, typ, id, locid, serialnumber, description, fthandle = LibFTD2XX.getdeviceinfodetail(0)
+  idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(0)
   @info "high level: testing device $description"
 
   # open by description
-  handle = open(description, OPEN_BY_DESCRIPTION)
+  handle = open(descr, OPEN_BY_DESCRIPTION)
   @test handle isa FT_HANDLE
   @test isopen(handle)
   close(handle)
   @test !isopen(handle)
 
   # open by serialnumber
-  handle = open(serialnumber, OPEN_BY_SERIAL_NUMBER)
+  handle = open(serialn, OPEN_BY_SERIAL_NUMBER)
   @test handle isa FT_HANDLE
   @test isopen(handle)
   close(handle)
   @test !isopen(handle)
 
-  handle = open(description, OPEN_BY_DESCRIPTION)
+  handle = open(descr, OPEN_BY_DESCRIPTION)
  
   # bytesavailable
   nb = bytesavailable(handle)
@@ -84,6 +84,29 @@ using Test
   # libversion 
   ver = libversion()
   @test ver isa VersionNumber
+
+  @testset "D2XXDevice" begin
+    # by index...
+    @test_throws D2XXException D2XXDevice(-1)
+    for i = 0:(numdevs-1)
+      idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(i)
+      dev = D2XXDevice(i)
+      @test deviceidx(dev) == idx == i
+      @test deviceflags(dev) == flgs
+      @test devicetype(dev) == typ
+      @test deviceid(dev) == devid
+      if Sys.iswindows()
+        @test locationid(dev) == locid == 0
+      else
+        @test locationid(dev) == locid
+      end
+      @test serialnumber(dev) == serialn
+      @test description(dev) == descr
+      @test LibFTD2XX.Wrapper.ptr(fthandle(dev)) == LibFTD2XX.Wrapper.ptr(fthand)
+      @test !isopen(fthandle(dev))
+    end
+  end
+
 end
 
 end # module TestLibFTD2XX
