@@ -1,3 +1,5 @@
+module Util
+
 export ntuple2string
 
 """
@@ -26,3 +28,5 @@ function ntuple2string(input::NTuple{N, Cchar} where N)
   end
   String(UInt8.([char for char in input[1:endidx]]))
 end
+
+end # module Util

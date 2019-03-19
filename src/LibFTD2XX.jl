@@ -7,6 +7,7 @@ export close, baudrate, datacharacteristics, status, driverversion, libversion, 
 include("util.jl")
 include("wrapper.jl")
 
+using .Util
 using .Wrapper
 using Compat
 
