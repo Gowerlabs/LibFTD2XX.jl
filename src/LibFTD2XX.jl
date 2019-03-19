@@ -2,6 +2,11 @@
 
 module LibFTD2XX
 
+export FT_HANDLE
+export FTWordLength, BITS_8, BITS_7,
+       FTStopBits, STOP_BITS_1, STOP_BITS_2,
+       FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
+       FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
 export close, baudrate, datacharacteristics, status, driverversion, libversion, createdeviceinfolist, getdeviceinfodetail
 
 include("util.jl")
@@ -10,6 +15,30 @@ include("wrapper.jl")
 using .Util
 using .Wrapper
 using Compat
+
+@enum(
+  FTOpenBy,
+  OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
+  OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION,
+  OPEN_BY_LOCATION = FT_OPEN_BY_LOCATION)
+
+@enum(
+  FTWordLength,
+  BITS_8 = FT_BITS_8,
+  BITS_7 = FT_BITS_7)
+
+@enum(
+  FTStopBits,
+  STOP_BITS_1 = FT_STOP_BITS_1,
+  STOP_BITS_2 = FT_STOP_BITS_2)
+
+@enum(
+  FTParity,
+  PARITY_NONE = FT_PARITY_NONE,
+  PARITY_ODD  = FT_PARITY_ODD,
+  PARITY_EVEN = FT_PARITY_EVEN,
+  PARITY_MARK = FT_PARITY_MARK,
+  PARITY_SPACE = FT_PARITY_SPACE)
 
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)

@@ -1,14 +1,10 @@
 # These tests require an FT device which supports D2XX to be connected 
 
-using LibFTD2XX
-using Compat
-using Compat.Test
-using Test
+module TestWrapper
 
-@testset "util" begin
-  @test "hello" == ntuple2string(Cchar.(('h','e','l','l','o')))
-  @test "hello" == ntuple2string(Cchar.(('h','e','l','l','o','\0','x')))
-end
+using LibFTD2XX.Wrapper
+using LibFTD2XX.Util
+using Test
 
 @testset "wrapper" begin
   
@@ -39,7 +35,7 @@ end
   @test locid == devinfolist[1].locid
   @test serialnumber == ntuple2string(devinfolist[1].serialnumber)
   @test description == ntuple2string(devinfolist[1].description)
-  @test LibFTD2XX.ptr(fthandle) == devinfolist[1].fthandle_ptr
+  @test ptr(fthandle) == devinfolist[1].fthandle_ptr
 
   # FT_GetDeviceInfoDetail tests...
   numdevs2 = Ref{UInt32}()
@@ -55,19 +51,19 @@ end
   # FT_Open tests...
   handle = FT_Open(0)
   @test handle isa FT_HANDLE
-  @test LibFTD2XX.ptr(handle) != C_NULL
+  @test ptr(handle) != C_NULL
   FT_Close(handle)
 
   # FT_OpenEx tests...
   # by description
   handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
   @test handle isa FT_HANDLE
-  @test LibFTD2XX.ptr(handle) != C_NULL
+  @test ptr(handle) != C_NULL
   FT_Close(handle)
   # by serialnumber
   handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
   @test handle isa FT_HANDLE
-  @test LibFTD2XX.ptr(handle) != C_NULL
+  @test ptr(handle) != C_NULL
   FT_Close(handle)
 
   # FT_Close tests...
@@ -138,14 +134,14 @@ end
   # FT_GetModemStatus tests
   handle = FT_Open(0)
   flags = FT_GetModemStatus(handle)
-  @test flags isa LibFTD2XX.DWORD
+  @test flags isa DWORD
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetModemStatus(handle)
 
   # FT_GetQueueStatus tests
   handle = FT_Open(0)
   nbrx = FT_GetQueueStatus(handle)
-  @test nbrx isa LibFTD2XX.DWORD
+  @test nbrx isa DWORD
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetQueueStatus(handle)
 
@@ -164,7 +160,7 @@ end
   # FT_GetDriverVersion tests
   handle = FT_Open(0)
   version = FT_GetDriverVersion(handle)
-  @test version isa LibFTD2XX.DWORD
+  @test version isa DWORD
   @test version > 0
   @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
   FT_Close(handle)
@@ -172,16 +168,16 @@ end
 
   # FT_GetLibraryVersion tests
   version = FT_GetLibraryVersion()
-  @test version isa LibFTD2XX.DWORD
+  @test version isa DWORD
   @test version > 0
   @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
 
   # FT_GetStatus tests
   handle = FT_Open(0)
   nbrx, nbtx, eventstatus = FT_GetStatus(handle)
-  @test nbrx isa LibFTD2XX.DWORD
-  @test nbtx isa LibFTD2XX.DWORD
-  @test eventstatus isa LibFTD2XX.DWORD
+  @test nbrx isa DWORD
+  @test nbtx isa DWORD
+  @test eventstatus isa DWORD
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_GetStatus(handle)
 
@@ -230,83 +226,4 @@ end
   
 end
 
-
-@testset "high level" begin
-
-  # createdeviceinfolist
-  numdevs = createdeviceinfolist()
-  @test numdevs > 0
-  @info "wrapper: Number of devices is $numdevs"
-
-  # getdeviceinfodetail
-  for deviceidx = 0:(numdevs-1)
-    idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
-    @test idx == deviceidx
-    if Sys.iswindows() # should not have a locid on windows
-      @test locid == 0
-    end
-    @test serialnumber isa String
-    @test description isa String
-    @test fthandle isa FT_HANDLE
-  end
-  idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(0)
-  @info "high level: testing device $description"
-
-  # open by description
-  handle = open(description, OPEN_BY_DESCRIPTION)
-  @test handle isa FT_HANDLE
-  @test isopen(handle)
-  close(handle)
-  @test !isopen(handle)
-
-  # open by serialnumber
-  handle = open(serialnumber, OPEN_BY_SERIAL_NUMBER)
-  @test handle isa FT_HANDLE
-  @test isopen(handle)
-  close(handle)
-  @test !isopen(handle)
-
-  handle = open(description, OPEN_BY_DESCRIPTION)
- 
-  # bytesavailable
-  nb = bytesavailable(handle)
-  @test nb >= 0
-
-  # read
-  rxbuf = read(handle, nb)
-  @test length(rxbuf) == nb
-
-  # write
-  txbuf = ones(UInt8, 10)
-  nwr = write(handle, txbuf)
-  @test nwr == length(txbuf)
-  @test txbuf == ones(UInt8, 10)
-
-  # readavailable
-  rxbuf = readavailable(handle)
-  @test rxbuf isa AbstractVector{UInt8}
-
-  # baudrate
-  retval = baudrate(handle, 9600)
-  @test retval == nothing
-  txbuf = ones(UInt8, 10)
-  nwr = write(handle, txbuf)
-  @test nwr == length(txbuf)
-  @test txbuf == ones(UInt8, 10)
-
-  # driverversion 
-  ver = driverversion(handle)
-  @test ver isa VersionNumber
-
-  # close 
-  retval = close(handle)
-  @test retval == nothing
-  @test !isopen(handle)
-  @test LibFTD2XX.ptr(handle) == C_NULL
-  retval = close(handle) # check can close more than once without issue...
-  @test !isopen(handle)
-
-  # libversion 
-  ver = libversion()
-  @test ver isa VersionNumber
-end
+end # module TestWrapper

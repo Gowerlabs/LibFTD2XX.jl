@@ -4,7 +4,9 @@ using LibFTD2XX
 using Compat
 using Compat.Test
 
-numdevs = FT_CreateDeviceInfoList()
+include("util.jl")
+
+numdevs = createdeviceinfolist()
 if numdevs > 0
-  include("hardwaretests.jl")
+  include("hardware/alltests.jl")
 end

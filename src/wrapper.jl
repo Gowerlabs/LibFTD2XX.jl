@@ -2,13 +2,11 @@
 
 module Wrapper
 
-export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask
+export DWORD, ULONG, UCHAR, FT_STATUS
 
-export FTWordLength, BITS_8, BITS_7,
-       FTStopBits, STOP_BITS_1, STOP_BITS_2,
-       FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
-       FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION,
-       FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
+export FT_HANDLE, ptr, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask
+
+export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
        FT_STATUS_ENUM, FT_PURGE_RX, FT_PURGE_TX
 
 export FT_DEVICE
@@ -147,11 +145,7 @@ const FT_PURGE_TX = 2
 
 # Library
 # 
-@enum(
-  FTOpenBy,
-  OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
-  OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION,
-  OPEN_BY_LOCATION = FT_OPEN_BY_LOCATION)
+
 
 @enum(
   FT_STATUS_ENUM,
@@ -175,24 +169,6 @@ const FT_PURGE_TX = 2
   FT_NOT_SUPPORTED,
   FT_OTHER_ERROR,
   FT_DEVICE_LIST_NOT_READY)
-
-@enum(
-  FTWordLength,
-  BITS_8 = FT_BITS_8,
-  BITS_7 = FT_BITS_7)
-
-@enum(
-  FTStopBits,
-  STOP_BITS_1 = FT_STOP_BITS_1,
-  STOP_BITS_2 = FT_STOP_BITS_2)
-
-@enum(
-  FTParity,
-  PARITY_NONE = FT_PARITY_NONE,
-  PARITY_ODD  = FT_PARITY_ODD,
-  PARITY_EVEN = FT_PARITY_EVEN,
-  PARITY_MARK = FT_PARITY_MARK,
-  PARITY_SPACE = FT_PARITY_SPACE)
 
 
 # Types
@@ -276,6 +252,8 @@ julia> devinfolist, numdevs = FT_GetDeviceInfoList(numdevs);
 
 julia> numdevs
 0x00000004
+
+julia> using LibFTD2XX.Util # for ntuple2string
 
 julia> ntuple2string(devinfolist[1].description)
 "USB <-> Serial Converter D"
