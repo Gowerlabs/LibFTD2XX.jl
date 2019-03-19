@@ -8,7 +8,7 @@ export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
        FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
        FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
-export close, baudrate, datacharacteristics, status, driverversion, libversion, createdeviceinfolist, getdeviceinfodetail
+export close, baudrate, datacharacteristics, status, driverversion, libversion, createdeviceinfolist
 
 include("util.jl")
 include("wrapper.jl")

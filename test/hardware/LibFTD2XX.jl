@@ -12,10 +12,10 @@ using Test
   @test numdevs > 0
   @info "high level: Number of devices is $numdevs"
 
-  # getdeviceinfodetail
-  @test_throws D2XXException getdeviceinfodetail(numdevs)
+  # LibFTD2XX.getdeviceinfodetail
+  @test_throws D2XXException LibFTD2XX.getdeviceinfodetail(numdevs)
   for deviceidx = 0:(numdevs-1)
-    idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
+    idx, flags, typ, id, locid, serialnumber, description, fthandle = LibFTD2XX.getdeviceinfodetail(deviceidx)
     @test idx == deviceidx
     if Sys.iswindows() # should not have a locid on windows
       @test locid == 0
@@ -24,7 +24,7 @@ using Test
     @test description isa String
     @test fthandle isa FT_HANDLE
   end
-  idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(0)
+  idx, flags, typ, id, locid, serialnumber, description, fthandle = LibFTD2XX.getdeviceinfodetail(0)
   @info "high level: testing device $description"
 
   # open by description
