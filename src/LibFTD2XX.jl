@@ -2,6 +2,7 @@
 
 module LibFTD2XX
 
+export D2XXException
 export FT_HANDLE
 export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
@@ -39,6 +40,10 @@ using Compat
   PARITY_EVEN = FT_PARITY_EVEN,
   PARITY_MARK = FT_PARITY_MARK,
   PARITY_SPACE = FT_PARITY_SPACE)
+
+struct D2XXException <: Exception
+  str::String
+end
 
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
@@ -186,7 +191,7 @@ function createdeviceinfolist()
 end
 
 function getdeviceinfodetail(deviceidx)
-  @assert 0 <= deviceidx < FT_CreateDeviceInfoList()
+  0 <= deviceidx < createdeviceinfolist() || throw(D2XXException("Device index $deviceidx not in range."))
   idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(deviceidx)
 end
 

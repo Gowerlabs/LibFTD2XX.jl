@@ -15,7 +15,7 @@ using Test
 
   # getdeviceinfodetail
   
-  @test_throws AssertionError getdeviceinfodetail(0)
+  @test_throws D2XXException getdeviceinfodetail(0)
 
   # open by description
   @test_throws Wrapper.FT_DEVICE_NOT_FOUND open("", OPEN_BY_DESCRIPTION)

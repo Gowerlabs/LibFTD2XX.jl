@@ -13,6 +13,7 @@ using Test
   @info "high level: Number of devices is $numdevs"
 
   # getdeviceinfodetail
+  @test_throws D2XXException getdeviceinfodetail(numdevs)
   for deviceidx = 0:(numdevs-1)
     idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
     @test idx == deviceidx
