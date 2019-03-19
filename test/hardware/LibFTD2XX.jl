@@ -12,7 +12,7 @@ using Test
   @test ver isa VersionNumber
 
   # createdeviceinfolist
-  numdevs = createdeviceinfolist()
+  numdevs = LibFTD2XX.createdeviceinfolist()
   @test numdevs > 0
   @info "high level: Number of devices is $numdevs"
 

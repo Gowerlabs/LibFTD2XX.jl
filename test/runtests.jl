@@ -6,7 +6,7 @@ using Compat.Test
 
 include("util.jl")
 
-numdevs = createdeviceinfolist()
+numdevs = LibFTD2XX.createdeviceinfolist()
 if numdevs > 0
   include("hardware/wrapper.jl")
   include("hardware/LibFTD2XX.jl")
