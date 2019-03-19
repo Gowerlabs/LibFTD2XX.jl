@@ -357,7 +357,7 @@ See D2XX Programmer's Guide (FT_000071) for more information.
 julia> numdevs = FT_CreateDeviceInfoList()
 0x00000004
 
-julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0) # zero indexed
+julia> idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0) # zero indexed
 (0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
 ```
 """
@@ -486,7 +486,7 @@ FT_OPEN_BY_LOCATION is not currently supported.
 julia> numdevs = FT_CreateDeviceInfoList()
 0x00000004
 
-julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
+julia> idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
 (0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
 
 julia> handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
@@ -853,7 +853,7 @@ julia> numdevs = FT_CreateDeviceInfoList()
 julia> handle = FT_Open(0)
 FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
 
-julia> type, id, serialnumber, description = FT_GetDeviceInfo(handle);
+julia> typ, id, serialnumber, description = FT_GetDeviceInfo(handle);
 
 julia> FT_Close(handle)
 ```

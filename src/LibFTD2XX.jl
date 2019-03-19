@@ -116,7 +116,7 @@ See also: [`D2XXDevices`](@ref), [`deviceidx`](@ref), [`deviceflags`](@ref),
 mutable struct D2XXDevice <: IO
   idx::Int
   flags::Int
-  type::Int
+  typ::Int
   id::Int
   locid::Int
   serialnumber::String
@@ -564,7 +564,7 @@ Get the D2XXDevice device type.
 
 See also: [`D2XXDevice`](@ref)
 """
-devicetype(d::D2XXDevice) = d.type
+devicetype(d::D2XXDevice) = d.typ
 
 
 """
@@ -616,4 +616,4 @@ See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice) = d.fthandle
 
-end
+end # module LibFTD2XX

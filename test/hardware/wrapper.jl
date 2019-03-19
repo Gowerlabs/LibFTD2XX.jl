@@ -150,8 +150,8 @@ using Test
   serialnumber_buf = serialnumber
   description_buf = description
   handle = FT_Open(0)
-  type, id, serialnumber, description = FT_GetDeviceInfo(handle)
-  @test type isa FT_DEVICE
+  typ, id, serialnumber, description = FT_GetDeviceInfo(handle)
+  @test typ isa FT_DEVICE
   @test serialnumber == serialnumber_buf
   @test description == description_buf
   FT_Close(handle)
