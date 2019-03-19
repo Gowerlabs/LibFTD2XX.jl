@@ -2,40 +2,89 @@
 
 module LibFTD2XX
 
+# Enums
+export FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION
+export FTWordLength, BITS_8, BITS_7
+export FTStopBits, STOP_BITS_1, STOP_BITS_2
+export FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE
+
+# Types and Constructors
+export FT_HANDLE # Exported by .Wrapper
 export D2XXException
 export D2XXDevice, D2XXDevices
-export FTWordLength, BITS_8, BITS_7,
-FTStopBits, STOP_BITS_1, STOP_BITS_2,
-FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
-FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION
+
+# Port communication functions
 export baudrate, datacharacteristics, status, driverversion
+
+# Library Functions
 export libversion
+
+# D2XXDevice Accessor Functions
 export deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, 
        description, fthandle
-export FT_HANDLE # Exported by .Wrapper
+
 
 include("util.jl")
 include("wrapper.jl")
+
 
 using .Util
 using .Wrapper
 using Compat
 
+
+"""
+    @enum(
+      FTOpenBy,
+      OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
+      OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION)
+
+For use with [`open`](@ref).
+"""
 @enum(
   FTOpenBy,
   OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
   OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION)
 
+
+"""
+    @enum(
+      FTWordLength,
+      BITS_8 = FT_BITS_8,
+      BITS_7 = FT_BITS_7)
+
+For use with [`datacharacteristics`](@ref).
+"""
 @enum(
   FTWordLength,
   BITS_8 = FT_BITS_8,
   BITS_7 = FT_BITS_7)
 
+
+"""
+    @enum(
+      FTStopBits,
+      STOP_BITS_1 = FT_STOP_BITS_1,
+      STOP_BITS_2 = FT_STOP_BITS_2)
+
+For use with [`datacharacteristics`](@ref).
+"""
 @enum(
   FTStopBits,
   STOP_BITS_1 = FT_STOP_BITS_1,
   STOP_BITS_2 = FT_STOP_BITS_2)
 
+"""
+    @enum(
+      FTParity,
+      PARITY_NONE = FT_PARITY_NONE,
+      PARITY_ODD  = FT_PARITY_ODD,
+      PARITY_EVEN = FT_PARITY_EVEN,
+      PARITY_MARK = FT_PARITY_MARK,
+      PARITY_SPACE = FT_PARITY_SPACE)
+
+For use with [`datacharacteristics`](@ref).
+"""
 @enum(
   FTParity,
   PARITY_NONE = FT_PARITY_NONE,
@@ -43,6 +92,7 @@ using Compat
   PARITY_EVEN = FT_PARITY_EVEN,
   PARITY_MARK = FT_PARITY_MARK,
   PARITY_SPACE = FT_PARITY_SPACE)
+
 
 """
     D2XXException <: Exception
@@ -52,6 +102,7 @@ LibFTD2XX High-Level Library Error Type.
 struct D2XXException <: Exception
   str::String
 end
+
 
 """
     mutable struct D2XXDevice <: IO
@@ -484,7 +535,7 @@ function libversion()
 end
 
 
-# D2XXDevice Accessors
+# D2XXDevice Accessor Functions
 #
 """
     deviceidx(d::D2XXDevice)
