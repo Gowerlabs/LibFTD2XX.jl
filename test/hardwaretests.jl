@@ -15,7 +15,7 @@ end
   # FT_CreateDeviceInfoList tests...
   numdevs = FT_CreateDeviceInfoList()
   @test numdevs > 0
-  @info "Number of devices is $numdevs"
+  @info "wrapper: Number of devices is $numdevs"
 
   # FT_GetDeviceInfoList tests...
   devinfolist, numdevs2 = FT_GetDeviceInfoList(numdevs)
@@ -23,7 +23,7 @@ end
   @test length(devinfolist) == numdevs
   
   description = ntuple2string(devinfolist[1].description)
-  @info "testing device $description"
+  @info "wrapper: testing device $description"
 
   if Sys.iswindows() # should not have a locid on windows
     @test devinfolist[1].locid == 0
@@ -233,8 +233,12 @@ end
 
 @testset "high level" begin
 
+  numdevs = FT_CreateDeviceInfoList()
+  @assert numdevs > 0
+  @info "wrapper: Number of devices is $numdevs"
   idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
-  
+  @info "high level: testing device $description"
+
   # open by description
   handle = open(description, OPEN_BY_DESCRIPTION)
   @test handle isa FT_HANDLE
