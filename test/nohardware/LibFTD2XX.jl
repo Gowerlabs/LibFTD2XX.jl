@@ -2,9 +2,10 @@
 
 module TestLibFTD2XX
 
+using Compat
+using Compat.Test
 using LibFTD2XX
 import LibFTD2XX.Wrapper
-using Test
 
 @testset "high level" begin
 

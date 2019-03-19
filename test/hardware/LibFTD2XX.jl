@@ -2,8 +2,9 @@
 
 module TestLibFTD2XX
 
+using Compat
+using Compat.Test
 using LibFTD2XX
-using Test
 
 @testset "high level" begin
 

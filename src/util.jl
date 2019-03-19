@@ -2,6 +2,8 @@ module Util
 
 export ntuple2string
 
+using Compat
+
 """
     ntuple2string(input::NTuple{N, Cchar} where N)
 
@@ -20,7 +22,7 @@ julia> ntuple2string(Cchar.(('h','e','l','l','o', '\0', 'x'))) # null terminated
 """
 function ntuple2string(input::NTuple{N, Cchar} where N)
   if any(input .== 0)
-    endidx = findall(input .== 0)[1]-1
+    @compat endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
     endidx = length(input)
   else

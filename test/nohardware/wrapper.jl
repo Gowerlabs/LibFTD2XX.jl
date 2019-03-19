@@ -2,9 +2,10 @@
 
 module TestWrapper
 
+using Compat
+using Compat.Test
 using LibFTD2XX.Wrapper
 using LibFTD2XX.Util
-using Test
 
 @testset "wrapper" begin
   

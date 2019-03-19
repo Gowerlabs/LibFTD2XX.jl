@@ -1,7 +1,8 @@
 module TestUtil
 
+using Compat
+using Compat.Test
 using LibFTD2XX.Util
-using Test
 
 @testset "util" begin
   @test "hello" == ntuple2string(Cchar.(('h','e','l','l','o')))
