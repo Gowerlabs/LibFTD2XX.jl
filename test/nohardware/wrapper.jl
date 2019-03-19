@@ -1,4 +1,4 @@
-# These tests require an FT device which supports D2XX to be connected 
+# These tests do not require an FT device which supports D2XX to be connected 
 
 module TestWrapper
 
