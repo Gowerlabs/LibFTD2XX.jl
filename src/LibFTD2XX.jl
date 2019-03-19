@@ -123,18 +123,7 @@ true
 julia> close(handle)
 ```
 """
-function Base.open(str::AbstractString, openby::FTOpenBy)
-  flagsarg = DWORD(openby)
-  handle = FT_HANDLE()
-  status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
-                 (Cstring, DWORD,    Ref{FT_HANDLE}),
-                  str,     flagsarg, handle)
-  if FT_STATUS_ENUM(status) != FT_OK
-    handle.p = C_NULL
-    throw(FT_STATUS_ENUM(status))
-  end
-  handle
-end
+Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 
 function Base.flush(handle::FT_HANDLE)
   FT_StopInTask(handle)
