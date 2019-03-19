@@ -47,7 +47,7 @@ struct D2XXException <: Exception
   str::String
 end
 
-struct D2XXDevice <: IO
+mutable struct D2XXDevice <: IO
   idx::Int
   flags::Int
   type::Int
