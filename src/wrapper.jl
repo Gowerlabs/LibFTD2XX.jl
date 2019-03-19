@@ -197,8 +197,7 @@ ptr(handle::FT_HANDLE) = handle.p
 
 function destroy!(handle::FT_HANDLE)
   if handle.p != C_NULL
-    flush(handle)
-    close(handle)
+    FT_Close(handle)
   end
   handle.p = C_NULL
 end
@@ -471,7 +470,8 @@ end
 """
     FT_Close(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_Close`. Closes an open device.
+Wrapper for D2XX library function `FT_Close`. Closes an open device and sets 
+the pointer to C_NULL.
 
 See D2XX Programmer's Guide (FT_000071) for more information.
 
@@ -491,6 +491,7 @@ function FT_Close(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
                                                       ftHandle)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  ptr(ftHandle) = C_NULL
   return
 end
 
