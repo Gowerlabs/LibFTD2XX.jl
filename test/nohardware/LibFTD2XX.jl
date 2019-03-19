@@ -77,8 +77,8 @@ using Test
     # Constructor
     @test_throws D2XXException D2XXDevice(0)
 
-    # getdevices
-    devices = getdevices()
+    # D2XXDevices
+    devices = D2XXDevices()
     @test length(devices) == numdevs == 0
 
     device = D2XXDevice(0, 0, 0, 0, 0, "", "", FT_HANDLE()) # blank device...
@@ -120,7 +120,7 @@ using Test
 
     # status
     @test_throws D2XXException status(device)
-    
+
     # close and isopen (all devices)
     retval = close.(devices)
     @test all(retval .== nothing)

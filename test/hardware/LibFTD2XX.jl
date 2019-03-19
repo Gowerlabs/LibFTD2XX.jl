@@ -136,8 +136,8 @@ using Test
       @test !isopen(fthandle(dev))
     end
 
-    # getdevices
-    devices = getdevices()
+    # D2XXDevices
+    devices = D2XXDevices()
     @test length(devices) == numdevs
     @test all(deviceidx(devices[d]) == deviceidx(D2XXDevice(d-1)) for d = 1:numdevs)
 

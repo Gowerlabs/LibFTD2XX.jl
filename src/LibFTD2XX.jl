@@ -4,7 +4,7 @@ module LibFTD2XX
 
 export D2XXException
 export D2XXDevice
-export getdevices, deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, description, fthandle
+export D2XXDevices, deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, description, fthandle
 export FT_HANDLE
 export FTWordLength, BITS_8, BITS_7,
        FTStopBits, STOP_BITS_1, STOP_BITS_2,
@@ -74,11 +74,11 @@ end
 
 
 """
-    getdevices()
+    D2XXDevices()
 
 Returns an array of available D2XX devices of type `D2XXDevice`
 """
-function getdevices()
+function D2XXDevices()
   numdevs = createdeviceinfolist()
   devices = D2XXDevice[]
   for i = 0:(numdevs-1)
