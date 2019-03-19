@@ -7,6 +7,9 @@ export close, baudrate, datacharacteristics, status, driverversion, libversion, 
 include("util.jl")
 include("wrapper.jl")
 
+using .Wrapper
+using Compat
+
 function driverversion(handle::FT_HANDLE)
   version = FT_GetDriverVersion(handle)
   @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs

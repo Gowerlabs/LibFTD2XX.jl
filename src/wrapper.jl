@@ -1,5 +1,7 @@
 # LibFTD2XX.jl - C Library Wrapper
 
+module Wrapper
+
 export FT_HANDLE, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask
 
 export FTWordLength, BITS_8, BITS_7,
@@ -1107,3 +1109,5 @@ function FT_RestartInTask(ftHandle::FT_HANDLE)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   return
 end
+
+end # module Wrapper
