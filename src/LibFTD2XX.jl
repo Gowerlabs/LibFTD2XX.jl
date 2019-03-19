@@ -111,19 +111,14 @@ end
 """
     isopen(d::D2XXDevice) -> Bool
 
-Indicate if a D2XXDevice is open for reading and writing.
-
-See also: [`D2XXDevice`](@ref), [`open`](@ref), [`close`](@ref), 
-[`readavailable`](@ref), [`read`](@ref), [`write`](@ref)
+See also: [`D2XXDevice`](@ref)
 """
 Base.isopen(d::D2XXDevice) = isopen(fthandle(d))
 
 """
     isopen(handle::FT_HANDLE) -> Bool
 
-Indicate if an `FT_HANDLE` open.
-
-See also: [`FT_HANDLE`](@ref), [`open`](@ref), [`close`](@ref)
+See also: [`FT_HANDLE`](@ref)
 """
 function Base.isopen(handle::FT_HANDLE)
   open = true
@@ -147,9 +142,9 @@ end
 """
     Base.open(d::D2XXDevice)
 
-Open a D2XX device for reading and writing.
+Open a [`D2XXDevice`](@ref) for reading and writing.
 
-See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`close`](@ref)
+See also: [`isopen`](@ref), [`close`](@ref)
 """
 function Base.open(d::D2XXDevice)
   d.fthandle = open(description(d), OPEN_BY_DESCRIPTION)
@@ -159,13 +154,13 @@ end
 """
     open(str::AbstractString, openby::FTOpenBy) -> FT_HANDLE
 
-Create an open `FT_HANDLE` for reading and writing.
+Create an open [`FT_HANDLE`](@ref) for reading and writing.
 
 # Arguments
  - `str::AbstractString` : Device identifier. Type depends on `openby`
  - `openby::FTOpenBy` : Indicator of device identifier `str` type.
 
-See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`close`](@ref)
+See also: [`isopen`](@ref), [`close`](@ref)
 """
 Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 
@@ -173,18 +168,14 @@ Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 """
     close(d::D2XXDevice)
 
-Close D2XX device so that it can no longer preform reading and writing.
-
-See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref)
+Close a [`D2XXDevice`](@ref). Does not perform a [`flush`](@ref) first.
 """
 Base.close(d::D2XXDevice) = close(fthandle(d))
 
 """
     close(handle::FT_HANDLE)
 
-Close an `FT_HANDLE` so that it can no longer preform reading and writing.
-
-See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref)
+Close an [`FT_HANDLE`](@ref). Does not perform a [`flush`](@ref) first.
 """
 function Base.close(handle::FT_HANDLE)
   if isopen(handle)
@@ -196,8 +187,6 @@ end
 """
     bytesavailable(d::D2XXDevice)
 
-Returns the number of bytes available to read from an open D2XX device.
-
 See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
 """
@@ -205,9 +194,6 @@ Compat.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
 
 """
     bytesavailable(handle::FT_HANDLE)
-
-Returns the number of bytes available at the D2XX device with the given 
-`handle`.
 
 See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
@@ -220,10 +206,10 @@ end
 """
     eof(d::D2XXDevice) -> Bool
 
-Indicates if any bytes are available to be read from an open D2XX device. 
-Non-blocking.
+Indicates if any bytes are available to be read from an open 
+[`D2XXDevice`](@ref). Non-blocking.
 
-See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+See also: [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.eof(d::D2XXDevice) = eof(fthandle(d))
@@ -231,10 +217,10 @@ Base.eof(d::D2XXDevice) = eof(fthandle(d))
 """
     eof(d::D2XXDevice) -> Bool
 
-Indicates if any bytes are available to be read at the D2XX device with the 
-given `handle`. Non-blocking.
+Indicates if any bytes are available to be read from an open 
+[`FT_HANDLE`](@ref). Non-blocking.
 
-See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+See also: [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
