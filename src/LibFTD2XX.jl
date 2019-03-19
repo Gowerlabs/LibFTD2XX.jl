@@ -42,10 +42,24 @@ using Compat
   PARITY_MARK = FT_PARITY_MARK,
   PARITY_SPACE = FT_PARITY_SPACE)
 
+"""
+    D2XXException <: Exception
+
+LibFTD2XX High-Level Library Error Type.
+"""
 struct D2XXException <: Exception
   str::String
 end
 
+"""
+    mutable struct D2XXDevice <: IO
+
+Device identifier for a D2XX device.
+
+See also: [`D2XXDevices`](@ref), [`deviceidx`](@ref), [`deviceflags`](@ref), 
+[`devicetype`](@ref), [`deviceid`](@ref), [`locationid`](@ref), 
+[`serialnumber`](@ref), [`description`](@ref), [`fthandle`](@ref).
+"""
 mutable struct D2XXDevice <: IO
   idx::Int
   flags::Int
@@ -63,7 +77,7 @@ end
 """
     D2XXDevice(deviceidx::Integer)
 
-Construct a D2XXDevice without opening it. D2XX hardware must pre present to 
+Construct a `D2XXDevice` without opening it. D2XX hardware must pre present to 
 work.
 """
 function D2XXDevice(deviceidx::Integer)
@@ -75,7 +89,12 @@ end
 """
     D2XXDevices()
 
-Returns an array of available D2XX devices of type `D2XXDevice`
+Returns an array of available D2XX devices of type `D2XXDevice`.
+
+Their state is not modified - if they are already open/closed they remain 
+open/closed.
+
+See also: [`D2XXDevice`](@ref), [`open`](@ref)
 """
 function D2XXDevices()
   numdevs = createdeviceinfolist()
@@ -89,8 +108,23 @@ end
 
 # Port communication functions
 #
+"""
+    isopen(d::D2XXDevice) -> Bool
+
+Indicate if a D2XXDevice is open for reading and writing.
+
+See also: [`D2XXDevice`](@ref), [`open`](@ref), [`close`](@ref), 
+[`readavailable`](@ref), [`read`](@ref), [`write`](@ref)
+"""
 Base.isopen(d::D2XXDevice) = isopen(fthandle(d))
 
+"""
+    isopen(handle::FT_HANDLE) -> Bool
+
+Indicate if an `FT_HANDLE` open.
+
+See also: [`FT_HANDLE`](@ref), [`open`](@ref), [`close`](@ref)
+"""
 function Base.isopen(handle::FT_HANDLE)
   open = true
   if ptr(handle) == C_NULL
@@ -113,7 +147,9 @@ end
 """
     Base.open(d::D2XXDevice)
 
-Open a D2XX device of type `D2XXDevice`.
+Open a D2XX device for reading and writing.
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`close`](@ref)
 """
 function Base.open(d::D2XXDevice)
   d.fthandle = open(description(d), OPEN_BY_DESCRIPTION)
@@ -121,49 +157,34 @@ function Base.open(d::D2XXDevice)
 end
 
 """
-    open(str::AbstractString, openby::FTOpenBy)
+    open(str::AbstractString, openby::FTOpenBy) -> FT_HANDLE
 
-Open an FTD2XX device.
+Create an open `FT_HANDLE` for reading and writing.
 
 # Arguments
  - `str::AbstractString` : Device identifier. Type depends on `openby`
  - `openby::FTOpenBy` : Indicator of device identifier `str` type.
 
-# Example
-
-```julia-repl
-julia> numdevs = FT_CreateDeviceInfoList()
-0x00000004
-
-julia> idx, flags, type, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(0)
-(0, 0x00000002, 0x00000007, 0x04036011, 0x00000000, "FT3AD2HCD", "USB <-> Serial Converter D", FT_HANDLE(Ptr{Nothing} @0x0000000000000000))
-
-julia> handle = open(description, OPEN_BY_DESCRIPTION)
-FT_HANDLE(Ptr{Nothing} @0x0000000000dfe740)
-
-julia> isopen(handle)
-true
-
-julia> close(handle)
-
-julia> handle = open(serialnumber, OPEN_BY_SERIAL_NUMBER)
-FT_HANDLE(Ptr{Nothing} @0x0000000005448ea0)
-
-julia> isopen(handle)
-true
-
-julia> close(handle)
-```
+See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`close`](@ref)
 """
 Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 
 
+"""
+    close(d::D2XXDevice)
+
+Close D2XX device so that it can no longer preform reading and writing.
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref)
+"""
 Base.close(d::D2XXDevice) = close(fthandle(d))
 
 """
-    Base.close(handle::FT_HANDLE)
+    close(handle::FT_HANDLE)
 
-Closes an open FTD2XX device and marks its handle as closed.
+Close an `FT_HANDLE` so that it can no longer preform reading and writing.
+
+See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref)
 """
 function Base.close(handle::FT_HANDLE)
   if isopen(handle)
@@ -172,17 +193,50 @@ function Base.close(handle::FT_HANDLE)
   return
 end
 
+"""
+    bytesavailable(d::D2XXDevice)
 
+Returns the number of bytes available to read from an open D2XX device.
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
 Compat.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
 
+"""
+    bytesavailable(handle::FT_HANDLE)
+
+Returns the number of bytes available at the D2XX device with the given 
+`handle`.
+
+See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
 function Compat.bytesavailable(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to check bytes available."))
   FT_GetQueueStatus(handle)
 end
 
+"""
+    eof(d::D2XXDevice) -> Bool
 
+Indicates if any bytes are available to be read from an open D2XX device. 
+Non-blocking.
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
 Base.eof(d::D2XXDevice) = eof(fthandle(d))
 
+"""
+    eof(d::D2XXDevice) -> Bool
+
+Indicates if any bytes are available to be read at the D2XX device with the 
+given `handle`. Non-blocking.
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 
@@ -331,6 +385,8 @@ end
     deviceidx(d::D2XXDevice)
 
 Get D2XXDevice index.
+
+See also: [`D2XXDevice`](@ref)
 """
 deviceidx(d::D2XXDevice) = d.idx
 
@@ -339,6 +395,8 @@ deviceidx(d::D2XXDevice) = d.idx
     deviceflags(d::D2XXDevice)
 
 Get the D2XXDevice flags list.
+
+See also: [`D2XXDevice`](@ref)
 """
 deviceflags(d::D2XXDevice) = d.flags
 
@@ -347,6 +405,8 @@ deviceflags(d::D2XXDevice) = d.flags
     devicetype(d::D2XXDevice)
 
 Get the D2XXDevice device type.
+
+See also: [`D2XXDevice`](@ref)
 """
 devicetype(d::D2XXDevice) = d.type
 
@@ -355,6 +415,8 @@ devicetype(d::D2XXDevice) = d.type
   deviceid(d::D2XXDevice)
 
 Get the D2XXDevice device id.
+
+See also: [`D2XXDevice`](@ref)
 """
 deviceid(d::D2XXDevice) = d.id
 
@@ -363,6 +425,8 @@ deviceid(d::D2XXDevice) = d.id
     locationid(d::D2XXDevice)
 
 Get the D2XXDevice location id. This is zero for windows devices.
+
+See also: [`D2XXDevice`](@ref)
 """
 locationid(d::D2XXDevice) = d.locid
 
@@ -371,6 +435,8 @@ locationid(d::D2XXDevice) = d.locid
     serialnumber(d::D2XXDevice)
 
 Get the D2XXDevice device serial number.
+
+See also: [`D2XXDevice`](@ref)
 """
 serialnumber(d::D2XXDevice) = d.serialnumber
 
@@ -379,6 +445,8 @@ serialnumber(d::D2XXDevice) = d.serialnumber
     description(d::D2XXDevice)
 
 Get the D2XXDevice device description.
+
+See also: [`D2XXDevice`](@ref)
 """
 description(d::D2XXDevice) = d.description
 
@@ -386,7 +454,9 @@ description(d::D2XXDevice) = d.description
 """
     fthandle(d::D2XXDevice)
 
-Get the D2XXDevice device D2XX handle of type ``::FT_HANDLE`.
+Get the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
+
+See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice) = d.fthandle
 
