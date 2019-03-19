@@ -58,6 +58,7 @@ struct D2XXDevice <: IO
   fthandle::FT_HANDLE
 end
 
+
 """
     D2XXDevice(deviceidx::Integer)
 
@@ -75,12 +76,14 @@ Get D2XXDevice index.
 """
 deviceidx(d::D2XXDevice) = d.idx
 
+
 """
     deviceflags(d::D2XXDevice)
 
 Get the D2XXDevice flags list.
 """
 deviceflags(d::D2XXDevice) = d.flags
+
 
 """
     devicetype(d::D2XXDevice)
@@ -89,12 +92,14 @@ Get the D2XXDevice device type.
 """
 devicetype(d::D2XXDevice) = d.type
 
-  """
+
+"""
   deviceid(d::D2XXDevice)
 
 Get the D2XXDevice device id.
 """
 deviceid(d::D2XXDevice) = d.id
+
 
 """
     locationid(d::D2XXDevice)
@@ -103,6 +108,7 @@ Get the D2XXDevice location id. This is zero for windows devices.
 """
 locationid(d::D2XXDevice) = d.locid
 
+
 """
     serialnumber(d::D2XXDevice)
 
@@ -110,12 +116,14 @@ Get the D2XXDevice device serial number.
 """
 serialnumber(d::D2XXDevice) = d.serialnumber
 
+
 """
     description(d::D2XXDevice)
 
 Get the D2XXDevice device description.
 """
 description(d::D2XXDevice) = d.description
+
 
 """
     fthandle(d::D2XXDevice)
@@ -134,6 +142,7 @@ function driverversion(handle::FT_HANDLE)
   VersionNumber(major,minor,patch)
 end
 
+
 function libversion()
   version = FT_GetLibraryVersion()
   @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
@@ -142,6 +151,7 @@ function libversion()
   major = (version >> 16) & 0xFF
   VersionNumber(major,minor,patch)
 end
+
 
 function status(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to check status."))
@@ -162,6 +172,7 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
+
 """
     Base.close(handle::FT_HANDLE)
 
@@ -173,6 +184,7 @@ function Base.close(handle::FT_HANDLE)
   end
   return
 end
+
 
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
   isopen(handle) || throw(D2XXException("Device must be open to read."))
@@ -186,15 +198,18 @@ function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(
   nbrx = FT_Read(handle, b, nb)
 end
 
+
 function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
   isopen(handle) || throw(D2XXException("Device must be open to write."))
   FT_Write(handle, buffer, length(buffer))
 end
 
+
 function baudrate(handle::FT_HANDLE, baud)
   isopen(handle) || throw(D2XXException("Device must be open to set baudrate."))
   FT_SetBaudRate(handle, baud)
 end
+
 
 function datacharacteristics(handle::FT_HANDLE; 
                              wordlength::FTWordLength = BITS_8, 
@@ -204,18 +219,22 @@ function datacharacteristics(handle::FT_HANDLE;
   FT_SetDataCharacteristics(handle, wordlength, stopbits, parity)
 end
 
+
 function Compat.bytesavailable(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to check bytes available."))
   FT_GetQueueStatus(handle)
 end
 
+
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
+
 
 function Base.readavailable(handle::FT_HANDLE)
   b = @compat Vector{UInt8}(undef, bytesavailable(handle))
   readbytes!(handle, b)
   b
 end
+
 
 """
     open(str::AbstractString, openby::FTOpenBy)
@@ -254,12 +273,14 @@ julia> close(handle)
 """
 Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 
+
 function Base.flush(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to flush."))
   FT_StopInTask(handle)
   FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
   FT_RestartInTask(handle)
 end
+
 
 function Base.isopen(handle::FT_HANDLE)
   open = true
@@ -279,9 +300,11 @@ function Base.isopen(handle::FT_HANDLE)
   open
 end
 
+
 function createdeviceinfolist()
   numdevs = FT_CreateDeviceInfoList()
 end
+
 
 function getdeviceinfodetail(deviceidx)
   0 <= deviceidx < createdeviceinfolist() || throw(D2XXException("Device index $deviceidx not in range."))
