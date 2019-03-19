@@ -9,6 +9,28 @@ export FT_HANDLE, ptr, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDevi
 export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
        FT_STATUS_ENUM, FT_PURGE_RX, FT_PURGE_TX
 
+export FT_STATUS_ENUM,
+        FT_OK,
+        FT_INVALID_HANDLE,
+        FT_DEVICE_NOT_FOUND,
+        FT_DEVICE_NOT_OPENED,
+        FT_IO_ERROR,
+        FT_INSUFFICIENT_RESOURCES,
+        FT_INVALID_PARAMETER,
+        FT_INVALID_BAUD_RATE,
+        FT_DEVICE_NOT_OPENED_FOR_ERASE,
+        FT_DEVICE_NOT_OPENED_FOR_WRITE,
+        FT_FAILED_TO_WRITE_DEVICE,
+        FT_EEPROM_READ_FAILED,
+        FT_EEPROM_WRITE_FAILED,
+        FT_EEPROM_ERASE_FAILED,
+        FT_EEPROM_NOT_PRESENT,
+        FT_EEPROM_NOT_PROGRAMMED,
+        FT_INVALID_ARGS,
+        FT_NOT_SUPPORTED,
+        FT_OTHER_ERROR,
+        FT_DEVICE_LIST_NOT_READY
+
 export FT_DEVICE
 
 export FT_BITS_8, FT_BITS_7, 
@@ -193,14 +215,13 @@ function FT_HANDLE()
   handle
 end
 
-ptr(handle::FT_HANDLE) = handle.p
-
 function destroy!(handle::FT_HANDLE)
-  if handle.p != C_NULL
+  if ptr(handle) != C_NULL
     FT_Close(handle)
   end
-  handle.p = C_NULL
 end
+
+ptr(handle::FT_HANDLE) = handle.p
 
 # wrapper functions
 #
@@ -491,7 +512,7 @@ function FT_Close(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
                                                       ftHandle)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  ptr(ftHandle) = C_NULL
+  ftHandle.p = C_NULL
   return
 end
 

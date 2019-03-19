@@ -84,7 +84,6 @@ Closes an open FTD2XX device and marks its handle as closed.
 function Base.close(handle::FT_HANDLE)
   if isopen(handle)
     FT_Close(handle)
-    handle.p = C_NULL
   end
   return
 end
@@ -166,7 +165,7 @@ end
 
 function Base.isopen(handle::FT_HANDLE)
   open = true
-  if handle.p == C_NULL
+  if ptr(handle) == C_NULL
     open = false
   else
     try
