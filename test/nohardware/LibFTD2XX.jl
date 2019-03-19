@@ -65,8 +65,14 @@ using Test
 
   # D2XXDevice
   @testset "D2XXDevice" begin
-    # by index...
+
+    # Constructor
     @test_throws D2XXException D2XXDevice(0)
+
+    # getdevices
+    devices = getdevices()
+    @test length(devices) == numdevs == 0
+    
   end
 
 end

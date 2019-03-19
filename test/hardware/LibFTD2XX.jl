@@ -92,7 +92,8 @@ using Test
 
   # D2XXDevice
   @testset "D2XXDevice" begin
-    # by index...
+
+    # Constructor
     @test_throws D2XXException D2XXDevice(-1)
     for i = 0:(numdevs-1)
       idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(i)
@@ -111,6 +112,13 @@ using Test
       @test LibFTD2XX.Wrapper.ptr(fthandle(dev)) == LibFTD2XX.Wrapper.ptr(fthand)
       @test !isopen(fthandle(dev))
     end
+
+    # getdevices
+    devices = getdevices()
+    @test length(devices) == numdevs
+    @test all(deviceidx(devices[d]) == deviceidx(D2XXDevice(d-1)) for d = 1:numdevs)
+
+
   end
 
 end
