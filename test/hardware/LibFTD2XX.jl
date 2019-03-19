@@ -10,7 +10,7 @@ using Test
   # createdeviceinfolist
   numdevs = createdeviceinfolist()
   @test numdevs > 0
-  @info "wrapper: Number of devices is $numdevs"
+  @info "high level: Number of devices is $numdevs"
 
   # getdeviceinfodetail
   for deviceidx = 0:(numdevs-1)

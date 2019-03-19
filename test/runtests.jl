@@ -9,4 +9,6 @@ include("util.jl")
 numdevs = createdeviceinfolist()
 if numdevs > 0
   include("hardware/alltests.jl")
+else
+  include("nohardware/alltests.jl")
 end

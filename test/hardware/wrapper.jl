@@ -37,7 +37,7 @@ using Test
   @test description == ntuple2string(devinfolist[1].description)
   @test ptr(fthandle) == devinfolist[1].fthandle_ptr
 
-  # FT_GetDeviceInfoDetail tests...
+  # FT_ListDevices tests...
   numdevs2 = Ref{UInt32}()
   retval = FT_ListDevices(numdevs2, Ref{UInt32}(), FT_LIST_NUMBER_ONLY)
   @test retval == nothing
