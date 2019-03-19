@@ -125,6 +125,7 @@ Get the D2XXDevice device D2XX handle of type ``::FT_HANDLE`.
 fthandle(d::D2XXDevice) = d.fthandle
 
 function driverversion(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to check driver version"))
   version = FT_GetDriverVersion(handle)
   @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
   patch = version & 0xFF
@@ -143,6 +144,7 @@ function libversion()
 end
 
 function status(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to check status."))
   flags = FT_GetModemStatus(handle)
   modemstatus = flags & 0xFF
   linestatus = (flags >> 8) & 0xFF
@@ -173,6 +175,7 @@ function Base.close(handle::FT_HANDLE)
 end
 
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
+  isopen(handle) || throw(D2XXException("Device must be open to read."))
   nbav = bytesavailable(handle)
   if nbav < nb
     nb = nbav
@@ -183,18 +186,28 @@ function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(
   nbrx = FT_Read(handle, b, nb)
 end
 
-Base.write(handle::FT_HANDLE, buffer::Vector{UInt8}) = 
-FT_Write(handle, buffer, length(buffer))
+function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
+  isopen(handle) || throw(D2XXException("Device must be open to write."))
+  FT_Write(handle, buffer, length(buffer))
+end
 
-baudrate(handle::FT_HANDLE, baud) = FT_SetBaudRate(handle, baud)
+function baudrate(handle::FT_HANDLE, baud)
+  isopen(handle) || throw(D2XXException("Device must be open to set baudrate."))
+  FT_SetBaudRate(handle, baud)
+end
 
-datacharacteristics(handle::FT_HANDLE; 
-                    wordlength::FTWordLength = BITS_8, 
-                    stopbits::FTStopBits = STOP_BITS_1, 
-                    parity::FTParity = PARITY_NONE) = 
-FT_SetDataCharacteristics(handle, wordlength, stopbits, parity)
+function datacharacteristics(handle::FT_HANDLE; 
+                             wordlength::FTWordLength = BITS_8, 
+                             stopbits::FTStopBits = STOP_BITS_1, 
+                             parity::FTParity = PARITY_NONE)
+  isopen(handle) || throw(D2XXException("Device must be open to set data characteristics."))
+  FT_SetDataCharacteristics(handle, wordlength, stopbits, parity)
+end
 
-Compat.bytesavailable(handle::FT_HANDLE) = FT_GetQueueStatus(handle)
+function Compat.bytesavailable(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to check bytes available."))
+  FT_GetQueueStatus(handle)
+end
 
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
@@ -242,6 +255,7 @@ julia> close(handle)
 Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
 
 function Base.flush(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to flush."))
   FT_StopInTask(handle)
   FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
   FT_RestartInTask(handle)
@@ -253,7 +267,7 @@ function Base.isopen(handle::FT_HANDLE)
     open = false
   else
     try
-      status(handle)
+      FT_GetModemStatus(handle)
     catch ex
       if ex == FT_INVALID_HANDLE
         open = false
