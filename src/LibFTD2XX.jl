@@ -2,7 +2,7 @@
 
 module LibFTD2XX
 
-export close, baudrate, datacharacteristics, status, driverversion, libversion
+export close, baudrate, datacharacteristics, status, driverversion, libversion, createdeviceinfolist, getdeviceinfodetail
 
 include("util.jl")
 include("wrapper.jl")
@@ -147,6 +147,15 @@ function Base.isopen(handle::FT_HANDLE)
     end
   end
   open
+end
+
+function createdeviceinfolist()
+  numdevs = FT_CreateDeviceInfoList()
+end
+
+function getdeviceinfodetail(deviceidx)
+  @assert 0 <= deviceidx < FT_CreateDeviceInfoList()
+  idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(deviceidx)
 end
 
 end
