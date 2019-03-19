@@ -3,14 +3,16 @@
 module LibFTD2XX
 
 export D2XXException
-export D2XXDevice
-export D2XXDevices, deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, description, fthandle
-export FT_HANDLE
+export D2XXDevice, D2XXDevices
 export FTWordLength, BITS_8, BITS_7,
-       FTStopBits, STOP_BITS_1, STOP_BITS_2,
-       FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
-       FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION, OPEN_BY_LOCATION
-export close, baudrate, datacharacteristics, status, driverversion, libversion
+FTStopBits, STOP_BITS_1, STOP_BITS_2,
+FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE,
+FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION
+export baudrate, datacharacteristics, status, driverversion
+export libversion
+export deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, 
+       description, fthandle
+export FT_HANDLE # Exported by .Wrapper
 
 include("util.jl")
 include("wrapper.jl")

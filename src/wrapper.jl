@@ -2,13 +2,20 @@
 
 module Wrapper
 
-export DWORD, ULONG, UCHAR, FT_STATUS
+# Type Aliases
+export DWORD, ULONG, UCHAR
 
-export FT_HANDLE, ptr, FT_CreateDeviceInfoList, FT_GetDeviceInfoList, FT_GetDeviceInfoDetail, FT_ListDevices, FT_Open, FT_OpenEx, FT_Close, FT_Read, FT_Write, FT_SetBaudRate, FT_SetDataCharacteristics, FT_SetTimeouts, FT_GetModemStatus, FT_GetQueueStatus, FT_GetDeviceInfo, FT_GetDriverVersion, FT_GetLibraryVersion, FT_GetStatus, FT_SetBreakOn, FT_SetBreakOff, FT_Purge, FT_StopInTask, FT_RestartInTask
-
-export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION, FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX,
-       FT_STATUS_ENUM, FT_PURGE_RX, FT_PURGE_TX
-
+# Library Constants
+export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION
+export FT_DEVICE
+export FT_LIST_NUMBER_ONLY, FT_LIST_BY_INDEX, FT_LIST_ALL
+export FT_BITS_8, FT_BITS_7
+export FT_STOP_BITS_1, FT_STOP_BITS_2
+export FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
+# not yet implemented...
+# export FT_FLOW_NONE, FT_FLOW_RTS_CTS, FT_FLOW_DTR_DSR, FT_FLOW_XON_XOFF
+# export FT_EVENT_RXCHAR, FT_EVENT_MODEM_STATUS, FT_EVENT_LINE_STATUS not yet implemented
+export FT_PURGE_RX, FT_PURGE_TX
 export FT_STATUS_ENUM,
         FT_OK,
         FT_INVALID_HANDLE,
@@ -31,11 +38,34 @@ export FT_STATUS_ENUM,
         FT_OTHER_ERROR,
         FT_DEVICE_LIST_NOT_READY
 
-export FT_DEVICE
+# Types
+export FT_HANDLE
 
-export FT_BITS_8, FT_BITS_7, 
-FT_STOP_BITS_1, FT_STOP_BITS_2, 
-FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_SPACE
+# Functions
+export ptr
+export FT_CreateDeviceInfoList, 
+        FT_GetDeviceInfoList,
+        FT_GetDeviceInfoDetail,
+        FT_ListDevices,
+        FT_Open,
+        FT_OpenEx,
+        FT_Close,
+        FT_Read,
+        FT_Write,
+        FT_SetBaudRate,
+        FT_SetDataCharacteristics,
+        FT_SetTimeouts,
+        FT_GetModemStatus,
+        FT_GetQueueStatus,
+        FT_GetDeviceInfo,
+        FT_GetDriverVersion,
+        FT_GetLibraryVersion,
+        FT_GetStatus,
+        FT_SetBreakOn,
+        FT_SetBreakOff,
+        FT_Purge,
+        FT_StopInTask,
+        FT_RestartInTask
 
 using Compat
 using Compat.Libdl
@@ -84,12 +114,16 @@ function __init__()
   end
 end
 
-# Constants
+# Type Aliases
 # 
 const DWORD     = Cuint
 const ULONG     = Culong
 const UCHAR     = Cuchar
 const FT_STATUS = ULONG
+
+
+# Library Constants
+#
 
 # FT_OpenEx Flags
 const FT_OPEN_BY_SERIAL_NUMBER  = 1
@@ -116,22 +150,6 @@ const FT_LIST_NUMBER_ONLY     = 0x80000000
 const FT_LIST_BY_INDEX        = 0x40000000
 const FT_LIST_ALL             = 0x20000000
 
-# Baud Rates
-const FT_BAUD_300             = 300
-const FT_BAUD_600             = 600
-const FT_BAUD_1200            = 1200
-const FT_BAUD_2400            = 2400
-const FT_BAUD_4800            = 4800
-const FT_BAUD_9600            = 9600
-const FT_BAUD_14400           = 14400
-const FT_BAUD_19200           = 19200
-const FT_BAUD_38400           = 38400
-const FT_BAUD_57600           = 57600
-const FT_BAUD_115200          = 115200
-const FT_BAUD_230400          = 230400
-const FT_BAUD_460800          = 460800
-const FT_BAUD_921600          = 921600
-
 # Word Lengths
 const FT_BITS_8               = 8
 const FT_BITS_7               = 7
@@ -147,28 +165,22 @@ const  FT_PARITY_EVEN         = 2
 const  FT_PARITY_MARK         = 3
 const  FT_PARITY_SPACE        = 4
 
-# Flow Control
+# FT_SetFlowControl Flow Control Flags (not yet implemented)
 const FT_FLOW_NONE            = 0x0000
 const FT_FLOW_RTS_CTS         = 0x0100
 const FT_FLOW_DTR_DSR         = 0x0200
 const FT_FLOW_XON_XOFF        = 0x0400
 
-# Events
+# FT_SetEventNotification Event Flags (not yet implemented)
 const FT_EVENT_RXCHAR         = 1
 const FT_EVENT_MODEM_STATUS   = 2
 const FT_EVENT_LINE_STATUS    = 4
 
-# Timeouts
-const  FT_DEFAULT_RX_TIMEOUT  = 300
-const  FT_DEFAULT_TX_TIMEOUT  = 300
-
+# FT_Purge Flags
 const FT_PURGE_RX = 1
 const FT_PURGE_TX = 2
 
-# Library
-# 
-
-
+# FT_STATUS Return Values
 @enum(
   FT_STATUS_ENUM,
   FT_OK,
@@ -192,9 +204,10 @@ const FT_PURGE_TX = 2
   FT_OTHER_ERROR,
   FT_DEVICE_LIST_NOT_READY)
 
-
 # Types
 # 
+
+# FT_GetDeviceInfoList Struct
 struct FT_DEVICE_LIST_INFO_NODE
   flags::ULONG
   typ::ULONG
@@ -205,22 +218,43 @@ struct FT_DEVICE_LIST_INFO_NODE
   fthandle_ptr::Ptr{Cvoid}
 end
 
-mutable struct FT_HANDLE<:IO 
+"""
+    mutable struct FT_HANDLE<:IO
+
+Holds a handle to an FT D2XX device.
+"""
+mutable struct FT_HANDLE<:IO
   p::Ptr{Cvoid} 
 end
 
+"""
+    FT_HANDLE()
+
+Constructs a handle to an FT D2XX device that points to `C_NULL`. Initialsed 
+with a finalizer that calls [`destroy!`](@ref).
+"""
 function FT_HANDLE()
   handle = FT_HANDLE(C_NULL)
   @compat finalizer(destroy!, handle)
   handle
 end
 
+"""
+    destroy!(handle::FT_HANDLE)
+
+Destructor for the [`FT_HANDLE`](@ref) type.
+"""
 function destroy!(handle::FT_HANDLE)
   if ptr(handle) != C_NULL
     FT_Close(handle)
   end
 end
 
+"""
+    ptr(handle::FT_HANDLE)
+
+Get the raw pointer for an [`FT_HANDLE`](@ref).
+"""
 ptr(handle::FT_HANDLE) = handle.p
 
 # wrapper functions
