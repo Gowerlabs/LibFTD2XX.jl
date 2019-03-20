@@ -196,11 +196,13 @@ end
     Base.open(d::D2XXDevice)
 
 Open a [`D2XXDevice`](@ref) for reading and writing using [`FT_OpenEx`](@ref).
+Cannot be used to open the same device twice.
 
 See also: [`isopen`](@ref), [`close`](@ref)
 """
 function Base.open(d::D2XXDevice)
-  d.fthandle = open(description(d), OPEN_BY_DESCRIPTION)
+  isopen(d) && throw(D2XXException("Device already open."))
+  d.fthandle = FT_Open(deviceidx(d))
   return
 end
 
@@ -208,7 +210,7 @@ end
     open(str::AbstractString, openby::FTOpenBy) -> FT_HANDLE
 
 Create an open [`FT_HANDLE`](@ref) for reading and writing using 
-[`FT_OpenEx`](@ref).
+[`FT_OpenEx`](@ref). Cannot be used to open the same device twice.
 
 # Arguments
  - `str::AbstractString` : Device identifier. Type depends on `openby`
@@ -216,7 +218,17 @@ Create an open [`FT_HANDLE`](@ref) for reading and writing using
 
 See also: [`isopen`](@ref), [`close`](@ref)
 """
-Base.open(str::AbstractString, openby::FTOpenBy) = FT_OpenEx(str, DWORD(openby))
+function Base.open(str::AbstractString, openby::FTOpenBy)
+  try
+    FT_OpenEx(str, DWORD(openby))
+  catch ex
+    if (ex == FT_DEVICE_NOT_OPENED) || (ex == FT_DEVICE_NOT_FOUND)
+      throw(D2XXException("Device already open."))
+    else
+      rethrow(ex)
+    end
+  end
+end
 
 
 """

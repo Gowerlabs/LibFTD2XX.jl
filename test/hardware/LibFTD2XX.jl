@@ -37,6 +37,7 @@ using LibFTD2XX
     handle = open(descr, OPEN_BY_DESCRIPTION)
     @test handle isa FT_HANDLE
     @test isopen(handle)
+    @test_throws D2XXException open(descr, OPEN_BY_DESCRIPTION) # can't open twice
     close(handle)
     @test !isopen(handle)
 
@@ -44,6 +45,7 @@ using LibFTD2XX
     handle = open(serialn, OPEN_BY_SERIAL_NUMBER)
     @test handle isa FT_HANDLE
     @test isopen(handle)
+    @test_throws D2XXException open(serialn, OPEN_BY_SERIAL_NUMBER) # can't open twice
     close(handle)
     @test !isopen(handle)
 
@@ -147,6 +149,7 @@ using LibFTD2XX
     retval = open.(devices)
     @test all(retval .== nothing)
     @test all(isopen.(devices))
+    @test_throws D2XXException open.(devices) # can't open twice
   
     # bytesavailable
     nbs = bytesavailable.(devices)
