@@ -26,11 +26,9 @@ using LibFTD2XX.Util
   retval = FT_ListDevices(numdevs2, Ref{UInt32}(), FT_LIST_NUMBER_ONLY)
   @test retval == nothing
   @test numdevs2[] == numdevs
-
-  # devidx = Ref{UInt32}(0)
-  # buffer = pointer(Vector{Cchar}(undef, 64))
-  # FT_ListDevices(devidx, buffer, FT_LIST_BY_INDEX|FT_OPEN_BY_SERIAL_NUMBER)
-  # @test ntuple2string(description) == unsafe_string(buffer)
+  devidx = Ref{UInt32}(0)
+  buffer = pointer(Vector{Cchar}(undef, 64))
+  @test_throws ErrorException FT_ListDevices(devidx, buffer, FT_LIST_BY_INDEX|FT_OPEN_BY_SERIAL_NUMBER)
 
   # FT_Open tests...
   @test_throws FT_STATUS_ENUM FT_Open(0)

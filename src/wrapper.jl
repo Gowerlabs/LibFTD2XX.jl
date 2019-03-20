@@ -415,16 +415,17 @@ julia> devidx = Ref{UInt32}(0)
 Base.RefValue{UInt32}(0x00000000)
 
 julia> buffer = pointer(Vector{Cchar}(undef, 64))
-Ptr{Int8} @0x00000000065a8690
+Ptr{Int8} @0x0000000004f2e530
 
 julia> FT_ListDevices(devidx, buffer, FT_LIST_BY_INDEX|FT_OPEN_BY_SERIAL_NUMBER)
-ERROR: FT_DEVICE_NOT_FOUND::FT_STATUS_ENUM = 2
+ERROR: FT_ListDevices wrapper does not yet flags other than FT_LIST_NUMBER_ONLY.
 Stacktrace:
 ...
 
 ```
 """
 function FT_ListDevices(pvArg1, pvArg2, dwFlags)
+  dwFlags == FT_LIST_NUMBER_ONLY || throw(ErrorException("FT_ListDevices wrapper does not yet flags other than FT_LIST_NUMBER_ONLY."))
   flagsarg = DWORD(dwFlags)
   status = ccall(cfunc[:FT_ListDevices], cdecl, FT_STATUS, 
                  (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
