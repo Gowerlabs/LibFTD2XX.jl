@@ -12,7 +12,6 @@ using LibFTD2XX.Util
   # FT_CreateDeviceInfoList tests...
   numdevs = FT_CreateDeviceInfoList()
   @test numdevs > 0
-  @info "wrapper: Number of devices is $numdevs"
 
   # FT_GetDeviceInfoList tests...
   devinfolist, numdevs2 = FT_GetDeviceInfoList(numdevs)
@@ -20,7 +19,6 @@ using LibFTD2XX.Util
   @test length(devinfolist) == numdevs
   
   description = ntuple2string(devinfolist[1].description)
-  @info "wrapper: testing device $description"
 
   if Sys.iswindows() # should not have a locid on windows
     @test devinfolist[1].locid == 0

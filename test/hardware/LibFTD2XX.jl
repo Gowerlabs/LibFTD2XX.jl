@@ -15,7 +15,6 @@ using LibFTD2XX
   # createdeviceinfolist
   numdevs = LibFTD2XX.createdeviceinfolist()
   @test numdevs > 0
-  @info "high level: Number of devices is $numdevs"
 
   # LibFTD2XX.getdeviceinfodetail
   @test_throws D2XXException LibFTD2XX.getdeviceinfodetail(numdevs)
@@ -30,7 +29,6 @@ using LibFTD2XX
     @test fthand isa FT_HANDLE
   end
   idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(0)
-  @info "high level: testing device $descr"
 
   # FT_HANDLE functions...
   @testset "FT_HANDLE" begin

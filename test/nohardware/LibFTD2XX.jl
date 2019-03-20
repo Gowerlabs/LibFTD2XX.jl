@@ -16,7 +16,6 @@ import LibFTD2XX.Wrapper
   # createdeviceinfolist
   numdevs = LibFTD2XX.createdeviceinfolist()
   @test numdevs == 0
-  @info "high level: Number of devices is $numdevs"
 
   # LibFTD2XX.getdeviceinfodetail
   @test_throws D2XXException LibFTD2XX.getdeviceinfodetail(0)
