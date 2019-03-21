@@ -212,7 +212,7 @@ See also: [`isopen`](@ref), [`close`](@ref)
 """
 function Base.open(d::D2XXDevice)
   isopen(d) && throw(D2XXException("Device already open."))
-  d.fthandle = FT_Open(deviceidx(d))
+  fthandle(d, FT_Open(deviceidx(d)))
   return
 end
 
@@ -655,5 +655,14 @@ Get the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
 See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice) = d.fthandle
+
+"""
+    fthandle(d::D2XXDevice, fthandle::FT_HANDLE)
+
+Set the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
+
+See also: [`D2XXDevice`](@ref)
+"""
+fthandle(d::D2XXDevice, fthandle::FT_HANDLE) = (d.fthandle = fthandle)
 
 end # module LibFTD2XX
