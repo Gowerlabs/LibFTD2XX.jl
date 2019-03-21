@@ -533,14 +533,16 @@ Base.flush(d::D2XXDevice) = flush(fthandle(d))
 """
     flush(handle::FT_HANDLE)
 
-Clear the transmit and receive buffers for an open [`FT_HANDLE`](@ref) using 
-[`FT_Purge`](@ref).
+Clear the transmit and receive buffers for an open [`FT_HANDLE`](@ref).
 
 See also: [`isopen`](@ref), [`open`](@ref), [`bytesavailable`](@ref)
 """
 function Base.flush(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to flush."))
+  FT_StopInTask(handle)
   FT_Purge(handle, FT_PURGE_TX|FT_PURGE_RX)
+  readavailable(handle)
+  FT_RestartInTask(handle)
 end
 
 
