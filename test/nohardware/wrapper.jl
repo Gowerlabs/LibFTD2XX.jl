@@ -103,7 +103,7 @@ using LibFTD2XX.Util
   @test_throws FT_INVALID_HANDLE FT_SetBreakOff(handle)
 
   # FT_Purge tests
-  @test_throws FT_INVALID_HANDLE FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+  @test_throws FT_INVALID_HANDLE FT_Purge(handle, FT_PURGE_RX|FT_PURGE_TX)
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_RX))
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_TX))
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_RX | FT_PURGE_TX))

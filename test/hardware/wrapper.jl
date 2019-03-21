@@ -200,7 +200,7 @@ using LibFTD2XX.Util
 
   # FT_Purge tests
   handle = FT_Open(0)
-  retval = FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+  retval = FT_Purge(handle, FT_PURGE_RX|FT_PURGE_TX)
   @test retval == nothing
   nbrx, nbtx, eventstatus = FT_GetStatus(handle)
   nbrx_2 = FT_GetQueueStatus(handle)
@@ -211,7 +211,7 @@ using LibFTD2XX.Util
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_TX))
   @test_throws AssertionError FT_Purge(handle, ~(FT_PURGE_RX | FT_PURGE_TX))
   FT_Close(handle)
-  @test_throws FT_STATUS_ENUM FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+  @test_throws FT_STATUS_ENUM FT_Purge(handle, FT_PURGE_RX|FT_PURGE_TX)
 
   # FT_StopInTask and FT_RestartInTask tests
   handle = FT_Open(0)

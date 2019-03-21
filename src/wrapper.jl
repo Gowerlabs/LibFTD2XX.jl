@@ -1093,7 +1093,7 @@ julia> numdevs = FT_CreateDeviceInfoList()
 julia> handle = FT_Open(0)
 FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
 
-julia> FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+julia> FT_Purge(handle, FT_PURGE_RX|FT_PURGE_TX)
 
 julia> nbrx, nbtx, eventstatus = FT_GetStatus(handle) # All queues empty!
 (0x00000000, 0x00000000, 0x00000000)
@@ -1103,7 +1103,7 @@ julia> FT_Close(handle)
 """
 function FT_Purge(ftHandle::FT_HANDLE, dwMask)
   @assert (dwMask == FT_PURGE_RX) || (dwMask == FT_PURGE_TX) || 
-          (dwMask == FT_PURGE_RX|FT_PURGE_RX)
+          (dwMask == FT_PURGE_RX|FT_PURGE_TX)
   status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE, DWORD),
                                                            ftHandle,   dwMask)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))

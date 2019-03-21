@@ -18,7 +18,6 @@ The below is a demonstration for a port running at 2MBaud which echos what it re
 ```Julia
 julia> using LibFTD2XX
 
-
 julia> devices = D2XXDevices() # create an array of available devices
 4-element Array{D2XXDevice,1}:
  D2XXDevice(0, 2, 7, 67330065, 0, "FT3V1RFFA", "USB <-> Serial Converter A", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))

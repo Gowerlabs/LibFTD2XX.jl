@@ -540,7 +540,7 @@ See also: [`isopen`](@ref), [`open`](@ref), [`bytesavailable`](@ref)
 """
 function Base.flush(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to flush."))
-  FT_Purge(handle, FT_PURGE_RX|FT_PURGE_RX)
+  FT_Purge(handle, FT_PURGE_TX|FT_PURGE_RX)
 end
 
 
