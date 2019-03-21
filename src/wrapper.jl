@@ -1,4 +1,14 @@
 # LibFTD2XX.jl - C Library Wrapper
+#
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
+#
+# This module contains wrappers for D2XX devices. See D2XX Programmer's Guide 
+# (FT_000071) for more information.
+#
+# Only recommended for advanced users. Note that there is minimal argument 
+# checking in these wrapper methods. 
 
 module Wrapper
 

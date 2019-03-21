@@ -1,4 +1,13 @@
-# LibFTD2XX.jl
+# LibFTD2XX.jl - High Level Module
+#
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
+#
+# This module contains methods and functions for interacting with D2XX devices.
+# It calls functions from the submodule `Wrapper` which in turn call Functions
+# from the FT D2XX library. See D2XX Programmer's Guide (FT_000071) for more 
+# information on that library.
 
 module LibFTD2XX
 

@@ -1,4 +1,8 @@
-# These tests do not require an FT device which supports D2XX to be connected 
+# These tests do not require an FT device which supports D2XX to be connected
+#
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
 
 module TestWrapper
 

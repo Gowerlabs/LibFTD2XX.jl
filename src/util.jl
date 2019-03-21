@@ -1,3 +1,9 @@
+# LibFTD2XX.jl - Utility Module
+#
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
+
 module Util
 
 export ntuple2string

@@ -1,3 +1,7 @@
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
+
 module TestUtil
 
 using Compat
