@@ -46,7 +46,7 @@ import LibFTD2XX.Wrapper
     txbuf = ones(UInt8, 10)
     @test_throws D2XXException write(handle, txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ErrorException write(handle, write(d, Int.(txbuf))) # No byte I/O...
+    @test_throws ErrorException write(handle, Int.(txbuf)) # No byte I/O...
 
     # readavailable
     @test_throws D2XXException readavailable(handle)
@@ -116,7 +116,7 @@ import LibFTD2XX.Wrapper
     txbuf = ones(UInt8, 10)
     @test_throws D2XXException write(device, txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ErrorException write(device, write(d, Int.(txbuf))) # No byte I/O...
+    @test_throws ErrorException write(device, Int.(txbuf)) # No byte I/O...
 
     # readavailable
     @test_throws D2XXException readavailable(device)

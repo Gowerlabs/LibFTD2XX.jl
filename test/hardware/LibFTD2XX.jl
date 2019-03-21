@@ -77,7 +77,7 @@ import LibFTD2XX.Wrapper
     nwr = write(handle, txbuf)
     @test nwr == length(txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ErrorException write(handle, write(d, Int.(txbuf))) # No byte I/O...
+    @test_throws ErrorException write(handle, Int.(txbuf)) # No byte I/O...
     close(handle) # can't use on closed device
     @test_throws D2XXException read(handle, nb)
 
@@ -227,7 +227,7 @@ import LibFTD2XX.Wrapper
     nwr = write(device, txbuf)
     @test nwr == length(txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ErrorException write(device, write(d, Int.(txbuf))) # No byte I/O...
+    @test_throws ErrorException write(device, Int.(txbuf)) # No byte I/O...
     close(device) # can't use on closed device
     @test_throws D2XXException write(device, txbuf)
 
