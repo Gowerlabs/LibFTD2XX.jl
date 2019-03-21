@@ -143,7 +143,7 @@ Construct a `D2XXDevice` without opening it. D2XX hardware must pre present to
 work.
 """
 function D2XXDevice(deviceidx::Integer)
-  0 <= deviceidx || throw(ArgumentError("0 <= deviceidx"))
+  0 <= deviceidx || throw(DomainError("0 <= deviceidx"))
   idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
   D2XXDevice(idx, flags, typ, id, locid, serialnumber, description, fthandle)
 end
@@ -379,7 +379,7 @@ Set the baudrate of an open [`FT_HANDLE`](@ref) to `baud` using
 See also: [`isopen`](@ref), [`open`](@ref)
 """
 function baudrate(handle::FT_HANDLE, baud)
-  0 < baud || throw(ArgumentError("0 <= baud"))
+  0 < baud || throw(DomainError("0 <= baud"))
   isopen(handle) || throw(D2XXException("Device must be open to set baudrate."))
   FT_SetBaudRate(handle, baud)
 end
@@ -449,8 +449,8 @@ block.
 See also: [`isopen`](@ref), [`open`](@ref)
 """
 function timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
-  0 <= timeout_rd || throw(ArgumentError("0 <= timeout_rd"))
-  0 <= timeout_wr || throw(ArgumentError("0 <= timeout_wr"))
+  0 <= timeout_rd || throw(DomainError("0 <= timeout_rd"))
+  0 <= timeout_wr || throw(DomainError("0 <= timeout_wr"))
   isopen(handle) || throw(D2XXException("Device must be open to set timeouts."))
   FT_SetTimeouts(handle, timeout_rd, timeout_wr)
 end 
@@ -553,7 +553,7 @@ end
 
 
 function getdeviceinfodetail(deviceidx)
-  0 <= deviceidx || throw(ArgumentError("0 <= deviceidx"))
+  0 <= deviceidx || throw(DomainError("0 <= deviceidx"))
   deviceidx < createdeviceinfolist() || throw(D2XXException("Device index $deviceidx not in range."))
   idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(deviceidx)
 end

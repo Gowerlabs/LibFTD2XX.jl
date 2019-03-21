@@ -34,7 +34,7 @@ import LibFTD2XX.Wrapper
     @test fthand isa FT_HANDLE
   end
   idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(0)
-  @test_throws ArgumentError LibFTD2XX.getdeviceinfodetail(-1)
+  @test_throws DomainError LibFTD2XX.getdeviceinfodetail(-1)
 
   # FT_HANDLE functions...
   @testset "FT_HANDLE" begin
@@ -96,8 +96,8 @@ import LibFTD2XX.Wrapper
     nwr = write(handle, txbuf)
     @test nwr == length(txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ArgumentError baudrate(handle, 0)
-    @test_throws ArgumentError baudrate(handle, -1)
+    @test_throws DomainError baudrate(handle, 0)
+    @test_throws DomainError baudrate(handle, -1)
     close(handle) # can't use on closed device
     @test_throws D2XXException baudrate(handle, 2000000)
 
@@ -135,8 +135,8 @@ import LibFTD2XX.Wrapper
     twr = @elapsed write(handle, buffer)
     @test tread*1000 < 2*timeout_read
     @test twr*1000 < 2*timeout_wr
-    @test_throws ArgumentError timeouts(handle, timeout_read, -1)
-    @test_throws ArgumentError timeouts(handle, -1, timeout_wr)
+    @test_throws DomainError timeouts(handle, timeout_read, -1)
+    @test_throws DomainError timeouts(handle, -1, timeout_wr)
     close(handle) # can't use on closed device
     @test_throws D2XXException timeouts(handle, timeout_read, timeout_wr)
 
@@ -170,7 +170,7 @@ import LibFTD2XX.Wrapper
   @testset "D2XXDevice" begin
 
     # Constructor
-    @test_throws ArgumentError D2XXDevice(-1)
+    @test_throws DomainError D2XXDevice(-1)
     for i = 0:(numdevs-1)
       idx, flgs, typ, devid, locid, serialn, descr, fthand = LibFTD2XX.getdeviceinfodetail(i)
       dev = D2XXDevice(i)
@@ -246,8 +246,8 @@ import LibFTD2XX.Wrapper
     nwr = write(device, txbuf)
     @test nwr == length(txbuf)
     @test txbuf == ones(UInt8, 10)
-    @test_throws ArgumentError baudrate(device, 0)
-    @test_throws ArgumentError baudrate(device, -1)
+    @test_throws DomainError baudrate(device, 0)
+    @test_throws DomainError baudrate(device, -1)
     close(device) # can't use on closed device
     @test_throws D2XXException baudrate(device, 2000000)
 
@@ -284,8 +284,8 @@ import LibFTD2XX.Wrapper
     twr = @elapsed write(device, buffer)
     @test tread*1000 < 2*timeout_read
     @test twr*1000 < 2*timeout_wr
-    @test_throws ArgumentError timeouts(device, timeout_read, -1)
-    @test_throws ArgumentError timeouts(device, -1, timeout_wr)
+    @test_throws DomainError timeouts(device, timeout_read, -1)
+    @test_throws DomainError timeouts(device, -1, timeout_wr)
     close(device) # can't use on closed device
     @test_throws D2XXException timeouts(device, timeout_read, timeout_wr)
 
