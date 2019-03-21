@@ -114,7 +114,7 @@ end
 
 
 """
-    mutable struct D2XXDevice <: IO
+    struct D2XXDevice <: IO
 
 Device identifier for a D2XX device.
 
@@ -122,7 +122,7 @@ See also: [`D2XXDevices`](@ref), [`deviceidx`](@ref), [`deviceflags`](@ref),
 [`devicetype`](@ref), [`deviceid`](@ref), [`locationid`](@ref), 
 [`serialnumber`](@ref), [`description`](@ref), [`fthandle`](@ref).
 """
-mutable struct D2XXDevice <: IO
+struct D2XXDevice <: IO
   idx::Int
   flags::Int
   typ::Int
@@ -130,7 +130,7 @@ mutable struct D2XXDevice <: IO
   locid::Int
   serialnumber::String
   description::String
-  fthandle::FT_HANDLE
+  fthandle::Ref{FT_HANDLE}
 end
 
 
@@ -654,7 +654,7 @@ Get the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
 
 See also: [`D2XXDevice`](@ref)
 """
-fthandle(d::D2XXDevice) = d.fthandle
+fthandle(d::D2XXDevice) = d.fthandle[]
 
 """
     fthandle(d::D2XXDevice, fthandle::FT_HANDLE)
@@ -663,6 +663,6 @@ Set the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
 
 See also: [`D2XXDevice`](@ref)
 """
-fthandle(d::D2XXDevice, fthandle::FT_HANDLE) = (d.fthandle = fthandle)
+fthandle(d::D2XXDevice, fthandle::FT_HANDLE) = (d.fthandle[] = fthandle)
 
 end # module LibFTD2XX
