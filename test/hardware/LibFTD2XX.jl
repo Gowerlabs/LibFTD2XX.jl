@@ -5,6 +5,7 @@ module TestLibFTD2XX
 using Compat
 using Compat.Test
 using LibFTD2XX
+import LibFTD2XX.Wrapper
 
 @testset "high level" begin
 
@@ -37,7 +38,7 @@ using LibFTD2XX
     handle = open(descr, OPEN_BY_DESCRIPTION)
     @test handle isa FT_HANDLE
     @test isopen(handle)
-    @test_throws D2XXException open(descr, OPEN_BY_DESCRIPTION) # can't open twice
+    @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(descr, OPEN_BY_DESCRIPTION) # can't open twice
     close(handle)
     @test !isopen(handle)
 
@@ -45,7 +46,7 @@ using LibFTD2XX
     handle = open(serialn, OPEN_BY_SERIAL_NUMBER)
     @test handle isa FT_HANDLE
     @test isopen(handle)
-    @test_throws D2XXException open(serialn, OPEN_BY_SERIAL_NUMBER) # can't open twice
+    @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(serialn, OPEN_BY_SERIAL_NUMBER) # can't open twice
     close(handle)
     @test !isopen(handle)
 
@@ -91,6 +92,18 @@ using LibFTD2XX
     # datacharacteristics
     retval = datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
     @test retval == nothing
+
+    # timeouts tests...
+    baudrate(handle, 9600)
+    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeouts(handle, timeout_read, timeout_wr)
+    tread = @elapsed read(handle, 5000)
+    buffer = zeros(UInt8, 5000);
+    twr = @elapsed write(handle, buffer)
+    @test tread*1000 < 2*timeout_read
+    @test twr*1000 < 2*timeout_wr
+    @test_throws InexactError timeouts(handle, timeout_read, -1)
+    @test_throws InexactError timeouts(handle, -1, timeout_wr)
 
     # status
     mflaglist, lflaglist = status(handle)
@@ -194,6 +207,18 @@ using LibFTD2XX
     # datacharacteristics
     retval = datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
     @test retval == nothing
+
+    # timeouts tests...
+    baudrate(device, 9600)
+    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeouts(device, timeout_read, timeout_wr)
+    tread = @elapsed read(device, 5000)
+    buffer = zeros(UInt8, 5000);
+    twr = @elapsed write(device, buffer)
+    @test tread*1000 < 2*timeout_read
+    @test twr*1000 < 2*timeout_wr
+    @test_throws InexactError timeouts(device, timeout_read, -1)
+    @test_throws InexactError timeouts(device, -1, timeout_wr)
 
     # status
     mflaglist, lflaglist = status(device)

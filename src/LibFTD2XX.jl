@@ -14,7 +14,7 @@ export D2XXException
 export D2XXDevice, D2XXDevices
 
 # Port communication functions
-export baudrate, datacharacteristics, status, driverversion
+export baudrate, datacharacteristics, timeouts, status, driverversion
 
 # Library Functions
 export libversion
@@ -218,17 +218,7 @@ Create an open [`FT_HANDLE`](@ref) for reading and writing using
 
 See also: [`isopen`](@ref), [`close`](@ref)
 """
-function Base.open(str::AbstractString, openby::FTOpenBy)
-  try
-    FT_OpenEx(str, DWORD(openby))
-  catch ex
-    if (ex == FT_DEVICE_NOT_OPENED) || (ex == FT_DEVICE_NOT_FOUND)
-      throw(D2XXException("Device already open."))
-    else
-      rethrow(ex)
-    end
-  end
-end
+Base.open(str::AbstractString, openby::FTOpenBy) =  FT_OpenEx(str, DWORD(openby))
 
 
 """
@@ -426,6 +416,27 @@ function datacharacteristics(handle::FT_HANDLE;
 isopen(handle) || throw(D2XXException("Device must be open to set data characteristics."))
 FT_SetDataCharacteristics(handle, DWORD(wordlength), DWORD(stopbits), DWORD(parity))
 end
+
+
+"""
+    timeouts(d::D2XXDevice, timeout_rd, timeout_wr)
+
+Set the timeouts of an open [`D2XXDevice`](@ref) using [`FT_SetTimeouts`](@ref).
+"""
+timeouts(d::D2XXDevice, timeout_rd, timeout_wr) = 
+timeouts(fthandle(d) , timeout_rd, timeout_wr)
+
+"""
+    timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
+
+Set the timeouts of an open [`FT_HANDLE`](@ref) using [`FT_SetTimeouts`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
+  isopen(handle) || throw(D2XXException("Device must be open to set timeouts."))
+  FT_SetTimeouts(handle, timeout_rd, timeout_wr)
+end 
 
 
 """
