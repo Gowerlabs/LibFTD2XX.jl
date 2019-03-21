@@ -67,7 +67,7 @@ import LibFTD2XX.Wrapper
     handle = open(descr, OPEN_BY_DESCRIPTION)
     rxbuf = read(handle, nb)
     @test length(rxbuf) == nb
-    @test_throws ArgumentError read(handle, -1)
+    @test_throws ErrorException read(handle, -1) # exception type set by Base/io.jl
     close(handle) # can't use on closed device
     @test_throws D2XXException read(handle, nb)
 
@@ -216,7 +216,7 @@ import LibFTD2XX.Wrapper
     open(device)
     rxbuf = read(device, nb)
     @test length(rxbuf) == nb
-    @test_throws ArgumentError read(device, -1)
+    @test_throws ErrorException read(device, -1) # exception type set by Base/io.jl
     close(device) # can't use on closed device
     @test_throws D2XXException read(device, nb)
 

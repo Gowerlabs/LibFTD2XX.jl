@@ -40,7 +40,8 @@ import LibFTD2XX.Wrapper
 
     # read
     @test_throws D2XXException read(handle, 0)
-    @test_throws ArgumentError read(handle, -1)
+    @test_throws D2XXException read(handle, 1)
+    @test_throws ErrorException read(handle, -1) # exception type set by Base/io.jl
 
     # write
     txbuf = ones(UInt8, 10)
@@ -110,7 +111,7 @@ import LibFTD2XX.Wrapper
 
     # read
     @test_throws D2XXException read(device, nb)
-    @test_throws ArgumentError read(device, -1)
+    @test_throws ErrorException read(device, -1) # exception type set by Base/io.jl
 
     # write
     txbuf = ones(UInt8, 10)
