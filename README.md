@@ -18,14 +18,16 @@ The below is a demonstration for a port running at 2MBaud which echos what it re
 ```Julia
 julia> using LibFTD2XX
 
-julia> devices = D2XXDevices() # create an array of available devices
+julia> # Finding and configuring devices
+
+julia> devices = D2XXDevices()
 4-element Array{D2XXDevice,1}:
  D2XXDevice(0, 2, 7, 67330065, 0, "FT3V1RFFA", "USB <-> Serial Converter A", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
  D2XXDevice(1, 2, 7, 67330065, 0, "FT3V1RFFB", "USB <-> Serial Converter B", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
  D2XXDevice(2, 2, 7, 67330065, 0, "FT3V1RFFC", "USB <-> Serial Converter C", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
  D2XXDevice(3, 2, 7, 67330065, 0, "FT3V1RFFD", "USB <-> Serial Converter D", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
 
-julia> isopen.(devices) # devices are not opened when they are listed
+julia> isopen.(devices)
 4-element BitArray{1}:
  false
  false
@@ -43,6 +45,15 @@ true
 julia> datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
 
 julia> baudrate(device,2000000)
+
+julia> timeout_read, timeout_wr = 200, 10; # milliseconds
+
+julia> timeouts(device, timeout_read, timeout_wr)
+
+julia> # Basic IO commands
+
+julia> supertype(typeof(device))
+IO
 
 julia> write(device, Vector{UInt8}(codeunits("Hello")))
 0x00000005
@@ -69,6 +80,51 @@ julia> flush(device)
 
 julia> bytesavailable(device)
 0x00000000
+
+julia> # Read Timeout behaviour
+
+julia> tread = 1000 * @elapsed read(device, 5000) # nothing to read! Will timeout...
+203.20976900000002
+
+julia> timeout_read < 1.5*tread # 1.5*tread to allow for extra compile/run time.
+true
+
+julia> # Write Timeout behaviour (only tested on windows)
+
+julia> buffer = zeros(UInt8, 5000);
+
+julia> twr = 1000 * @elapsed nb = write(device, buffer) # Will timeout before finishing write!
+22.997304
+
+julia> timeout_wr < 1.5*twr
+true
+
+julia> nb # doesn't correctly report number written
+0x00000000
+
+julia> Int(bytesavailable(device))
+3584
+
+julia> timeout_wr < 1.5*twr
+true
+
+julia> flush(device)
+
+julia> timeout_wr = 1000; # increase write timeout
+
+julia> timeouts(device, timeout_read, timeout_wr)
+
+julia> twr = 1000 * @elapsed nb = write(device, buffer) # Won't timeout before finishing write!
+15.960230999999999
+
+julia> nb # correctly reports number written
+0x00001388
+
+julia> Int(bytesavailable(device))
+5000
+
+julia> timeout_wr < 1.5*twr
+false
 
 julia> close(device)
 
