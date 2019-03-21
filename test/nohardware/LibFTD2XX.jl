@@ -36,18 +36,21 @@ import LibFTD2XX.Wrapper
 
     # read
     @test_throws D2XXException read(handle, 0)
-    @test_throws ErrorException read(handle, -1)
+    @test_throws ArgumentError read(handle, -1)
 
     # write
     txbuf = ones(UInt8, 10)
     @test_throws D2XXException write(handle, txbuf)
     @test txbuf == ones(UInt8, 10)
+    @test_throws ErrorException write(handle, write(d, Int.(txbuf))) # No byte I/O...
 
     # readavailable
     @test_throws D2XXException readavailable(handle)
 
     # baudrate
     @test_throws D2XXException baudrate(handle, 9600)
+    @test_throws ArgumentError baudrate(handle, 0)
+    @test_throws ArgumentError baudrate(handle, -1)
 
     # flush and eof
     @test_throws D2XXException flush(handle)
@@ -62,8 +65,8 @@ import LibFTD2XX.Wrapper
     # timeouts tests...
     timeout_read, timeout_wr = 50, 10 # milliseconds
     @test_throws D2XXException timeouts(handle, timeout_read, timeout_wr)
-    @test_throws InexactError timeouts(handle, timeout_read, -1)
-    @test_throws InexactError timeouts(handle, -1, timeout_wr)
+    @test_throws ArgumentError timeouts(handle, timeout_read, -1)
+    @test_throws ArgumentError timeouts(handle, -1, timeout_wr)
 
     # status
     @test_throws D2XXException status(handle)
@@ -81,6 +84,7 @@ import LibFTD2XX.Wrapper
   @testset "D2XXDevice" begin
 
     # Constructor
+    @test_throws ArgumentError D2XXDevice(-1)
     @test_throws D2XXException D2XXDevice(0)
 
     # D2XXDevices
@@ -102,17 +106,21 @@ import LibFTD2XX.Wrapper
 
     # read
     @test_throws D2XXException read(device, nb)
+    @test_throws ArgumentError read(device, -1)
 
     # write
     txbuf = ones(UInt8, 10)
     @test_throws D2XXException write(device, txbuf)
     @test txbuf == ones(UInt8, 10)
+    @test_throws ErrorException write(device, write(d, Int.(txbuf))) # No byte I/O...
 
     # readavailable
     @test_throws D2XXException readavailable(device)
 
     # baudrate
     @test_throws D2XXException baudrate(device, 9600)
+    @test_throws ArgumentError baudrate(device, 0)
+    @test_throws ArgumentError baudrate(device, -1)
 
     # flush and eof
     @test_throws D2XXException flush(device)
@@ -127,8 +135,8 @@ import LibFTD2XX.Wrapper
     # timeouts tests...
     timeout_read, timeout_wr = 50, 10 # milliseconds
     @test_throws D2XXException timeouts(device, timeout_read, timeout_wr)
-    @test_throws InexactError timeouts(device, timeout_read, -1)
-    @test_throws InexactError timeouts(device, -1, timeout_wr)
+    @test_throws ArgumentError timeouts(device, timeout_read, -1)
+    @test_throws ArgumentError timeouts(device, -1, timeout_wr)
 
     # status
     @test_throws D2XXException status(device)
