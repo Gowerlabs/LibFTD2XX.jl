@@ -1,70 +1,80 @@
 # LibFTD2XX
 
-Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
+Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
 
-It has been tested on Julia 0.6.x and 0.7.
+Contains methods and functions for interacting with D2XX devices. Most 
+cross-platform functions are supported.
+
+Direct access to functions detailed in the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf)
+are available in in the submodule `Wrapper`.
+
+
+Supports Julia v0.7 and above.
 
 ## Example Code
 
 The below is a demonstration for a port running at 2MBaud which echos what it receives.
 
 ```Julia
-julia> using LibFTD2XX, Compat # Compat for codeunits 
+julia> using LibFTD2XX
 
-julia> devs = FT_CreateDeviceInfoList() # find out how many devices there are
-4
 
-julia> list, elnum = FT_GetDeviceInfoList(devs)
-(FTD2XX.FT_DEVICE_LIST_INFO_NODE[FTD2XX.FT_DEVICE_LIST_INFO_NODE(0x00000002, 0x00000007, 0x04036011, 0x00000000, (70, 84, 50, 75, 72, 49, 72, 49, 65, 0, -128, 117, -2, 127, 0, 0), (85, 83, 66, 32, 60, 45, 62, 32, 83, 101, 114, 105, 97, 108, 32, 67, 111, 110, 118, 101, 114, 116, 101, 114, 32, 65, 0, 0, 0, 0, 0, 0, 97, -14, 31, 27, 84, 49, 0, 0, -112, 35, -37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -106, 86, 107, 115, -2, 127, 0, 0), FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000000000)), FTD2XX.FT_DEVICE_LIST_INFO_NODE(0x00000002, 0x00000007, 0x04036011, 0x00000000, (70, 84, 50, 75, 72, 49, 72, 49, 66, 0, 98, 7, 0, 0, 0, 0), (85, 83, 66, 32, 60, 45, 62, 32, 83, 101, 114, 105, 97, 108, 32, 67, 111, 110, 118, 101, 114, 116, 101, 114, 32, 66, 0, -128, 1, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0, 112, -68, 98, 7, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0), FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000000000)), FTD2XX.FT_DEVICE_LIST_INFO_NODE(0x00000002, 0x00000007, 0x04036011, 0x00000000, (70, 84, 50, 75, 72, 49, 72, 49, 67, 0, 98, 7, 0, 0, 0, 0), (85, 83, 66, 32, 60, 45, 62, 32, 83, 101, 114, 105, 97, 108, 32, 67, 111, 110, 118, 101, 114, 116, 101, 114, 32, 67, 0, -128, 1, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0, -40, -68, 98, 7, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0), FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000000000)), FTD2XX.FT_DEVICE_LIST_INFO_NODE(0x00000002, 0x00000007, 0x04036011, 0x00000000, (70, 84, 50, 75, 72, 49, 72, 49, 68, 0, 98, 7, 0, 0, 0, 0), (85, 83, 66, 32, 60, 45, 62, 32, 83, 101, 114, 105, 97, 108, 32, 67, 111, 110, 118, 101, 114, 116, 101, 114, 32, 68, 0, -128, 1, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0, 64, -67, 98, 7, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 32, 78, -37, 0, 0, 0, 0, 0), FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000000000))], 0x00000004)
+julia> devices = D2XXDevices() # create an array of available devices
+4-element Array{D2XXDevice,1}:
+ D2XXDevice(0, 2, 7, 67330065, 0, "FT3V1RFFA", "USB <-> Serial Converter A", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
+ D2XXDevice(1, 2, 7, 67330065, 0, "FT3V1RFFB", "USB <-> Serial Converter B", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
+ D2XXDevice(2, 2, 7, 67330065, 0, "FT3V1RFFC", "USB <-> Serial Converter C", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
+ D2XXDevice(3, 2, 7, 67330065, 0, "FT3V1RFFD", "USB <-> Serial Converter D", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
 
-julia> description = String(list[1].description)
-"USB <-> Serial Converter A"
+julia> isopen.(devices) # devices are not opened when they are listed
+4-element BitArray{1}:
+ false
+ false
+ false
+ false
 
-julia> handle = FT_Open(0) # open device by index (from zero)
-FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000d908b0)
+julia> device = devices[1]
+D2XXDevice(0, 2, 7, 67330065, 0, "FT3V1RFFA", "USB <-> Serial Converter A", Base.RefValue{FT_HANDLE}(FT_HANDLE(Ptr{Nothing} @0x0000000000000000)))
 
-julia> isopen(handle)
+julia> open(device)
+
+julia> isopen(device)
 true
 
-julia> close(handle)
+julia> datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
 
-julia> isopen(handle)
-false
+julia> baudrate(device,2000000)
 
-julia> handle = open(description, OPEN_BY_DESCRIPTION)
-FTD2XX.FT_HANDLE(Ptr{Void} @0x0000000000db4e20)
+julia> write(device, Vector{UInt8}(codeunits("Hello")))
+0x00000005
 
-julia> datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
+julia> bytesavailable(device)
+0x00000005
 
-julia> baudrate(handle,2000000)
-
-julia> write(handle, Vector{UInt8}(codeunits("Hello")))
-5
-
-julia> bytesavailable(handle)
-5
-
-julia> String(read(handle, 5))
+julia> String(read(device, 5)) # read 5 bytes
 "Hello"
 
-julia> write(handle, Vector{UInt8}(codeunits("world!")))
-6
+julia> write(device, Vector{UInt8}(codeunits("World")))
+0x00000005
 
-julia> String(readavailable(handle))
-"world!"
+julia> String(readavailable(device)) # read all available bytes
+"World"
 
-julia> write(handle, Vector{UInt8}(codeunits("I will be deleted.")))
-18
+julia> write(device, Vector{UInt8}(codeunits("I will be deleted.")))
+0x00000012
 
-julia> bytesavailable(handle)
-18
+julia> bytesavailable(device)
+0x00000012
 
-julia> flush(handle)
+julia> flush(device)
 
-julia> bytesavailable(handle)
-0
+julia> bytesavailable(device)
+0x00000000
 
-julia> close(handle)
+julia> close(device)
+
+julia> isopen(device)
+false
 
 ```
 
