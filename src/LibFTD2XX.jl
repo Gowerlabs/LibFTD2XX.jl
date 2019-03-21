@@ -309,10 +309,6 @@ See also: [`FT_HANDLE`](@ref)
 """
 function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
   isopen(handle) || throw(D2XXException("Device must be open to read."))
-  nbav = bytesavailable(handle)
-  if nbav < nb
-    nb = nbav
-  end
   if length(b) < nb
     resize!(b, nb)
   end
