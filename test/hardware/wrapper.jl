@@ -122,13 +122,13 @@ using LibFTD2XX.Util
   # FT_SetTimeouts tests...
   handle = FT_Open(0)
   FT_SetBaudRate(handle, 9600)
-  timeout_read, timeout_wr = 50, 10 # milliseconds
+  timeout_read, timeout_wr = 200, 100 # milliseconds
   FT_SetTimeouts(handle, timeout_read, timeout_wr)
   buffer = zeros(UInt8, 5000);
-  tread = @elapsed nread = FT_Read(handle, buffer, 5000)
-  twr = @elapsed nwr = FT_Write(handle, buffer, 5000)
-  @test tread*1000 < 2*timeout_read
-  @test twr*1000 < 2*timeout_wr
+  tread = 1000 * @elapsed nread = FT_Read(handle, buffer, 5000)
+  twr = 1000 * @elapsed nwr = FT_Write(handle, buffer, 5000)
+  @test timeout_read < 1.5*tread
+  @test timeout_wr < 1.5*twr
   @test_throws InexactError FT_SetTimeouts(handle, timeout_read, -1)
   @test_throws InexactError FT_SetTimeouts(handle, -1, timeout_wr)
   FT_Close(handle)

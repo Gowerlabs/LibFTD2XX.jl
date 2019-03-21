@@ -128,13 +128,13 @@ import LibFTD2XX.Wrapper
     # timeouts tests...
     handle = open(descr, OPEN_BY_DESCRIPTION)
     baudrate(handle, 9600)
-    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeout_read, timeout_wr = 200, 100 # milliseconds
     timeouts(handle, timeout_read, timeout_wr)
-    tread = @elapsed read(handle, 5000)
+    tread = 1000 * @elapsed read(handle, 5000)
     buffer = zeros(UInt8, 5000);
-    twr = @elapsed write(handle, buffer)
-    @test tread*1000 < 2*timeout_read
-    @test twr*1000 < 2*timeout_wr
+    twr = 1000 * @elapsed write(handle, buffer)
+    @test timeout_read < 1.5*tread
+    @test timeout_wr < 1.5*twr
     @test_throws DomainError timeouts(handle, timeout_read, -1)
     @test_throws DomainError timeouts(handle, -1, timeout_wr)
     close(handle) # can't use on closed device
@@ -277,13 +277,13 @@ import LibFTD2XX.Wrapper
     # timeouts tests...
     open(device)
     baudrate(device, 9600)
-    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeout_read, timeout_wr = 200, 100 # milliseconds
     timeouts(device, timeout_read, timeout_wr)
-    tread = @elapsed read(device, 5000)
+    tread = 1000 * @elapsed read(device, 5000)
     buffer = zeros(UInt8, 5000);
-    twr = @elapsed write(device, buffer)
-    @test tread*1000 < 2*timeout_read
-    @test twr*1000 < 2*timeout_wr
+    twr = 1000 * @elapsed write(device, buffer)
+    @test timeout_read < 1.5*tread
+    @test timeout_wr < 1.5*twr
     @test_throws DomainError timeouts(device, timeout_read, -1)
     @test_throws DomainError timeouts(device, -1, timeout_wr)
     close(device) # can't use on closed device

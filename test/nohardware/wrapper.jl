@@ -70,7 +70,7 @@ using LibFTD2XX.Util
   # closed handle
   
   # FT_SetTimeouts tests...
-  timeout_read, timeout_wr = 50, 10 # milliseconds
+  timeout_read, timeout_wr = 200, 100 # milliseconds
   @test_throws FT_INVALID_HANDLE FT_SetTimeouts(handle, timeout_read, timeout_wr)
   @test_throws InexactError FT_SetTimeouts(handle, timeout_read, -1)
   @test_throws InexactError FT_SetTimeouts(handle, -1, timeout_wr)

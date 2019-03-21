@@ -68,7 +68,7 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
 
     # timeouts tests...
-    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeout_read, timeout_wr = 200, 100 # milliseconds
     @test_throws D2XXException timeouts(handle, timeout_read, timeout_wr)
     @test_throws DomainError timeouts(handle, timeout_read, -1)
     @test_throws DomainError timeouts(handle, -1, timeout_wr)
@@ -138,7 +138,7 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)
 
     # timeouts tests...
-    timeout_read, timeout_wr = 50, 10 # milliseconds
+    timeout_read, timeout_wr = 200, 100 # milliseconds
     @test_throws D2XXException timeouts(device, timeout_read, timeout_wr)
     @test_throws DomainError timeouts(device, timeout_read, -1)
     @test_throws DomainError timeouts(device, -1, timeout_wr)
