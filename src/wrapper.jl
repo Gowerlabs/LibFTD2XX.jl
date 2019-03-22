@@ -225,11 +225,11 @@ struct FT_DEVICE_LIST_INFO_NODE
 end
 
 """
-    mutable struct FT_HANDLE<:IO
+    mutable struct FT_HANDLE <: IO
 
 Holds a handle to an FT D2XX device.
 """
-mutable struct FT_HANDLE<:IO
+mutable struct FT_HANDLE <: IO
   p::Ptr{Cvoid} 
 end
 
