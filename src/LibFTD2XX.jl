@@ -290,6 +290,10 @@ Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 """
     readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b))
 
+See description for 
+[`readbytes!(stream::IO, b::AbstractVector{UInt8}, nb=length(b))`](@ref). 
+`d` must be open. Uses [`FTRead`](@ref).
+
 See also: [`D2XXDevice`](@ref).
 """
 Base.readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b)) =
@@ -297,6 +301,10 @@ readbytes!(fthandle(d), b, nb)
 
 """
     readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
+
+See description for 
+[`readbytes!(stream::IO, b::AbstractVector{UInt8}, nb=length(b))`](@ref). 
+`handle` must be open. Uses [`FTRead`](@ref).
 
 See also: [`FT_HANDLE`](@ref)
 """
