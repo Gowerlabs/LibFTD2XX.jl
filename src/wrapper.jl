@@ -265,6 +265,9 @@ function destroy!(handle::FT_HANDLE)
   end
 end
 
+## Type Accessors
+#
+
 """
     _ptr(handle::FT_HANDLE)
 
@@ -278,6 +281,14 @@ _ptr(handle::FT_HANDLE) = handle.p
 Set the raw pointer for an [`FT_HANDLE`](@ref).
 """
 _ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid}) = (handle.p = fthandle_ptr)
+
+# Utility functions
+#
+
+# Internal use only
+function check(status::FT_STATUS) 
+  FT_STATUS_ENUM(status) == FT_OK ||  throw(FT_STATUS_ENUM(status))
+end
 
 # wrapper functions
 #
@@ -299,7 +310,7 @@ function FT_CreateDeviceInfoList()
   status = ccall(cfunc[:FT_CreateDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{DWORD},),
                  lpdwNumDevs)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwNumDevs[]
 end
 
@@ -351,7 +362,7 @@ function FT_GetDeviceInfoList(lpdwNumDevs)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
                   pDest,                         Ref{DWORD}(lpdwNumDevs))
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   pDest, lpdwNumDevs
 end
 
@@ -383,7 +394,7 @@ function FT_GetDeviceInfoDetail(dwIndex)
   (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Cstring,        Cstring,       Ref{FT_HANDLE}),
    dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ftHandle)
   
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription), ftHandle
 end
 
@@ -437,7 +448,7 @@ function FT_ListDevices(pvArg1, pvArg2, dwFlags)
   status = ccall(cfunc[:FT_ListDevices], cdecl, FT_STATUS, 
                  (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
                   pvArg1,     pvArg2,     dwFlags)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -542,7 +553,7 @@ julia> FT_Close(handle)
 function FT_Close(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
                                                       ftHandle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   _ptr(ftHandle, C_NULL)
   return
 end
@@ -585,7 +596,7 @@ function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesTo
   status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,         Ref{DWORD}),
                  ftHandle,   lpBuffer,   dwBytesToRead, lpdwBytesReturned)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwBytesReturned[]
 end
 
@@ -635,7 +646,7 @@ function FT_Write(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesT
   status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,          Ref{DWORD}),
                   ftHandle,  lpBuffer,   dwBytesToWrite, lpdwBytesWritten)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwBytesWritten[]
 end
 
@@ -663,7 +674,7 @@ function FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
   status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD),
                   ftHandle,    dwBaudRate)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -702,7 +713,7 @@ function FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, 
   status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
                  (FT_HANDLE, UCHAR,       UCHAR,     UCHAR),
                   ftHandle,  uWordLength, uStopBits, uParity)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -746,7 +757,7 @@ function FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
   status = ccall(cfunc[:FT_SetTimeouts], cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD,         DWORD,),
                   ftHandle,  dwReadTimeout, dwWriteTimeout)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -775,7 +786,7 @@ function FT_GetModemStatus(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD}),
                   ftHandle,  lpdwModemStatus)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwModemStatus[]
 end
 
@@ -804,7 +815,7 @@ function FT_GetQueueStatus(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
                   (FT_HANDLE, Ref{DWORD}),
                    ftHandle,  lpdwAmountInRxQueue)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwAmountInRxQueue[]
 end
 
@@ -838,7 +849,7 @@ function FT_GetDeviceInfo(ftHandle::FT_HANDLE)
   (FT_HANDLE, Ref{FT_DEVICE}, Ref{DWORD}, Cstring,        Cstring,       Ptr{Cvoid}),
    ftHandle,  pftType,        lpdwID,     pcSerialNumber, pcDescription, pvDummy)
   
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   pftType[], lpdwID[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
 end
 
@@ -879,7 +890,7 @@ function FT_GetDriverVersion(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_GetDriverVersion], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD}),
                   ftHandle,  lpdwDriverVersion)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwDriverVersion[]
 end
 
@@ -913,7 +924,7 @@ function FT_GetLibraryVersion()
   status = ccall(cfunc[:FT_GetLibraryVersion], cdecl, FT_STATUS, 
                  (Ref{DWORD},),
                   lpdwDLLVersion)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   version = lpdwDLLVersion[]
 end
 
@@ -943,7 +954,7 @@ function FT_GetStatus(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_GetStatus], cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD},          Ref{DWORD},          Ref{DWORD}),
                   ftHandle,  lpdwAmountInRxQueue, lpdwAmountInTxQueue, lpdwEventStatus)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   lpdwAmountInRxQueue[], lpdwAmountInTxQueue[], lpdwEventStatus[]
 end
 
@@ -969,7 +980,7 @@ julia> FT_Close(handle)
 function FT_SetBreakOn(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_SetBreakOn], cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -995,7 +1006,7 @@ julia> FT_Close(handle)
 function FT_SetBreakOff(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -1031,7 +1042,7 @@ function FT_Purge(ftHandle::FT_HANDLE, dwMask)
           (dwMask == FT_PURGE_RX|FT_PURGE_TX)
   status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE, DWORD),
                                                            ftHandle,   dwMask)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -1059,7 +1070,7 @@ julia> FT_Close(handle)
 function FT_StopInTask(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_StopInTask], cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
@@ -1075,7 +1086,7 @@ See `FT_StopInTask`.
 function FT_RestartInTask(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_RestartInTask], cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
+  check(status)
   return
 end
 
