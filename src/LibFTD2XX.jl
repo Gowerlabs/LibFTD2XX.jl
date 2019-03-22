@@ -36,8 +36,6 @@ export deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber,
 include("util.jl")
 include("wrapper.jl")
 
-
-using .Util
 using .Wrapper
 
 
