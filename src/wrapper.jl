@@ -77,9 +77,6 @@ export FT_CreateDeviceInfoList,
         FT_StopInTask,
         FT_RestartInTask
 
-using Compat
-using Compat.Libdl
-
 # Library
 # 
 const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
@@ -245,7 +242,7 @@ with a finalizer that calls [`destroy!`](@ref).
 """
 function FT_HANDLE()
   handle = FT_HANDLE(C_NULL)
-  @compat finalizer(destroy!, handle)
+  finalizer(destroy!, handle)
   handle
 end
 
@@ -350,7 +347,7 @@ julia> ntuple2string(devinfolist[1].serialnumber)
 ```
 """
 function FT_GetDeviceInfoList(lpdwNumDevs)
-  pDest =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, lpdwNumDevs)
+  pDest =  Vector{FT_DEVICE_LIST_INFO_NODE}(undef, lpdwNumDevs)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
                   pDest,                         Ref{DWORD}(lpdwNumDevs))

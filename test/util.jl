@@ -4,8 +4,7 @@
 
 module TestUtil
 
-using Compat
-using Compat.Test
+using Test
 using LibFTD2XX.Util
 
 @testset "util" begin
