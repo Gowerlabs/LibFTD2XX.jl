@@ -52,7 +52,6 @@ export FT_STATUS_ENUM,
 export FT_HANDLE
 
 # Functions
-export ptr
 export FT_CreateDeviceInfoList, 
         FT_GetDeviceInfoList,
         FT_GetDeviceInfoDetail,
@@ -252,24 +251,24 @@ end
 Destructor for the [`FT_HANDLE`](@ref) type.
 """
 function destroy!(handle::FT_HANDLE)
-  if ptr(handle) != C_NULL
+  if _ptr(handle) != C_NULL
     FT_Close(handle)
   end
 end
 
 """
-    ptr(handle::FT_HANDLE)
+    _ptr(handle::FT_HANDLE)
 
 Get the raw pointer for an [`FT_HANDLE`](@ref).
 """
-ptr(handle::FT_HANDLE) = handle.p
+_ptr(handle::FT_HANDLE) = handle.p
 
 """
-    ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid})
+    _ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid})
 
 Set the raw pointer for an [`FT_HANDLE`](@ref).
 """
-ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid}) = (handle.p = fthandle_ptr)
+_ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid}) = (handle.p = fthandle_ptr)
 
 # wrapper functions
 #
@@ -474,7 +473,7 @@ function FT_Open(iDevice)
   status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,     Ref{FT_HANDLE}),
                                                      iDevice, ftHandle)
   if FT_STATUS_ENUM(status) != FT_OK
-    ptr(ftHandle, C_NULL)
+    _ptr(ftHandle, C_NULL)
     throw(FT_STATUS_ENUM(status))
   end
   ftHandle
@@ -529,7 +528,7 @@ function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
                  (Cstring , DWORD,    Ref{FT_HANDLE}),
                   pvArg1,   flagsarg, handle)
   if FT_STATUS_ENUM(status) != FT_OK
-    ptr(handle, C_NULL)
+    _ptr(handle, C_NULL)
     throw(FT_STATUS_ENUM(status))
   end
   handle
@@ -561,7 +560,7 @@ function FT_Close(ftHandle::FT_HANDLE)
   status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
                                                       ftHandle)
   FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  ptr(ftHandle, C_NULL)
+  _ptr(ftHandle, C_NULL)
   return
 end
 

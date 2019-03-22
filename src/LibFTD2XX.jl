@@ -182,7 +182,7 @@ See also: [`FT_HANDLE`](@ref)
 """
 function Base.isopen(handle::FT_HANDLE)
   open = true
-  if ptr(handle) == C_NULL
+  if Wrapper._ptr(handle) == C_NULL
     open = false
   else
     try

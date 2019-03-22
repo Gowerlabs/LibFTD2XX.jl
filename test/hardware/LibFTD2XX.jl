@@ -160,7 +160,7 @@ import LibFTD2XX.Wrapper
     retval = close(handle)
     @test retval == nothing
     @test !isopen(handle)
-    @test LibFTD2XX.Wrapper.ptr(handle) == C_NULL
+    @test LibFTD2XX.Wrapper._ptr(handle) == C_NULL
     retval = close(handle) # check can close more than once without issue...
     @test !isopen(handle)
   end
@@ -184,7 +184,7 @@ import LibFTD2XX.Wrapper
       end
       @test serialnumber(dev) == serialn
       @test description(dev) == descr
-      @test LibFTD2XX.Wrapper.ptr(fthandle(dev)) == LibFTD2XX.Wrapper.ptr(fthand)
+      @test LibFTD2XX.Wrapper._ptr(fthandle(dev)) == LibFTD2XX.Wrapper._ptr(fthand)
       @test !isopen(fthandle(dev))
     end
 
@@ -308,7 +308,7 @@ import LibFTD2XX.Wrapper
     retval = close.(devices)
     @test all(retval .== nothing)
     @test all(.!isopen.(devices))
-    @test all(LibFTD2XX.Wrapper.ptr.(fthandle.(devices)) .== C_NULL)
+    @test all(LibFTD2XX.Wrapper._ptr.(fthandle.(devices)) .== C_NULL)
     close.(devices) # check can close more than once without issue...
     @test all(.!isopen.(devices))
 
