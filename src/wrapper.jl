@@ -5,7 +5,7 @@
 # Copyright (c) Gowerlabs Ltd.
 #
 # This module contains wrappers for D2XX devices. See D2XX Programmer's Guide 
-# (FT_000071) for more information.
+# (FT_000071) for more information. Function names match those in the library.
 #
 # Only recommended for advanced users. Note that there is minimal argument 
 # checking in these wrapper methods. 
@@ -276,9 +276,7 @@ _ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid}) = (handle.p = fthandle_ptr)
 """
     FT_CreateDeviceInfoList()
 
-Wrapper for D2XX library function `FT_CreateDeviceInfoList`. 
-
-See D2XX Programmer's Guide (FT_000071) for more information.
+Wrapper for D2XX library function `FT_CreateDeviceInfoList`.
 
 # Example
 ```julia-repl
@@ -303,9 +301,7 @@ end
 """
     FT_GetDeviceInfoList(lpdwNumDevs)
 
-Wrapper for D2XX library function `FT_GetDeviceInfoList`. 
-
-See D2XX Programmer's Guide (FT_000071) for more information.
+Wrapper for D2XX library function `FT_GetDeviceInfoList`.
 
 # Arguments
  - `lpdwNumDevs`: The number of devices.
@@ -358,9 +354,7 @@ end
 """
     FT_GetDeviceInfoDetail(dwIndex)
 
-Wrapper for D2XX library function `FT_GetDeviceInfoDetail`. 
-
-See D2XX Programmer's Guide (FT_000071) for more information.
+Wrapper for D2XX library function `FT_GetDeviceInfoDetail`.
 
 # Arguments
  - `dwIndex`: Index of entry in the device info list.
@@ -397,8 +391,6 @@ end
 **NOT FULLY FUNCTIONAL: NOT RECOMMENDED FOR USE**.
 
 Wrapper for D2XX library function `FT_ListDevices`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Arguments
  - `pvArg1`: Depends on dwFlags.
@@ -454,8 +446,6 @@ end
 
 Wrapper for D2XX library function `FT_Open`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Arguments
  - `iDevice`: Zero-base index of device to open
 
@@ -486,13 +476,11 @@ end
 
 Wrapper for D2XX library function `FT_OpenEx`.
 
-See D2XX Programmer's Guide (FT_000071) for more information. Note that 
-FT_OPEN_BY_LOCATION is not currently supported.
-
 # Arguments
  - `pvArg1::AbstractString` : Either description or serial number depending on 
    `dwFlags`.
- - `dwFlags::Integer` : FT_OPEN_BY_DESCRIPTION or FT_OPEN_BY_SERIAL_NUMBER.
+ - `dwFlags::Integer` : FT_OPEN_BY_DESCRIPTION or FT_OPEN_BY_SERIAL_NUMBER. 
+   Note that FT_OPEN_BY_LOCATION is not currently supported.
 
 # Example
 
@@ -542,8 +530,6 @@ end
 Wrapper for D2XX library function `FT_Close`. Closes an open device and sets 
 the pointer to C_NULL.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -570,8 +556,6 @@ end
     FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
 
 Wrapper for D2XX library function `FT_Read`. Returns number of bytes read.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
 
@@ -614,8 +598,6 @@ end
     FT_Write(ftHandle::FT_HANDLE, lpBuffer::Vector{UInt8}, dwBytesToWrite::Integer)
 
 Wrapper for D2XX library function `FT_Write`. Returns number of bytes written.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
 
@@ -667,8 +649,6 @@ end
 
 Wrapper for D2XX library function `FT_SetBaudRate`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -698,8 +678,6 @@ end
     FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, uParity)
 
 Wrapper for D2XX library function `FT_SetDataCharacteristics`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Arguments
  - `ftHandle` : device handle
@@ -741,8 +719,6 @@ end
     FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
 
 Wrapper for D2XX library function `FT_SetTimeouts`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Arguments
  - `ftHandle` : device handle
@@ -790,8 +766,6 @@ end
 
 Wrapper for D2XX library function `FT_GetModemStatus`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -823,8 +797,6 @@ end
 
 Wrapper for D2XX library function `FT_GetQueueStatus`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -855,8 +827,6 @@ end
     FT_GetDeviceInfo(ftHandle::FT_HANDLE)
 
 Wrapper for D2XX library function `FT_GetDeviceInfo`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
 
@@ -892,10 +862,7 @@ end
 """
     FT_GetDriverVersion(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_GetDriverVersion`. Returns a julia 
-version number type.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
+Wrapper for D2XX library function `FT_GetDriverVersion`.
 
 # Example
 
@@ -938,10 +905,7 @@ end
 """
     FT_GetLibraryVersion()
 
-Wrapper for D2XX library function `FT_GetLibraryVersion`. Returns a julia 
-version number type.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
+Wrapper for D2XX library function `FT_GetLibraryVersion`.
 
 # Example
 
@@ -979,8 +943,6 @@ end
 
 Wrapper for D2XX library function `FT_GetStatus`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -1013,8 +975,6 @@ end
 
 Wrapper for D2XX library function `FT_SetBreakOn`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -1043,8 +1003,6 @@ end
 
 Wrapper for D2XX library function `FT_SetBreakOff`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -1072,8 +1030,6 @@ end
     FT_Purge(ftHandle::FT_HANDLE, dwMask)
 
 Wrapper for D2XX library function `FT_Purge`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Arguments
  - `ftHandle::FT_HANDLE` : handle to open device
@@ -1113,8 +1069,6 @@ end
 
 Wrapper for D2XX library function `FT_StopInTask`.
 
-See D2XX Programmer's Guide (FT_000071) for more information.
-
 # Example
 
 ```julia-repl
@@ -1144,8 +1098,6 @@ end
     FT_RestartInTask(ftHandle::FT_HANDLE)
 
 Wrapper for D2XX library function `FT_RestartInTask`.
-
-See D2XX Programmer's Guide (FT_000071) for more information.
 
 # Example
 
