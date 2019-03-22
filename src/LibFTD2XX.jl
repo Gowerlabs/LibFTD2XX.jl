@@ -492,33 +492,35 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
+if Sys.iswindows()
 
-"""
-    driverversion(d::D2XXDevice)
+  """
+      driverversion(d::D2XXDevice)
 
-Get the driver version for an open [`D2XXDevice`](@ref) using 
-[`FT_GetDriverVersion`](@ref)
-"""
-driverversion(d::D2XXDevice) = driverversion(fthandle(d))
+  Get the driver version for an open [`D2XXDevice`](@ref) using 
+  [`FT_GetDriverVersion`](@ref). Windows only.
+  """
+  driverversion(d::D2XXDevice) = driverversion(fthandle(d))
 
-"""
-    driverversion(handle::FT_HANDLE)
+  """
+      driverversion(handle::FT_HANDLE)
 
-Get the driver version for an open [`FT_HANDLE`](@ref) using 
-[`FT_GetDriverVersion`](@ref)
+  Get the driver version for an open [`FT_HANDLE`](@ref) using 
+  [`FT_GetDriverVersion`](@ref). Windows only.
 
-See also: [`isopen`](@ref), [`open`](@ref)
-"""
-function driverversion(handle::FT_HANDLE)
-  isopen(handle) || throw(D2XXException("Device must be open to check driver version"))
-  version = FT_GetDriverVersion(handle)
-  @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
-  patch = version & 0xFF
-  minor = (version >> 8) & 0xFF
-  major = (version >> 16) & 0xFF
-  VersionNumber(major,minor,patch)
-end
+  See also: [`isopen`](@ref), [`open`](@ref)
+  """
+  function driverversion(handle::FT_HANDLE)
+    isopen(handle) || throw(D2XXException("Device must be open to check driver version"))
+    version = FT_GetDriverVersion(handle)
+    @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+    patch = version & 0xFF
+    minor = (version >> 8) & 0xFF
+    major = (version >> 16) & 0xFF
+    VersionNumber(major,minor,patch)
+  end
 
+end # Sys.iswindows()
 
 """
     flush(d::D2XXDevice)
@@ -559,20 +561,25 @@ end
 
 # Library Functions
 #
-"""
-    libversion()
 
-Get a version number from a call to [`FT_GetLibraryVersion`](@ref).
-"""
-function libversion()
-  version = FT_GetLibraryVersion()
-  @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
-  patch = version & 0xFF
-  minor = (version >> 8) & 0xFF
-  major = (version >> 16) & 0xFF
-  VersionNumber(major,minor,patch)
-end
+if Sys.iswindows()
 
+  """
+      libversion()
+
+  Get a version number from a call to [`FT_GetLibraryVersion`](@ref). Windows
+  only.
+  """
+  function libversion()
+    version = FT_GetLibraryVersion()
+    @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+    patch = version & 0xFF
+    minor = (version >> 8) & 0xFF
+    major = (version >> 16) & 0xFF
+    VersionNumber(major,minor,patch)
+  end
+
+end # Sys.iswindows()
 
 # D2XXDevice Accessor Functions
 #

@@ -12,9 +12,13 @@ import LibFTD2XX.Wrapper
 
 @testset "high level" begin
 
-  # libversion 
-  ver = libversion()
-  @test ver isa VersionNumber
+  # libversion
+  if Sys.iswindows()
+    ver = libversion()
+    @test ver isa VersionNumber
+  else
+    @test_throws MethodError libversion()
+  end
 
   # createdeviceinfolist
   numdevs = LibFTD2XX.createdeviceinfolist()
@@ -60,8 +64,12 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException flush(handle)
     @test_throws D2XXException eof(handle)
 
-    # driverversion 
-    @test_throws D2XXException driverversion(handle)
+    # driverversion
+    if Sys.iswindows()
+      @test_throws D2XXException driverversion(handle)
+    else
+      @test_throws MethodError driverversion(handle)
+    end
 
     # datacharacteristics
     @test_throws D2XXException datacharacteristics(handle, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)

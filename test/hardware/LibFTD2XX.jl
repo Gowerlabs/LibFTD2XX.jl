@@ -12,9 +12,13 @@ import LibFTD2XX.Wrapper
 
 @testset "high level" begin
 
-  # libversion 
-  ver = libversion()
-  @test ver isa VersionNumber
+  # libversion
+  if Sys.iswindows()
+    ver = libversion()
+    @test ver isa VersionNumber
+  else
+    @test_throws MethodError libversion()
+  end
 
   # createdeviceinfolist
   numdevs = LibFTD2XX.createdeviceinfolist()
@@ -111,11 +115,17 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException eof(handle)
 
     # driverversion
-    handle = open(descr, OPEN_BY_DESCRIPTION)
-    ver = driverversion(handle)
-    @test ver isa VersionNumber
-    close(handle) # can't use on closed device
-    @test_throws D2XXException driverversion(handle)
+    if Sys.iswindows()
+      handle = open(descr, OPEN_BY_DESCRIPTION)
+      ver = driverversion(handle)
+      @test ver isa VersionNumber
+      close(handle) # can't use on closed device
+      @test_throws D2XXException driverversion(handle)
+    else
+      handle = open(descr, OPEN_BY_DESCRIPTION)
+      @test_throws MethodError driverversion(handle)
+      close(handle) # can't use on closed device
+    end
 
     # datacharacteristics
     handle = open(descr, OPEN_BY_DESCRIPTION)

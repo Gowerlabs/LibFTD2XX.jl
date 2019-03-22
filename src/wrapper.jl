@@ -857,78 +857,82 @@ end
 
 
 
-"""
-    FT_GetDriverVersion(ftHandle::FT_HANDLE)
+if Sys.iswindows()
 
-# Example
+  """
+      FT_GetDriverVersion(ftHandle::FT_HANDLE)
 
-```julia-repl
-julia> numdevs = FT_CreateDeviceInfoList()
-0x00000004
+  # Example
 
-julia> handle = FT_Open(0)
-FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
+  ```julia-repl
+  julia> numdevs = FT_CreateDeviceInfoList()
+  0x00000004
 
-julia> version = FT_GetDriverVersion(handle)
-0x00021212
+  julia> handle = FT_Open(0)
+  FT_HANDLE(Ptr{Nothing} @0x00000000051e56c0)
 
-julia> patch = version & 0xFF
-0x00000012
+  julia> version = FT_GetDriverVersion(handle)
+  0x00021212
 
-julia> minor = (version >> 8) & 0xFF
-0x00000012
+  julia> patch = version & 0xFF
+  0x00000012
 
-julia> major = (version >> 16) & 0xFF
-0x00000002
+  julia> minor = (version >> 8) & 0xFF
+  0x00000012
 
-julia> VersionNumber(major,minor,patch)
-v"2.18.18"
+  julia> major = (version >> 16) & 0xFF
+  0x00000002
 
-julia> FT_Close(handle)
-```
-"""
-function FT_GetDriverVersion(ftHandle::FT_HANDLE)
-  lpdwDriverVersion = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetDriverVersion], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{DWORD}),
-                  ftHandle,  lpdwDriverVersion)
-  check(status)
-  lpdwDriverVersion[]
-end
+  julia> VersionNumber(major,minor,patch)
+  v"2.18.18"
+
+  julia> FT_Close(handle)
+  ```
+  """
+  function FT_GetDriverVersion(ftHandle::FT_HANDLE)
+    lpdwDriverVersion = Ref{DWORD}()
+    status = ccall(cfunc[:FT_GetDriverVersion], cdecl, FT_STATUS, 
+                  (FT_HANDLE, Ref{DWORD}),
+                    ftHandle,  lpdwDriverVersion)
+    check(status)
+    lpdwDriverVersion[]
+  end
 
 
 
-"""
-    FT_GetLibraryVersion()
+  """
+      FT_GetLibraryVersion()
 
-# Example
+  # Example
 
-```julia-repl
+  ```julia-repl
 
-julia> version = FT_GetLibraryVersion()
-0x00021212
+  julia> version = FT_GetLibraryVersion()
+  0x00021212
 
-julia> patch = version & 0xFF
-0x00000012
+  julia> patch = version & 0xFF
+  0x00000012
 
-julia> minor = (version >> 8) & 0xFF
-0x00000012
+  julia> minor = (version >> 8) & 0xFF
+  0x00000012
 
-julia> major = (version >> 16) & 0xFF
-0x00000002
+  julia> major = (version >> 16) & 0xFF
+  0x00000002
 
-julia> VersionNumber(major,minor,patch)
-v"2.18.18"
-```
-"""
-function FT_GetLibraryVersion()
-  lpdwDLLVersion = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetLibraryVersion], cdecl, FT_STATUS, 
-                 (Ref{DWORD},),
-                  lpdwDLLVersion)
-  check(status)
-  version = lpdwDLLVersion[]
-end
+  julia> VersionNumber(major,minor,patch)
+  v"2.18.18"
+  ```
+  """
+  function FT_GetLibraryVersion()
+    lpdwDLLVersion = Ref{DWORD}()
+    status = ccall(cfunc[:FT_GetLibraryVersion], cdecl, FT_STATUS, 
+                  (Ref{DWORD},),
+                    lpdwDLLVersion)
+    check(status)
+    version = lpdwDLLVersion[]
+  end
+
+end # Sys.iswindows()
 
 
 

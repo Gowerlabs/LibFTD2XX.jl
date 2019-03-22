@@ -160,19 +160,29 @@ using LibFTD2XX.Util
   @test_throws FT_STATUS_ENUM FT_GetDeviceInfo(handle)
 
   # FT_GetDriverVersion tests
-  handle = FT_Open(0)
-  version = FT_GetDriverVersion(handle)
-  @test version isa DWORD
-  @test version > 0
-  @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
-  FT_Close(handle)
-  @test_throws FT_STATUS_ENUM FT_GetDriverVersion(handle)
+  if Sys.iswindows()
+    handle = FT_Open(0)
+    version = FT_GetDriverVersion(handle)
+    @test version isa DWORD
+    @test version > 0
+    @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+    FT_Close(handle)
+    @test_throws FT_STATUS_ENUM FT_GetDriverVersion(handle)
+  else
+    handle = FT_Open(0)
+    @test_throws MethodError FT_GetDriverVersion(handle)
+    FT_Close(handle)
+  end
 
   # FT_GetLibraryVersion tests
-  version = FT_GetLibraryVersion()
-  @test version isa DWORD
-  @test version > 0
-  @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+  if Sys.iswindows()
+    version = FT_GetLibraryVersion()
+    @test version isa DWORD
+    @test version > 0
+    @test (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+  else
+    @test_throws MethodError FT_GetLibraryVersion()
+  end
 
   # FT_GetStatus tests
   handle = FT_Open(0)
