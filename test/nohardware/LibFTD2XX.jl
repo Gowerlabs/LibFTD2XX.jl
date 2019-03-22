@@ -6,7 +6,8 @@
 
 module TestLibFTD2XX
 
-using Test
+using Compat
+using Compat.Test
 using LibFTD2XX
 import LibFTD2XX.Wrapper
 

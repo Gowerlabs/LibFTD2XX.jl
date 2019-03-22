@@ -37,6 +37,7 @@ include("util.jl")
 include("wrapper.jl")
 
 using .Wrapper
+using Compat
 
 
 """
@@ -251,7 +252,7 @@ end
 See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
 """
-Base.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
+Compat.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
 
 """
     bytesavailable(handle::FT_HANDLE)
@@ -259,7 +260,7 @@ Base.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
 See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref), 
 [`readavailable`](@ref), [`read`](@ref)
 """
-function Base.bytesavailable(handle::FT_HANDLE)
+function Compat.bytesavailable(handle::FT_HANDLE)
   isopen(handle) || throw(D2XXException("Device must be open to check bytes available."))
   FT_GetQueueStatus(handle)
 end
@@ -334,7 +335,7 @@ nothing is available.
 See also: [`readbytes`](@ref) [`isopen`](@ref), [`open`](@ref)
 """
 function Base.readavailable(handle::FT_HANDLE)
-  b = Vector{UInt8}(undef, bytesavailable(handle))
+  b = @compat Vector{UInt8}(undef, bytesavailable(handle))
   readbytes!(handle, b)
   b
 end
