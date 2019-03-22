@@ -213,7 +213,16 @@ const FT_PURGE_TX = 2
 # Types
 # 
 
-# FT_GetDeviceInfoList Struct
+"""
+    struct FT_DEVICE_LIST_INFO_NODE
+
+Julia language representation of the `FT_DEVICE_LIST_INFO_NODE` structure which 
+is passed to `FT_GetDeviceInfoList`.
+
+Pre-allocated arrays of `Cchar` (in julia, represented as `NTuple{L, Cchar}`) 
+are filled by `FT_GetDeviceInfoList` with null terminated strings. They can be 
+converted to julia strings using [`ntuple2string`](@ref).
+"""
 struct FT_DEVICE_LIST_INFO_NODE
   flags::ULONG
   typ::ULONG
