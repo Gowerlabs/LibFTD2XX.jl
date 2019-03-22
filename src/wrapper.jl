@@ -351,6 +351,7 @@ function FT_GetDeviceInfoList(lpdwNumDevs)
   status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
                   pDest,                         Ref{DWORD}(lpdwNumDevs))
+  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
   pDest, lpdwNumDevs
 end
 
