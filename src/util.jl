@@ -28,9 +28,9 @@ function ntuple2string(input::NTuple{N, Cchar}) where N
   if any(input .== 0)
     endidx = findall(input .== 0)[1]-1
   elseif all(input .> 0)
-    endidx = length(input)
+    endidx = N
   else
-    throw(MethodError("No terminator or negative values!"))
+    throw(ArgumentError("No terminator or negative values!"))
   end
   String(UInt8.([char for char in input[1:endidx]]))
 end
