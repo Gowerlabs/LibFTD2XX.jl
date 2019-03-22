@@ -139,11 +139,7 @@ end
 Construct a `D2XXDevice` without opening it. D2XX hardware must pre present to 
 work.
 """
-function D2XXDevice(deviceidx::Integer)
-  0 <= deviceidx || throw(DomainError("0 <= deviceidx"))
-  idx, flags, typ, id, locid, serialnumber, description, fthandle = getdeviceinfodetail(deviceidx)
-  D2XXDevice(idx, flags, typ, id, locid, serialnumber, description, fthandle)
-end
+D2XXDevice(deviceidx::Integer) = D2XXDevice(getdeviceinfodetail(deviceidx)...)
 
 
 """
