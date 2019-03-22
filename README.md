@@ -1,5 +1,10 @@
 # LibFTD2XX
 
+[![Coverage Status](https://coveralls.io/repos/github/Gowerlabs/LibFTD2XX.jl/badge.svg?branch=master)](https://coveralls.io/github/Gowerlabs/LibFTD2XX.jl?branch=master)
+[![codecov](https://codecov.io/gh/Gowerlabs/LibFTD2XX.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Gowerlabs/LibFTD2XX.jl)
+[![Build Status](https://travis-ci.org/Gowerlabs/LibFTD2XX.jl.svg?branch=master)](https://travis-ci.org/Gowerlabs/LibFTD2XX.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/ui8plnih785lw4jg/branch/master?svg=true)](https://ci.appveyor.com/project/samuelpowell/libftd2xx-jl/branch/master)
+
 Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
 
 Contains methods and functions for interacting with D2XX devices. Most 
