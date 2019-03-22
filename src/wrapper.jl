@@ -276,8 +276,6 @@ _ptr(handle::FT_HANDLE, fthandle_ptr::Ptr{Cvoid}) = (handle.p = fthandle_ptr)
 """
     FT_CreateDeviceInfoList()
 
-Wrapper for D2XX library function `FT_CreateDeviceInfoList`.
-
 # Example
 ```julia-repl
 julia> numdevs = FT_CreateDeviceInfoList()
@@ -300,8 +298,6 @@ end
 
 """
     FT_GetDeviceInfoList(lpdwNumDevs)
-
-Wrapper for D2XX library function `FT_GetDeviceInfoList`.
 
 # Arguments
  - `lpdwNumDevs`: The number of devices.
@@ -354,8 +350,6 @@ end
 """
     FT_GetDeviceInfoDetail(dwIndex)
 
-Wrapper for D2XX library function `FT_GetDeviceInfoDetail`.
-
 # Arguments
  - `dwIndex`: Index of entry in the device info list.
 
@@ -389,8 +383,6 @@ end
     FT_ListDevices(pvArg1, pvArg2, dwFlags)
 
 **NOT FULLY FUNCTIONAL: NOT RECOMMENDED FOR USE**.
-
-Wrapper for D2XX library function `FT_ListDevices`.
 
 # Arguments
  - `pvArg1`: Depends on dwFlags.
@@ -444,8 +436,6 @@ end
 """
     FT_Open(iDevice)
 
-Wrapper for D2XX library function `FT_Open`.
-
 # Arguments
  - `iDevice`: Zero-base index of device to open
 
@@ -473,8 +463,6 @@ end
 
 """
     FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
-
-Wrapper for D2XX library function `FT_OpenEx`.
 
 # Arguments
  - `pvArg1::AbstractString` : Either description or serial number depending on 
@@ -527,8 +515,7 @@ end
 """
     FT_Close(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_Close`. Closes an open device and sets 
-the pointer to C_NULL.
+Closes an open device and sets the pointer to C_NULL.
 
 # Example
 
@@ -555,7 +542,7 @@ end
 """
     FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
 
-Wrapper for D2XX library function `FT_Read`. Returns number of bytes read.
+Returns number of bytes read.
 
 # Example
 
@@ -597,7 +584,7 @@ end
 """
     FT_Write(ftHandle::FT_HANDLE, lpBuffer::Vector{UInt8}, dwBytesToWrite::Integer)
 
-Wrapper for D2XX library function `FT_Write`. Returns number of bytes written.
+Returns number of bytes written.
 
 # Example
 
@@ -647,8 +634,6 @@ end
 """
     FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
 
-Wrapper for D2XX library function `FT_SetBaudRate`.
-
 # Example
 
 ```julia-repl
@@ -676,8 +661,6 @@ end
 
 """
     FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, uParity)
-
-Wrapper for D2XX library function `FT_SetDataCharacteristics`.
 
 # Arguments
  - `ftHandle` : device handle
@@ -717,8 +700,6 @@ end
 
 """
     FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
-
-Wrapper for D2XX library function `FT_SetTimeouts`.
 
 # Arguments
  - `ftHandle` : device handle
@@ -764,8 +745,6 @@ end
 """
     FT_GetModemStatus(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_GetModemStatus`.
-
 # Example
 
 ```julia-repl
@@ -795,8 +774,6 @@ end
 """
     FT_GetQueueStatus(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_GetQueueStatus`.
-
 # Example
 
 ```julia-repl
@@ -825,8 +802,6 @@ end
 
 """
     FT_GetDeviceInfo(ftHandle::FT_HANDLE)
-
-Wrapper for D2XX library function `FT_GetDeviceInfo`.
 
 # Example
 
@@ -861,8 +836,6 @@ end
 
 """
     FT_GetDriverVersion(ftHandle::FT_HANDLE)
-
-Wrapper for D2XX library function `FT_GetDriverVersion`.
 
 # Example
 
@@ -905,8 +878,6 @@ end
 """
     FT_GetLibraryVersion()
 
-Wrapper for D2XX library function `FT_GetLibraryVersion`.
-
 # Example
 
 ```julia-repl
@@ -941,8 +912,6 @@ end
 """
     FT_GetStatus(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_GetStatus`.
-
 # Example
 
 ```julia-repl
@@ -973,8 +942,6 @@ end
 """
     FT_SetBreakOn(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_SetBreakOn`.
-
 # Example
 
 ```julia-repl
@@ -1001,8 +968,6 @@ end
 """
     FT_SetBreakOff(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_SetBreakOff`.
-
 # Example
 
 ```julia-repl
@@ -1028,8 +993,6 @@ end
 
 """
     FT_Purge(ftHandle::FT_HANDLE, dwMask)
-
-Wrapper for D2XX library function `FT_Purge`.
 
 # Arguments
  - `ftHandle::FT_HANDLE` : handle to open device
@@ -1067,8 +1030,6 @@ end
 """
     FT_StopInTask(ftHandle::FT_HANDLE)
 
-Wrapper for D2XX library function `FT_StopInTask`.
-
 # Example
 
 ```julia-repl
@@ -1096,8 +1057,6 @@ end
 
 """
     FT_RestartInTask(ftHandle::FT_HANDLE)
-
-Wrapper for D2XX library function `FT_RestartInTask`.
 
 # Example
 
