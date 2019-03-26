@@ -21,9 +21,8 @@ import LibFTD2XX.Wrapper
   end
 
   # createdeviceinfolist
-  # numdevs = LibFTD2XX.createdeviceinfolist()
-  # @test numdevs == 0
-  numdevs = 0
+  numdevs = LibFTD2XX.createdeviceinfolist()
+  @test numdevs == 0
 
   # LibFTD2XX.getdeviceinfodetail
   @test_throws D2XXException LibFTD2XX.getdeviceinfodetail(0)
