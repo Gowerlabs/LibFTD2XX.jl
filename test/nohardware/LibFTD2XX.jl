@@ -138,8 +138,12 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException flush(device)
     @test_throws D2XXException eof(device)
 
-    # driverversion 
-    @test_throws D2XXException driverversion(device)
+    # driverversion
+    if Sys.iswindows()
+      @test_throws D2XXException driverversion(device)
+    else
+      @test_throws UndefVarError driverversion(device)
+    end
 
     # datacharacteristics
     @test_throws D2XXException datacharacteristics(device, wordlength = BITS_8, stopbits = STOP_BITS_1, parity = PARITY_NONE)

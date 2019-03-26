@@ -270,11 +270,15 @@ import LibFTD2XX.Wrapper
     @test_throws D2XXException flush(device)
 
     # driverversion
-    open(device)
-    ver = driverversion(device)
-    @test ver isa VersionNumber
-    close(device) # can't use on closed device
-    @test_throws D2XXException driverversion(device)
+    if Sys.iswindows()
+      open(device)
+      ver = driverversion(device)
+      @test ver isa VersionNumber
+      close(device) # can't use on closed device
+      @test_throws D2XXException driverversion(device)
+    else
+      @test_throws UndefVarError driverversion(device)
+    end
 
     # datacharacteristics
     open(device)
