@@ -1,7 +1,6 @@
 # LibFTD2XX.jl
 
-using Compat
-using Compat.Libdl
+using Libdl
 using BinDeps
 
 download_dir = joinpath(@__DIR__, "downloads")
@@ -14,7 +13,7 @@ function validate_libFTD2XX_version(name, handle)
     v = Ref{Cuint}()
     s = ccall(f, Culong, (Ref{Cuint},), v)
     s == C_NULL && return false
-    if Compat.Sys.iswindows()
+    if Sys.iswindows()
         return v[] >= 0x00021228
     else
         return true         # OS X library returns version 0x0000000
@@ -60,7 +59,7 @@ libFTD2XX_glx_x86_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2
 libFTD2XX_glx_x64_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
 libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
 
-if Compat.Sys.islinux()
+if Sys.islinux()
 
     if (Sys.ARCH == :arm) && (Sys.MACHINE == "arm-linux-gnueabihf")
         libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI

@@ -1,251 +1,188 @@
-# LibFTD2XX.jl
+# LibFTD2XX.jl - High Level Module
+#
+# By Reuben Hill 2019, Gowerlabs Ltd, reuben@gowerlabs.co.uk
+#
+# Copyright (c) Gowerlabs Ltd.
+#
+# This module contains methods and functions for interacting with D2XX devices.
+# It calls functions from the submodule `Wrapper` which in turn call Functions
+# from the FT D2XX library. See D2XX Programmer's Guide (FT_000071) for more 
+# information on that library.
 
 module LibFTD2XX
 
-using Compat
-using Compat.Libdl
+# Enums
+export FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION
+export FTWordLength, BITS_8, BITS_7
+export FTStopBits, STOP_BITS_1, STOP_BITS_2
+export FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE
 
-export FT_HANDLE, createdeviceinfolist, getdeviceinfolist, listdevices, ftopen, 
-       close, baudrate, datacharacteristics, status
+# Types and Constructors
+export FT_HANDLE # Exported by .Wrapper
+export D2XXException
+export D2XXDevice, D2XXDevices
 
+# Port communication functions
+export baudrate, datacharacteristics, timeouts, status, driverversion
+
+# Library Functions
+export libversion
+
+# D2XXDevice Accessor Functions
+export deviceidx, deviceflags, devicetype, deviceid, locationid, serialnumber, 
+       description, fthandle
+
+
+include("util.jl")
 include("wrapper.jl")
 
-# Library
-# 
-const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if isfile(depsfile)
-  include(depsfile)
-else
-  error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
+using .Wrapper
+
+
+"""
+    @enum(
+      FTOpenBy,
+      OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
+      OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION)
+
+For use with [`open`](@ref).
+"""
+@enum(
+  FTOpenBy,
+  OPEN_BY_SERIAL_NUMBER = FT_OPEN_BY_SERIAL_NUMBER,
+  OPEN_BY_DESCRIPTION = FT_OPEN_BY_DESCRIPTION)
+
+
+"""
+    @enum(
+      FTWordLength,
+      BITS_8 = FT_BITS_8,
+      BITS_7 = FT_BITS_7)
+
+For use with [`datacharacteristics`](@ref).
+"""
+@enum(
+  FTWordLength,
+  BITS_8 = FT_BITS_8,
+  BITS_7 = FT_BITS_7)
+
+
+"""
+    @enum(
+      FTStopBits,
+      STOP_BITS_1 = FT_STOP_BITS_1,
+      STOP_BITS_2 = FT_STOP_BITS_2)
+
+For use with [`datacharacteristics`](@ref).
+"""
+@enum(
+  FTStopBits,
+  STOP_BITS_1 = FT_STOP_BITS_1,
+  STOP_BITS_2 = FT_STOP_BITS_2)
+
+"""
+    @enum(
+      FTParity,
+      PARITY_NONE = FT_PARITY_NONE,
+      PARITY_ODD  = FT_PARITY_ODD,
+      PARITY_EVEN = FT_PARITY_EVEN,
+      PARITY_MARK = FT_PARITY_MARK,
+      PARITY_SPACE = FT_PARITY_SPACE)
+
+For use with [`datacharacteristics`](@ref).
+"""
+@enum(
+  FTParity,
+  PARITY_NONE = FT_PARITY_NONE,
+  PARITY_ODD  = FT_PARITY_ODD,
+  PARITY_EVEN = FT_PARITY_EVEN,
+  PARITY_MARK = FT_PARITY_MARK,
+  PARITY_SPACE = FT_PARITY_SPACE)
+
+
+"""
+    D2XXException <: Exception
+
+LibFTD2XX High-Level Library Error Type.
+"""
+struct D2XXException <: Exception
+  str::String
 end
 
-const lib = Ref{Ptr{Cvoid}}(0)
-const cfunc = Dict{Symbol, Ptr{Cvoid}}()
 
-const cfuncn = [
-  :FT_CreateDeviceInfoList
-  :FT_GetDeviceInfoList
-  :FT_Open
-  :FT_Close
-  :FT_Read
-  :FT_Write
-  :FT_SetBaudRate
-  :FT_SetDataCharacteristics
-  :FT_GetModemStatus
-  :FT_GetQueueStatus
-  :FT_OpenEx
-  :FT_Purge]
+"""
+    struct D2XXDevice <: IO
 
-function __init__()
-  lib[] = Libdl.dlopen(libFTD2XX)
-  for n in cfuncn
-    cfunc[n] = Libdl.dlsym(lib[], n)
+Device identifier for a D2XX device.
+
+See also: [`D2XXDevices`](@ref), [`deviceidx`](@ref), [`deviceflags`](@ref), 
+[`devicetype`](@ref), [`deviceid`](@ref), [`locationid`](@ref), 
+[`serialnumber`](@ref), [`description`](@ref), [`fthandle`](@ref).
+"""
+struct D2XXDevice <: IO
+  idx::Int
+  flags::Int
+  typ::Int
+  id::Int
+  locid::Int
+  serialnumber::String
+  description::String
+  fthandle::Ref{FT_HANDLE}
+end
+
+
+# D2XXDevice Constructors
+#
+"""
+    D2XXDevice(deviceidx::Integer)
+
+Construct a `D2XXDevice` without opening it. D2XX hardware must pre present to 
+work.
+"""
+D2XXDevice(deviceidx::Integer) = D2XXDevice(getdeviceinfodetail(deviceidx)...)
+
+
+"""
+    D2XXDevices()
+
+Returns an array of available D2XX devices of type `D2XXDevice`.
+
+Their state is not modified - if they are already open/closed they remain 
+open/closed.
+
+See also: [`D2XXDevice`](@ref), [`open`](@ref)
+"""
+function D2XXDevices()
+  numdevs = createdeviceinfolist()
+  devices = D2XXDevice[]
+  for i = 0:(numdevs-1)
+    push!(devices, D2XXDevice(i))
   end
+  devices
 end
 
-# Types
-# 
-struct FT_DEVICE_LIST_INFO_NODE
-  flags::ULONG
-  typ::ULONG
-  id::ULONG
-  locid::DWORD
-  serialnumber::NTuple{16, Cchar}
-  description::NTuple{64, Cchar}
-  fthandle::Ptr{Cvoid}
-end
 
-mutable struct FT_HANDLE<:IO 
-  p::Ptr{Cvoid} 
-end
+# Port communication functions
+#
+"""
+    isopen(d::D2XXDevice) -> Bool
 
-function FT_HANDLE()
-  handle = FT_HANDLE(C_NULL)
-  @compat finalizer(destroy!, handle)
-  handle
-end
+See also: [`D2XXDevice`](@ref)
+"""
+Base.isopen(d::D2XXDevice) = isopen(fthandle(d))
 
-function destroy!(handle::FT_HANDLE)
-  if handle.p != C_NULL
-    flush(handle)
-    close(handle)
-  end
-  handle.p = C_NULL
-end
+"""
+    isopen(handle::FT_HANDLE) -> Bool
 
-function listdevices(arg1, arg2, flags)
-  cfunc = Libdl.dlsym(lib[], "FT_ListDevices")
-  flagsarg = DWORD(flags)
-  status = ccall(cfunc, cdecl, FT_STATUS, (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
-                                           arg1,       arg1,       flagsarg)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  arg1, arg2
-end
-
-function listdevices(flags)
-  arg1 = Ref{DWORD}(0)
-  arg2 = Ref{DWORD}(0)
-  listdevices(arg1, arg2, flags)
-end
-
-function Base.String(input::NTuple{N, Cchar} where N)
-  if any(input .== 0)
-    endidx = findall(input .== 0)[1]-1
-  elseif all(input .> 0)
-    endidx = length(input)
-  else
-    throw(MethodError("No terminator or negative values!"))
-  end
-  String(UInt8.([char for char in input[1:endidx]]))
-end
-
-function createdeviceinfolist()
-  numdevs = Ref{DWORD}(0)
-  status = ccall(cfunc[:FT_CreateDeviceInfoList], cdecl, FT_STATUS, 
-                 (Ref{DWORD},),
-                  numdevs)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  numdevs[]
-end
-
-function getdeviceinfolist(numdevs)
-  list =  @compat Vector{FT_DEVICE_LIST_INFO_NODE}(undef, numdevs)
-  elnum = Ref{DWORD}(0)
-  status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
-                 (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
-                  list,                          elnum)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  list, elnum[]
-end
-
-function ftopen(devidx::Int)
-  handle = FT_HANDLE()
-  status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,    Ref{FT_HANDLE}),
-                                                     devidx, handle)
-  if FT_STATUS_ENUM(status) != FT_OK
-    handle.p = C_NULL
-    throw(FT_STATUS_ENUM(status))
-  end
-  handle
-end
-
-function Base.close(handle::FT_HANDLE)
-  status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
-                                                       handle)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  handle.p = C_NULL
-  return
-end
-
-function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
-  nbav = bytesavailable(handle)
-  if nbav < nb
-    nb = nbav
-  end
-  if length(b) < nb
-    resize!(b, nb)
-  end
-  nbrx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    b,          nb,    nbrx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
-end
-
-function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
-  nb = DWORD(length(buffer))
-  nbtx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{UInt8}, DWORD, Ref{DWORD}),
-                  handle,    buffer,     nb,    nbtx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbtx[]
-end
-
-function baudrate(handle::FT_HANDLE, baud)
-  status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
-                 (FT_HANDLE, DWORD),
-                  handle,    baud)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
-end
-
-function datacharacteristics(handle::FT_HANDLE; wordlength::FTWordLength = BITS_8, stopbits::FTStopBits = STOP_BITS_1, parity::FTParity = PARITY_NONE)
-  status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
-                 (FT_HANDLE, UCHAR,      UCHAR,    UCHAR),
-                  handle,    wordlength, stopbits, parity)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
-end
-
-function status(handle::FT_HANDLE)
-  flags = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
-                 (FT_HANDLE, Ref{DWORD}),
-                  handle,    flags)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  modemstatus = flags[] & 0xFF
-  linestatus = (flags[] >> 8) & 0xFF
-  mflaglist = Dict{String, Bool}()
-  lflaglist = Dict{String, Bool}()
-  mflaglist["CTS"]  = modemstatus & 0x10
-  mflaglist["DSR"]  = modemstatus & 0x20
-  mflaglist["RI"]   = modemstatus & 0x40
-  mflaglist["DCD"]  = modemstatus & 0x80
-  lflaglist["OE"]   = linestatus  & 0x02
-  lflaglist["PE"]   = linestatus  & 0x04
-  lflaglist["FE"]   = linestatus  & 0x08
-  lflaglist["BI"]   = linestatus  & 0x10
-  mflaglist, lflaglist
-end
-
-function Compat.bytesavailable(handle::FT_HANDLE)
-  nbrx = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
-                  (FT_HANDLE, Ref{DWORD}),
-                  handle,    nbrx)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  nbrx[]
-end
-
-Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
-
-function Base.readavailable(handle::FT_HANDLE)
-  b = @compat Vector{UInt8}(undef, bytesavailable(handle))
-  readbytes!(handle, b)
-  b
-end
-
-function Base.open(str::AbstractString, openby::FTOpenBy)
-  flagsarg = DWORD(openby)
-  handle = FT_HANDLE()
-  status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
-                 (Cstring, DWORD,    Ref{FT_HANDLE}),
-                  str,     flagsarg, handle)
-  if FT_STATUS_ENUM(status) != FT_OK
-    handle.p = C_NULL
-    throw(FT_STATUS_ENUM(status))
-  end
-  handle
-end
-
-function Base.flush(handle::FT_HANDLE)
-  flagsarg = DWORD(FT_PURGE_RX | FT_PURGE_TX)
-  status = ccall(cfunc[:FT_Purge], cdecl, FT_STATUS, 
-                 (FT_HANDLE, DWORD),
-                  handle,    flagsarg)
-  FT_STATUS_ENUM(status) == FT_OK || throw(FT_STATUS_ENUM(status))
-  return
-end
-
+See also: [`FT_HANDLE`](@ref)
+"""
 function Base.isopen(handle::FT_HANDLE)
   open = true
-  if handle.p == C_NULL
+  if Wrapper._ptr(handle) == C_NULL
     open = false
   else
     try
-      status(handle)
+      FT_GetModemStatus(handle)
     catch ex
       if ex == FT_INVALID_HANDLE
         open = false
@@ -257,4 +194,481 @@ function Base.isopen(handle::FT_HANDLE)
   open
 end
 
+
+"""
+    Base.open(d::D2XXDevice)
+
+Open a [`D2XXDevice`](@ref) for reading and writing using [`FT_OpenEx`](@ref).
+Cannot be used to open the same device twice.
+
+See also: [`isopen`](@ref), [`close`](@ref)
+"""
+function Base.open(d::D2XXDevice)
+  isopen(d) && throw(D2XXException("Device already open."))
+  fthandle(d, FT_Open(deviceidx(d)))
+  return
 end
+
+"""
+    open(str::AbstractString, openby::FTOpenBy) -> FT_HANDLE
+
+Create an open [`FT_HANDLE`](@ref) for reading and writing using 
+[`FT_OpenEx`](@ref). Cannot be used to open the same device twice.
+
+# Arguments
+ - `str::AbstractString` : Device identifier. Type depends on `openby`
+ - `openby::FTOpenBy` : Indicator of device identifier `str` type.
+
+See also: [`isopen`](@ref), [`close`](@ref)
+"""
+Base.open(str::AbstractString, openby::FTOpenBy) =  FT_OpenEx(str, DWORD(openby))
+
+
+"""
+    close(d::D2XXDevice)
+
+Close a [`D2XXDevice`](@ref) using [`FT_Close`](@ref). Does not perform a 
+[`flush`](@ref) first.
+"""
+Base.close(d::D2XXDevice) = close(fthandle(d))
+
+"""
+    close(handle::FT_HANDLE)
+
+Close an [`FT_HANDLE`](@ref) using [`FT_Close`](@ref). Does not perform a 
+[`flush`](@ref) first.
+"""
+function Base.close(handle::FT_HANDLE)
+  if isopen(handle)
+    FT_Close(handle)
+  end
+  return
+end
+
+"""
+    bytesavailable(d::D2XXDevice)
+
+See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
+Base.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
+
+"""
+    bytesavailable(handle::FT_HANDLE)
+
+See also: [`FT_HANDLE`](@ref), [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
+function Base.bytesavailable(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to check bytes available."))
+  FT_GetQueueStatus(handle)
+end
+
+"""
+    eof(d::D2XXDevice) -> Bool
+
+Indicates if any bytes are available to be read from an open 
+[`D2XXDevice`](@ref). Non-blocking.
+
+See also: [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
+Base.eof(d::D2XXDevice) = eof(fthandle(d))
+
+"""
+    eof(d::D2XXDevice) -> Bool
+
+Indicates if any bytes are available to be read from an open 
+[`FT_HANDLE`](@ref). Non-blocking.
+
+See also: [`isopen`](@ref), [`open`](@ref), 
+[`readavailable`](@ref), [`read`](@ref)
+"""
+Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
+
+
+"""
+    readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b))
+
+See description for 
+[`readbytes!(stream::IO, b::AbstractVector{UInt8}, nb=length(b))`](@ref). 
+`d` must be open. Uses [`FTRead`](@ref).
+
+See also: [`D2XXDevice`](@ref).
+"""
+Base.readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b)) =
+readbytes!(fthandle(d), b, nb)
+
+"""
+    readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
+
+See description for 
+[`readbytes!(stream::IO, b::AbstractVector{UInt8}, nb=length(b))`](@ref). 
+`handle` must be open. Uses [`FTRead`](@ref).
+
+See also: [`FT_HANDLE`](@ref)
+"""
+function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
+  isopen(handle) || throw(D2XXException("Device must be open to read."))
+  if length(b) < nb
+    resize!(b, nb)
+  end
+  nbrx = FT_Read(handle, b, nb)
+end
+
+
+"""
+    readavailable(d::D2XXDevice)
+
+Read all available data from an open [`D2XXDevice`](@ref). Does not block if 
+nothing is available.
+"""
+Base.readavailable(d::D2XXDevice) = readavailable(fthandle(d))
+
+"""
+    readavailable(handle::FT_HANDLE)
+
+Read all available data from an open [`FT_HANDLE`](@ref). Does not block if 
+nothing is available.
+
+See also: [`readbytes`](@ref) [`isopen`](@ref), [`open`](@ref)
+"""
+function Base.readavailable(handle::FT_HANDLE)
+  b = Vector{UInt8}(undef, bytesavailable(handle))
+  readbytes!(handle, b)
+  b
+end
+
+
+"""
+    write(d::D2XXDevice, buffer::Vector{UInt8})
+
+Write `buffer` to an open [`D2XXDevice`](@ref) using [`FT_Write`](@ref).
+"""
+Base.write(d::D2XXDevice, buffer::Vector{UInt8}) = write(fthandle(d), buffer)
+
+"""
+    write(handle::FT_HANDLE, buffer::Vector{UInt8})
+
+Write `buffer` to an open [`FT_HANDLE`](@ref) using [`FT_Write`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
+  isopen(handle) || throw(D2XXException("Device must be open to write."))
+  FT_Write(handle, buffer, length(buffer))
+end
+
+
+"""
+    baudrate(d::D2XXDevice, baud)
+
+Set the baudrate of an open [`D2XXDevice`](@ref) using [`FT_SetBaudRate`](@ref).
+"""
+baudrate(d::D2XXDevice, baud) = baudrate(fthandle(d), baud)
+
+"""
+    baudrate(handle::FT_HANDLE, baud)
+
+Set the baudrate of an open [`FT_HANDLE`](@ref) to `baud` using 
+[`FT_SetBaudRate`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function baudrate(handle::FT_HANDLE, baud)
+  0 < baud || throw(DomainError("0 <= baud"))
+  isopen(handle) || throw(D2XXException("Device must be open to set baudrate."))
+  FT_SetBaudRate(handle, baud)
+end
+
+
+"""
+    datacharacteristics(d::D2XXDevice; 
+                        wordlength::FTWordLength = BITS_8, 
+                        stopbits::FTStopBits = STOP_BITS_1, 
+                        parity::FTParity = PARITY_NONE)
+
+Set the transmission and reception data characteristics for an open 
+[`D2XXDevice`](@ref) using [`FT_SetDataCharacteristics`](@ref).
+
+# Arguments
+ - `wordlength::FTWordLength` : Either BITS_7 or BITS_8
+ - `stopbits::FTStopBits` : Either STOP_BITS_1 or STOP_BITS_2
+ - `parity::FTParity` : PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, or 
+   PARITY_SPACE
+"""
+datacharacteristics(d::D2XXDevice; 
+                    wordlength::FTWordLength = BITS_8, 
+                    stopbits::FTStopBits = STOP_BITS_1, 
+                    parity::FTParity = PARITY_NONE) = 
+datacharacteristics(fthandle(d), 
+                    wordlength=wordlength, 
+                    stopbits=stopbits, 
+                    parity=parity)
+
+"""
+    datacharacteristics(handle::FT_HANDLE;
+                        wordlength::FTWordLength = BITS_8, 
+                        stopbits::FTStopBits = STOP_BITS_1, 
+                        parity::FTParity = PARITY_NONE)
+
+Set the transmission and reception data characteristics for an open 
+[`FT_HANDLE`](@ref) using [`FT_SetDataCharacteristics`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function datacharacteristics(handle::FT_HANDLE; 
+                             wordlength::FTWordLength = BITS_8, 
+                             stopbits::FTStopBits = STOP_BITS_1, 
+                             parity::FTParity = PARITY_NONE)
+isopen(handle) || throw(D2XXException("Device must be open to set data characteristics."))
+FT_SetDataCharacteristics(handle, DWORD(wordlength), DWORD(stopbits), DWORD(parity))
+end
+
+
+"""
+    timeouts(d::D2XXDevice, timeout_rd, timeout_wr)
+
+Set the timeouts of an open [`D2XXDevice`](@ref) using [`FT_SetTimeouts`](@ref).
+"""
+timeouts(d::D2XXDevice, timeout_rd, timeout_wr) = 
+timeouts(fthandle(d) , timeout_rd, timeout_wr)
+
+"""
+    timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
+
+Set the timeouts of an open [`FT_HANDLE`](@ref) using [`FT_SetTimeouts`](@ref).
+
+Behaviour is undefined for `timeout_rd` = 0 and `timeout_wr` = 0. 
+`timeout_rd` = 0 appears to cause [`read`](@ref) and [`readavailable`](@ref) to 
+block.
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
+  0 <= timeout_rd || throw(DomainError("0 <= timeout_rd"))
+  0 <= timeout_wr || throw(DomainError("0 <= timeout_wr"))
+  isopen(handle) || throw(D2XXException("Device must be open to set timeouts."))
+  FT_SetTimeouts(handle, timeout_rd, timeout_wr)
+end 
+
+
+"""
+    status(d::D2XXDevice) ->
+      mflaglist::Dict{String, Bool}, lflaglist::Dict{String, Bool}
+
+Return `Bool` dictionaries of flags for  the modem status (`mflaglist`) and 
+line status (`lflaglist`) for an open [`D2XXDevice`](@ref) using 
+[`FT_GetModemStatus`](@ref).
+"""
+status(d::D2XXDevice) = status(fthandle(d))
+
+"""
+    status(d::D2XXDevice) ->
+      mflaglist::Dict{String, Bool}, lflaglist::Dict{String, Bool}
+
+Return `Bool` dictionaries of flags for  the modem status (`mflaglist`) and 
+line status (`lflaglist`) for an open [`FT_HANDLE`](@ref) using 
+[`FT_GetModemStatus`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref)
+"""
+function status(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to check status."))
+  flags = FT_GetModemStatus(handle)
+  modemstatus = flags & 0xFF
+  linestatus = (flags >> 8) & 0xFF
+  mflaglist = Dict{String, Bool}()
+  lflaglist = Dict{String, Bool}()
+  mflaglist["CTS"]  = (modemstatus & 0x10) == 0x10
+  mflaglist["DSR"]  = (modemstatus & 0x20) == 0x20
+  mflaglist["RI"]   = (modemstatus & 0x40) == 0x40
+  mflaglist["DCD"]  = (modemstatus & 0x80) == 0x89
+  # Below is only non-zero for windows
+  lflaglist["OE"]   = (linestatus  & 0x02) == 0x02
+  lflaglist["PE"]   = (linestatus  & 0x04) == 0x04
+  lflaglist["FE"]   = (linestatus  & 0x08) == 0x08
+  lflaglist["BI"]   = (linestatus  & 0x10) == 0x10
+  mflaglist, lflaglist
+end
+
+if Sys.iswindows()
+
+  """
+      driverversion(d::D2XXDevice)
+
+  Get the driver version for an open [`D2XXDevice`](@ref) using 
+  [`FT_GetDriverVersion`](@ref). Windows only.
+  """
+  driverversion(d::D2XXDevice) = driverversion(fthandle(d))
+
+  """
+      driverversion(handle::FT_HANDLE)
+
+  Get the driver version for an open [`FT_HANDLE`](@ref) using 
+  [`FT_GetDriverVersion`](@ref). Windows only.
+
+  See also: [`isopen`](@ref), [`open`](@ref)
+  """
+  function driverversion(handle::FT_HANDLE)
+    isopen(handle) || throw(D2XXException("Device must be open to check driver version"))
+    version = FT_GetDriverVersion(handle)
+    @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+    patch = version & 0xFF
+    minor = (version >> 8) & 0xFF
+    major = (version >> 16) & 0xFF
+    VersionNumber(major,minor,patch)
+  end
+
+end # Sys.iswindows()
+
+"""
+    flush(d::D2XXDevice)
+
+Clear the transmit and receive buffers for an open [`D2XXDevice`](@ref).
+"""
+Base.flush(d::D2XXDevice) = flush(fthandle(d))
+
+"""
+    flush(handle::FT_HANDLE)
+
+Clear the transmit and receive buffers for an open [`FT_HANDLE`](@ref).
+
+See also: [`isopen`](@ref), [`open`](@ref), [`bytesavailable`](@ref)
+"""
+function Base.flush(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to flush."))
+  FT_StopInTask(handle)
+  FT_Purge(handle, FT_PURGE_TX|FT_PURGE_RX)
+  readavailable(handle)
+  FT_RestartInTask(handle)
+end
+
+
+# Other Functions
+#
+function createdeviceinfolist()
+  numdevs = FT_CreateDeviceInfoList()
+end
+
+
+function getdeviceinfodetail(deviceidx)
+  0 <= deviceidx || throw(DomainError("0 <= deviceidx"))
+  deviceidx < createdeviceinfolist() || throw(D2XXException("Device index $deviceidx not in range."))
+  idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(deviceidx)
+end
+
+
+# Library Functions
+#
+
+if Sys.iswindows()
+
+  """
+      libversion()
+
+  Get a version number from a call to [`FT_GetLibraryVersion`](@ref). Windows
+  only.
+  """
+  function libversion()
+    version = FT_GetLibraryVersion()
+    @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
+    patch = version & 0xFF
+    minor = (version >> 8) & 0xFF
+    major = (version >> 16) & 0xFF
+    VersionNumber(major,minor,patch)
+  end
+
+end # Sys.iswindows()
+
+# D2XXDevice Accessor Functions
+#
+"""
+    deviceidx(d::D2XXDevice)
+
+Get D2XXDevice index.
+
+See also: [`D2XXDevice`](@ref)
+"""
+deviceidx(d::D2XXDevice) = d.idx
+
+
+"""
+    deviceflags(d::D2XXDevice)
+
+Get the D2XXDevice flags list.
+
+See also: [`D2XXDevice`](@ref)
+"""
+deviceflags(d::D2XXDevice) = d.flags
+
+
+"""
+    devicetype(d::D2XXDevice)
+
+Get the D2XXDevice device type.
+
+See also: [`D2XXDevice`](@ref)
+"""
+devicetype(d::D2XXDevice) = d.typ
+
+
+"""
+  deviceid(d::D2XXDevice)
+
+Get the D2XXDevice device id.
+
+See also: [`D2XXDevice`](@ref)
+"""
+deviceid(d::D2XXDevice) = d.id
+
+
+"""
+    locationid(d::D2XXDevice)
+
+Get the D2XXDevice location id. This is zero for windows devices.
+
+See also: [`D2XXDevice`](@ref)
+"""
+locationid(d::D2XXDevice) = d.locid
+
+
+"""
+    serialnumber(d::D2XXDevice)
+
+Get the D2XXDevice device serial number.
+
+See also: [`D2XXDevice`](@ref)
+"""
+serialnumber(d::D2XXDevice) = d.serialnumber
+
+
+"""
+    description(d::D2XXDevice)
+
+Get the D2XXDevice device description.
+
+See also: [`D2XXDevice`](@ref)
+"""
+description(d::D2XXDevice) = d.description
+
+
+"""
+    fthandle(d::D2XXDevice)
+
+Get the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
+
+See also: [`D2XXDevice`](@ref)
+"""
+fthandle(d::D2XXDevice) = d.fthandle[]
+
+"""
+    fthandle(d::D2XXDevice, fthandle::FT_HANDLE)
+
+Set the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
+
+See also: [`D2XXDevice`](@ref)
+"""
+fthandle(d::D2XXDevice, fthandle::FT_HANDLE) = (d.fthandle[] = fthandle)
+
+end # module LibFTD2XX
