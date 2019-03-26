@@ -17,7 +17,7 @@ import LibFTD2XX.Wrapper
     ver = libversion()
     @test ver isa VersionNumber
   else
-    @test_throws MethodError libversion()
+    @test_throws UndefVarError libversion()
   end
 
   # createdeviceinfolist
@@ -68,7 +68,7 @@ import LibFTD2XX.Wrapper
     if Sys.iswindows()
       @test_throws D2XXException driverversion(handle)
     else
-      @test_throws MethodError driverversion(handle)
+      @test_throws UndefVarError driverversion(handle)
     end
 
     # datacharacteristics

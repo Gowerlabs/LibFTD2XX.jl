@@ -17,7 +17,7 @@ import LibFTD2XX.Wrapper
     ver = libversion()
     @test ver isa VersionNumber
   else
-    @test_throws MethodError libversion()
+    @test_throws UndefVarError libversion()
   end
 
   # createdeviceinfolist
@@ -123,7 +123,7 @@ import LibFTD2XX.Wrapper
       @test_throws D2XXException driverversion(handle)
     else
       handle = open(descr, OPEN_BY_DESCRIPTION)
-      @test_throws MethodError driverversion(handle)
+      @test_throws UndefVarError driverversion(handle)
       close(handle) # can't use on closed device
     end
 
