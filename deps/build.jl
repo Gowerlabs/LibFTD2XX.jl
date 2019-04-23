@@ -61,7 +61,7 @@ libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
 
 if Sys.islinux()
 
-    if (Sys.ARCH == :arm) && (occursin("arm-linux-gnueabihf", Sys.MACHINE) || occursin("aarch64", Sys.MACHINE))
+    if (Sys.ARCH == :arm || Sys.ARCH == :aarch64) && (occursin("arm-linux-gnueabihf", Sys.MACHINE) || occursin("aarch64", Sys.MACHINE))
         libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
     else
         libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_x86_URI : libFTD2XX_glx_x64_URI
