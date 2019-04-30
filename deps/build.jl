@@ -1,87 +1,61 @@
 # LibFTD2XX.jl
+#
+# Library installation script based on BinaryProvider LibFoo.jl example
 
 using Libdl
-using BinDeps
+using BinaryProvider
 
-download_dir = joinpath(@__DIR__, "downloads")
+verbose = true
 
-@BinDeps.setup
-
-function validate_libFTD2XX_version(name, handle)
-    f = Libdl.dlsym_e(handle, "FT_GetLibraryVersion")
-    f == C_NULL && return false
-    v = Ref{Cuint}()
-    s = ccall(f, Culong, (Ref{Cuint},), v)
-    s == C_NULL && return false
-    if Sys.iswindows()
-        return v[] >= 0x00021228
-    else
-        return true         # OS X library returns version 0x0000000
-    end
-end
-
-libFTD2XX = library_dependency("libFTD2XX", 
-    aliases = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"], 
-    validate=validate_libFTD2XX_version)
-
-# Windows 
-#
-libFTD2XX_win_x64_URI = URI("http://www.ftdichip.com/Drivers/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip")
-
-provides(Binaries, libFTD2XX_win_x64_URI, libFTD2XX, unpacked_dir = ".",
-         installed_libpath = joinpath(@__DIR__, "libFTD2XX", Sys.WORD_SIZE == 64 ? "amd64" : "i386"), os = :Windows)
-
-         
-# MacOS
-#
-# Whilst binaries are provided, they are in a .dmg file which must be mounted, files extracted
-# and unmounted. Hence this is performed as a build process calling a simple external script.         
-libFTD2XX_osx_x64_URI = URI("http://www.ftdichip.com/Drivers/D2XX/MacOSX/D2XX1.4.4.dmg")
-libFTD2XX_osx_dir = joinpath(@__DIR__, "usr", "lib")
-
-provides(BuildProcess,
-    (@build_steps begin
-        CreateDirectory(libFTD2XX_osx_dir)
-        CreateDirectory(download_dir)
-        FileDownloader(string(libFTD2XX_osx_x64_URI), joinpath(download_dir, "D2XX1.4.4.dmg"))
-        @build_steps begin
-            FileRule(joinpath(libFTD2XX_osx_dir, "libftd2xx.1.4.4.dylib"), @build_steps begin
-                `./build_osx.sh`
-            end)
-        end
-    end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Darwin)
-
-# Linux
-#
-libFTD2XX_glx_armv7hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz")
-libFTD2XX_glx_armv8hf_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz")
-libFTD2XX_glx_x86_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-i386-1.4.8.gz")
-libFTD2XX_glx_x64_URI = URI("https://www.ftdichip.com/Drivers/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz")
-libFTD2XX_glx_dir = joinpath(@__DIR__, "usr", "lib")
+prefix = joinpath(@__DIR__, "usr")
 
 if Sys.islinux()
+    libnames = ["libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"]
+    products = Product[LibraryProduct(joinpath(prefix, "release", "build"), libnames, :libftd2xx)]
+end
 
-    if (Sys.ARCH == :arm || Sys.ARCH == :aarch64) && (occursin("arm-linux-gnueabihf", Sys.MACHINE) || occursin("aarch64", Sys.MACHINE))
-        libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_armv7hf_URI : libFTD2XX_glx_armv8hf_URI
-    else
-        libFTD2XX_glx_URI = (Sys.WORD_SIZE == 32) ? libFTD2XX_glx_x86_URI : libFTD2XX_glx_x64_URI
-    end
+if Sys.iswindows()
+    libnames = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"]
+    products = Product[LibraryProduct(joinpath(prefix, "release", "build"), libnames, :libftd2xx)]
+end
 
-    provides(BuildProcess,
-    (@build_steps begin
-        CreateDirectory(libFTD2XX_glx_dir)
-        CreateDirectory(download_dir)
-        FileDownloader(string(libFTD2XX_glx_URI), joinpath(download_dir, "libftd2xx.gz"))
-        FileRule(joinpath(libFTD2XX_glx_dir, "libftd2xx.so.1.4.8"), @build_steps begin
-            `./build_glx.sh`
-        end)
-    end), libFTD2XX, installed_libpath = joinpath(@__DIR__, "usr", "lib"), os = :Linux)
-
-    # BinDeps doesn't do something sensible with .gz, so the following approach fails
-    # provides(Binaries, libFTD2XX_glx_armv7hf_URI, libFTD2XX, #unpacked_dir = ".",
-    #          installed_libpath = joinpath(@__DIR__, "release", "build"), os = :Linux)
+if Sys.isapple()
+    libnames = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"]
+    products = Product[LibraryProduct(joinpath(prefix, "release", "build"), libnames, :libftd2xx)]
 end
 
 
-@BinDeps.install Dict(:libFTD2XX => :libFTD2XX)
+
+bin_prefix = "https://www.ftdichip.com/Drivers"
+download_info = Dict(
+    Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", ""),
+    Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", ""),
+    Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", ""),
+    Linux(:x86_64, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
+
+    MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", ""),
+
+    Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "")
+)
+
+# First, check to see if we're all satisfied
+if any(!satisfied(p; verbose=verbose) for p in products)
+    try
+        # Download and install binaries
+        url, tarball_hash = choose_download(download_info)
+        install(url, tarball_hash, prefix=Prefix(prefix), force=true, verbose=true)
+        #download_verify_unpack(url, tarball_hash, prefix, force=true, verbose=true)
+    catch e
+        if typeof(e) <: ArgumentError
+            error("Your platform $(Sys.MACHINE) is not supported by this package!")
+        else
+            rethrow(e)
+        end
+    end
+
+    # Finally, write out a deps.jl file
+    write_deps_file(joinpath(@__DIR__, "deps.jl"), products)
+end
+
+
 
