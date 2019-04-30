@@ -28,14 +28,14 @@ end
 
 bin_prefix = "https://www.ftdichip.com/Drivers"
 download_info = Dict(
-    Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", ""),
-    Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", ""),
-    Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", ""),
+    Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
+    Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
+    Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     Linux(:x86_64, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
 
-    MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", ""),
+    MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
 
-    Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "")
+    Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0")
 )
 
 # First, check to see if we're all satisfied
