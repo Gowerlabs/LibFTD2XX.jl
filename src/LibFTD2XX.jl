@@ -514,10 +514,7 @@ if Sys.iswindows()
     isopen(handle) || throw(D2XXException("Device must be open to check driver version"))
     version = FT_GetDriverVersion(handle)
     @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
-    patch = version & 0xFF
-    minor = (version >> 8) & 0xFF
-    major = (version >> 16) & 0xFF
-    VersionNumber(major,minor,patch)
+    Util.versionnumber(version)
   end
 
 end # Sys.iswindows()
@@ -573,10 +570,7 @@ if Sys.iswindows()
   function libversion()
     version = FT_GetLibraryVersion()
     @assert (version >> 24) & 0xFF == 0x00 # 4th byte should be 0 according to docs
-    patch = version & 0xFF
-    minor = (version >> 8) & 0xFF
-    major = (version >> 16) & 0xFF
-    VersionNumber(major,minor,patch)
+    Util.versionnumber(version)
   end
 
 end # Sys.iswindows()
