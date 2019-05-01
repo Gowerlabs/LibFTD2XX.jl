@@ -35,7 +35,7 @@ download_info = Dict(
 
     MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
 
-    Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0")
+    Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "82db36f089d391f194c8ad6494b0bf44c508b176f9d3302777c041dad1ef7fe6")
 )
 
 # First, check to see if we're all satisfied
