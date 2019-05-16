@@ -116,7 +116,7 @@ const cfuncn = [
   :FT_RestartInTask]
 
 function __init__()
-  lib[] = Libdl.dlopen(libFTD2XX)
+  lib[] = Libdl.dlopen(libftd2xx)
   for n in cfuncn
     cfunc[n] = Libdl.dlsym(lib[], n)
   end
