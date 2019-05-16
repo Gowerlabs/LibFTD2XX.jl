@@ -14,7 +14,7 @@ Direct access to functions detailed in the [D2XX Programmer's Guide (FT_000071)]
 are available in in the submodule `Wrapper`.
 
 
-Supports Julia v0.7 and above.
+Supports Julia v0.7 and above, on Windows (32- and 64-bit), Linux (64-bit, ARMv7, ARMv8), and MacOS.
 
 ## Example Code
 
