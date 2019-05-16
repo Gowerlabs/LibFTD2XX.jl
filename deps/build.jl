@@ -67,4 +67,4 @@ if any(!satisfied(p; verbose=verbose) for p in products)
 end
 
 # Finally, write out a deps.jl file
-write_deps_file(joinpath(@__DIR__, "deps.jl"), products)
+write_deps_file(joinpath(@__DIR__, "deps.jl"), products, verbose=verbose)
