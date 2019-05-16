@@ -15,8 +15,8 @@ if Sys.islinux()
 end
 
 if Sys.iswindows()
-    libnames = ["ftd2xx64", "ftd2xx", "libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"]
-    products = Product[LibraryProduct(joinpath(prefix, "release", "build"), libnames, :libftd2xx)]
+    libnames = ["ftd2xx64", "ftd2xx"]
+    products = Product[LibraryProduct(joinpath(prefix, Sys.WORD_SIZE == 64 ? "amd64" : "i386"), libnames, :libftd2xx)]
 end
 
 if Sys.isapple()
@@ -43,8 +43,19 @@ if any(!satisfied(p; verbose=verbose) for p in products)
     try
         # Download and install binaries
         url, tarball_hash = choose_download(download_info)
-        install(url, tarball_hash, prefix=Prefix(prefix), force=true, verbose=true)
-        #download_verify_unpack(url, tarball_hash, prefix, force=true, verbose=true)
+        if Sys.islinux()
+            install(url, tarball_hash, prefix=Prefix(prefix), force=true, verbose=verbose)
+        elseif Sys.iswindows()
+            # Explitly download, unzip and install on windows since .zip instead of tarball
+            tarball_path = joinpath(Prefix(prefix), "downloads", basename(url))
+            download_verify(url, tarball_hash, tarball_path, force=true, verbose=verbose)
+            # unzip
+            exe7z = joinpath(Sys.BINDIR, "7z.exe")
+            isfile(exe7z) || error("7z.exe not in $(Sys.BINDIR)")
+            run(`$exe7z x $tarball_path -o$prefix`)
+        else
+            throw(ArgumentError("Unsupported platform"))
+        end
     catch e
         if typeof(e) <: ArgumentError
             error("Your platform $(Sys.MACHINE) is not supported by this package!")
@@ -56,6 +67,3 @@ if any(!satisfied(p; verbose=verbose) for p in products)
     # Finally, write out a deps.jl file
     write_deps_file(joinpath(@__DIR__, "deps.jl"), products)
 end
-
-
-
