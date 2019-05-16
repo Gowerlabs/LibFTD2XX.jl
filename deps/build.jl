@@ -15,8 +15,13 @@ if Sys.islinux()
 end
 
 if Sys.iswindows()
-    libnames = ["ftd2xx64", "ftd2xx"]
-    products = Product[LibraryProduct(joinpath(prefix, Sys.WORD_SIZE == 64 ? "amd64" : "i386"), libnames, :libftd2xx)]
+    if Sys.WORD_SIZE == 64
+        libnames = ["ftd2xx64", "ftd2xx"]
+        products = Product[LibraryProduct(joinpath(prefix, "amd64"), libnames, :libftd2xx)]
+    else
+        libnames = ["ftd2xx", "ftd2xx"]
+        products = Product[LibraryProduct(joinpath(prefix, "i386"), libnames, :libftd2xx)]
+    end
 end
 
 if Sys.isapple()
