@@ -19,7 +19,7 @@ if Sys.iswindows()
         libnames = ["ftd2xx64", "ftd2xx"]
         products = Product[LibraryProduct(joinpath(prefix, "amd64"), libnames, :libftd2xx)]
     else
-        libnames = ["ftd2xx", "ftd2xx"]
+        libnames = ["ftd2xx"]
         products = Product[LibraryProduct(joinpath(prefix, "i386"), libnames, :libftd2xx)]
     end
 end
