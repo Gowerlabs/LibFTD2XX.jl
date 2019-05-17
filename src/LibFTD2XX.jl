@@ -154,6 +154,7 @@ See also: [`D2XXDevice`](@ref), [`open`](@ref)
 """
 function D2XXDevices()
   numdevs = createdeviceinfolist()
+  @info "found numdevs" numdevs
   devices = D2XXDevice[]
   for i = 0:(numdevs-1)
     push!(devices, D2XXDevice(i))
