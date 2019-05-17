@@ -34,7 +34,7 @@ end
 bin_prefix = "https://www.ftdichip.com/Drivers"
 download_info = Dict(
     Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", "e353cfa94069dee6d5bba1c4d8a19b0fd2bf3db1e8bbe0c3b9534fdfaf7a55ed"),
-    Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
+    Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", "81c8556184e9532a3a19ee6915c3a43110dc208116967a4d3e159f00db5d16e1"),
     Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     Linux(:x86_64, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", "3327e646e71819a48fdbf72c8ced24ba99ad1eec1a609f0e9cbc6dbadd2285b6"),
