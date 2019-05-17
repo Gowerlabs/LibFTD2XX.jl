@@ -38,7 +38,7 @@ download_info = Dict(
     Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     Linux(:x86_64, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     MacOS(:x86_64)          => ("$bin_prefix/D2XX/MacOSX/D2XX1.4.4.dmg", "3327e646e71819a48fdbf72c8ced24ba99ad1eec1a609f0e9cbc6dbadd2285b6"),
-    Windows(:i686)          => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "82db36f089d391f194c8ad6494b0bf44c508b176f9d3302777c041dad1ef7fe6")
+    Windows(:i686)          => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "82db36f089d391f194c8ad6494b0bf44c508b176f9d3302777c041dad1ef7fe6"),
     Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "82db36f089d391f194c8ad6494b0bf44c508b176f9d3302777c041dad1ef7fe6")
 )
 
