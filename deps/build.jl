@@ -16,7 +16,7 @@ end
 
 if Sys.iswindows()
     if Sys.WORD_SIZE == 64
-        libnames = ["ftd2xx64", "ftd2xx"]
+        libnames = ["ftd2xx64"]
         products = Product[LibraryProduct(joinpath(prefix, "amd64"), libnames, :libftd2xx)]
     else
         libnames = ["ftd2xx"]
@@ -33,7 +33,7 @@ end
 
 bin_prefix = "https://www.ftdichip.com/Drivers"
 download_info = Dict(
-    Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
+    Linux(:aarch64, :glibc) => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v8-1.4.8.gz", "e353cfa94069dee6d5bba1c4d8a19b0fd2bf3db1e8bbe0c3b9534fdfaf7a55ed"),
     Linux(:armv7l, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-arm-v7-hf-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     Linux(:i686, :glibc)    => ("$bin_prefix/D2XX/Linux/libftd2xx-i386-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
     Linux(:x86_64, :glibc)  => ("$bin_prefix/D2XX/Linux/libftd2xx-x86_64-1.4.8.gz", "815d880c5ec40904f062373e52de07b2acaa428e54fece98b31e6573f5d261a0"),
