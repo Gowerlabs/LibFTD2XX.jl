@@ -42,10 +42,6 @@ download_info = Dict(
     Windows(:x86_64)        => ("$bin_prefix/CDM/CDM%20v2.12.28%20WHQL%20Certified.zip", "82db36f089d391f194c8ad6494b0bf44c508b176f9d3302777c041dad1ef7fe6")
 )
 
-# Check products isn't empty
-@info "Have products: " products
-@assert !isempty(products)
-
 # First, check to see if we're all satisfied
 if any(!satisfied(p; verbose=verbose) for p in products)
     try
