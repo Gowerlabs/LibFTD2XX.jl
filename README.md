@@ -5,25 +5,44 @@
 [![Build Status](https://travis-ci.org/Gowerlabs/LibFTD2XX.jl.svg?branch=master)](https://travis-ci.org/Gowerlabs/LibFTD2XX.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/ui8plnih785lw4jg/branch/master?svg=true)](https://ci.appveyor.com/project/samuelpowell/libftd2xx-jl/branch/master)
 
-Julia wrapper for FTD2XX driver. For reference see the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
+Julia wrapper for the FTDIchip FTD2XX driver.
 
-Contains methods and functions for interacting with D2XX devices. Most 
-cross-platform functions are supported.
+# Installation & Platforms
 
-Direct access to functions detailed in the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf)
-are available in in the submodule `Wrapper`.
+Install LibFTD2XX using the package manager:
+
+```julia
+]add LibFTD2XX
+```
+
+| Platform        | Architecture                  | Notes                                   |
+| -------------   | ----------------------------- | --------------------------------------- |
+| Linux (x86)     | 32-bit and 64-bit             | 64-bit tested locally ([No CI](https://github.com/Gowerlabs/LibFTD2XX.jl/issues/35)) |
+| Linux (ARM)     | ARMv7 HF and AArch64 (ARMv8)  | Tested locally (No CI)                  |
+| MacOS           | 64-bit                        | CI active (without hardware)            |
+| Windows         | 32-bit and 64-bit             | CI active (without hardware)            |
+
+Installation may fail on systems using non-standard `tar`, for example, embedded systems which use the busybox. This is due to a limitation in [BinaryProvider](https://github.com/JuliaPackaging/BinaryProvider.jl/issues/162) which is used to uncompress and install the LibFTD2XX library.
+
+## Linux driver details
+
+It is likely that the kernel will automatically load VCP drivers when running on linux, which will prevent the D2XX drivers from accessing the device. Follow the guidance in the FTDI Linux driver [README](https://www.ftdichip.com/Drivers/D2XX/Linux/ReadMe-linux.txt) to unload the `ftdio_sio` and `usbserial` kernel modules before use. These can optionally be blacklisted if appropriate.
+
+The D2XX drivers use raw USB access through `libusb` which may not be available to non-root users. A udev file is required to enable access to a specified group. A script to create the appropriate file and user group is available, e.g., [here](https://stackoverflow.com/questions/13419691/accessing-a-usb-device-with-libusb-1-0-as-a-non-root-user).
 
 
-Supports Julia v0.7 and above.
+# Usage
 
-## Example Code
+LibFTD2XX provides a high-level wrapper of the underlying library functionality, detailed below. 
+To access the library directly, the submodule `Wrapper` provides access to the functions detailed in the [D2XX Programmer's Guide (FT_000071)](http://www.ftdichip.com/Support/Documents/ProgramGuides/D2XX_Programmer's_Guide(FT_000071).pdf).
 
-The below is a demonstration for a port running at 2MBaud which echos what it receives.
+The demonstration considers a port running at 2MBaud which echos what it receives.
+
+
+## Finding and configuring devices
 
 ```Julia
 julia> using LibFTD2XX
-
-julia> # Finding and configuring devices
 
 julia> devices = D2XXDevices()
 4-element Array{D2XXDevice,1}:
@@ -54,8 +73,11 @@ julia> baudrate(device,2000000)
 julia> timeout_read, timeout_wr = 200, 10; # milliseconds
 
 julia> timeouts(device, timeout_read, timeout_wr)
+```
 
-julia> # Basic IO commands
+## Basic IO
+
+```julia
 
 julia> supertype(typeof(device))
 IO
@@ -93,9 +115,11 @@ julia> tread = 1000 * @elapsed read(device, 5000) # nothing to read! Will timeou
 
 julia> timeout_read < 1.5*tread # 1.5*tread to allow for extra compile/run time.
 true
+```
 
-julia> # Write Timeout behaviour (only tested on windows)
+## Timeouts (only tested on Windows)
 
+```
 julia> buffer = zeros(UInt8, 5000);
 
 julia> twr = 1000 * @elapsed nb = write(device, buffer) # Will timeout before finishing write!
@@ -135,11 +159,6 @@ julia> close(device)
 
 julia> isopen(device)
 false
-
 ```
 
-## Linux support
 
-It is likely that the kernel will automatically load VCP drivers when running on linux, which will prevent the D2XX drivers from accessing the device. Follow the guidance in the FTDI Linux driver [README](https://www.ftdichip.com/Drivers/D2XX/Linux/ReadMe-linux.txt) to unload the `ftdio_sio` and `usbserial` kernel modules before use. These can optionally be blacklisted if appropriate.
-
-The D2XX drivers use raw USB access through `libusb` which may not be available to non-root users. A udev file is required to enable access to a specified group. A script to create the appropriate file and user group is available, e.g., [here](https://stackoverflow.com/questions/13419691/accessing-a-usb-device-with-libusb-1-0-as-a-non-root-user).

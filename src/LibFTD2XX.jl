@@ -153,10 +153,10 @@ open/closed.
 See also: [`D2XXDevice`](@ref), [`open`](@ref)
 """
 function D2XXDevices()
-  numdevs = createdeviceinfolist()
+  numdevs = createdeviceinfolist() # NB numdevs is DWORD = Cuint
   devices = D2XXDevice[]
-  for i = 0:(numdevs-1)
-    push!(devices, D2XXDevice(i))
+  for devidx = 0:(Int(numdevs)-1) # Int conversion to avoid devidx = 0x00000000:0xffffffff on Win32
+    push!(devices, D2XXDevice(devidx))
   end
   devices
 end
