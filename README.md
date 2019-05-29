@@ -22,6 +22,7 @@ Install LibFTD2XX using the package manager:
 | MacOS           | 64-bit                        | CI active (without hardware)            |
 | Windows         | 32-bit and 64-bit             | CI active (without hardware)            |
 
+Installation may fail on systems using non-standard `tar`, for example, embedded systems which use the busybox. This is due to a limitation in [BinaryProvider](https://github.com/JuliaPackaging/BinaryProvider.jl/issues/162) which is used to uncompress and install the LibFTD2XX library.
 
 ## Linux driver details
 
