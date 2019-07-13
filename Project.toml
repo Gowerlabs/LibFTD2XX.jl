@@ -1,6 +1,6 @@
 name = "LibFTD2XX"
 uuid = "85e77ee8-8498-5435-b1ed-98efe5aa7d59"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
