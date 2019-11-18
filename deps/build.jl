@@ -55,7 +55,11 @@ if any(!satisfied(p; verbose=verbose) for p in products)
             download_verify(url, tarball_hash, tarball_path, force=true, verbose=verbose)
             if Sys.iswindows()
                 # On windows, manuall unzip as .zip not handled well by BinaryProvider
-                exe7z = joinpath(Sys.BINDIR, "7z.exe")
+                if VERSION > v"1.2"
+                    exe7z = joinpath(Sys.BINDIR, "..", "libexec", "7z.exe")
+                else
+                    exe7z = joinpath(Sys.BINDIR, "7z.exe")
+                end
                 isfile(exe7z) || error("7z.exe not in $(Sys.BINDIR)")
                 run(`$exe7z x $tarball_path -o$prefix`)
             end
