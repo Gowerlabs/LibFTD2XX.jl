@@ -9,6 +9,12 @@ verbose = true
 
 prefix = joinpath(@__DIR__, "usr")
 
+if isdefined(Base, :LIBEXECDIR)
+    const exe7z = joinpath(Sys.BINDIR, Base.LIBEXECDIR, "7z.exe")
+else
+    const exe7z = joinpath(Sys.BINDIR, "7z.exe")
+end
+
 if Sys.islinux()
     libnames = ["libftd2xx", "libftd2xx.1.4.4", "libftd2xx.so.1.4.8"]
     products = Product[LibraryProduct(joinpath(prefix, "release", "build"), libnames, :libftd2xx)]
@@ -55,8 +61,6 @@ if any(!satisfied(p; verbose=verbose) for p in products)
             download_verify(url, tarball_hash, tarball_path, force=true, verbose=verbose)
             if Sys.iswindows()
                 # On windows, manuall unzip as .zip not handled well by BinaryProvider
-                exe7z = joinpath(Sys.BINDIR, "7z.exe")
-                isfile(exe7z) || error("7z.exe not in $(Sys.BINDIR)")
                 run(`$exe7z x $tarball_path -o$prefix`)
             end
             if Sys.isapple()
