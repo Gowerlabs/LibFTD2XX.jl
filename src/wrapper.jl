@@ -13,7 +13,7 @@
 module Wrapper
 
 # Type Aliases
-export DWORD, ULONG, UCHAR
+export DWORD, UCHAR
 
 # Library Constants
 export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION
@@ -27,65 +27,63 @@ export FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_
 # export FT_EVENT_RXCHAR, FT_EVENT_MODEM_STATUS, FT_EVENT_LINE_STATUS not yet implemented
 export FT_PURGE_RX, FT_PURGE_TX
 export FT_STATUS_ENUM,
-        FT_OK,
-        FT_INVALID_HANDLE,
-        FT_DEVICE_NOT_FOUND,
-        FT_DEVICE_NOT_OPENED,
-        FT_IO_ERROR,
-        FT_INSUFFICIENT_RESOURCES,
-        FT_INVALID_PARAMETER,
-        FT_INVALID_BAUD_RATE,
-        FT_DEVICE_NOT_OPENED_FOR_ERASE,
-        FT_DEVICE_NOT_OPENED_FOR_WRITE,
-        FT_FAILED_TO_WRITE_DEVICE,
-        FT_EEPROM_READ_FAILED,
-        FT_EEPROM_WRITE_FAILED,
-        FT_EEPROM_ERASE_FAILED,
-        FT_EEPROM_NOT_PRESENT,
-        FT_EEPROM_NOT_PROGRAMMED,
-        FT_INVALID_ARGS,
-        FT_NOT_SUPPORTED,
-        FT_OTHER_ERROR,
-        FT_DEVICE_LIST_NOT_READY
+       FT_OK,
+       FT_INVALID_HANDLE,
+       FT_DEVICE_NOT_FOUND,
+       FT_DEVICE_NOT_OPENED,
+       FT_IO_ERROR,
+       FT_INSUFFICIENT_RESOURCES,
+       FT_INVALID_PARAMETER,
+       FT_INVALID_BAUD_RATE,
+       FT_DEVICE_NOT_OPENED_FOR_ERASE,
+       FT_DEVICE_NOT_OPENED_FOR_WRITE,
+       FT_FAILED_TO_WRITE_DEVICE,
+       FT_EEPROM_READ_FAILED,
+       FT_EEPROM_WRITE_FAILED,
+       FT_EEPROM_ERASE_FAILED,
+       FT_EEPROM_NOT_PRESENT,
+       FT_EEPROM_NOT_PROGRAMMED,
+       FT_INVALID_ARGS,
+       FT_NOT_SUPPORTED,
+       FT_OTHER_ERROR,
+       FT_DEVICE_LIST_NOT_READY
 
 # Types
 export FT_HANDLE
 
 # Functions
 export FT_CreateDeviceInfoList, 
-        FT_GetDeviceInfoList,
-        FT_GetDeviceInfoDetail,
-        FT_ListDevices,
-        FT_Open,
-        FT_OpenEx,
-        FT_Close,
-        FT_Read,
-        FT_Write,
-        FT_SetBaudRate,
-        FT_SetDataCharacteristics,
-        FT_SetTimeouts,
-        FT_GetModemStatus,
-        FT_GetQueueStatus,
-        FT_GetDeviceInfo,
-        FT_GetDriverVersion,
-        FT_GetLibraryVersion,
-        FT_GetStatus,
-        FT_SetBreakOn,
-        FT_SetBreakOff,
-        FT_Purge,
-        FT_StopInTask,
-        FT_RestartInTask
+       FT_GetDeviceInfoList,
+       FT_GetDeviceInfoDetail,
+       FT_ListDevices,
+       FT_Open,
+       FT_OpenEx,
+       FT_Close,
+       FT_Read,
+       FT_Write,
+       FT_SetBaudRate,
+       FT_SetDataCharacteristics,
+       FT_SetTimeouts,
+       FT_GetModemStatus,
+       FT_GetQueueStatus,
+       FT_GetDeviceInfo,
+       FT_GetDriverVersion,
+       FT_GetLibraryVersion,
+       FT_GetStatus,
+       FT_SetBreakOn,
+       FT_SetBreakOff,
+       FT_Purge,
+       FT_StopInTask,
+       FT_RestartInTask
 
 using Libdl
 using libftd2xx_jll
 
 # Type Aliases
 # 
-const DWORD     = Cuint
-const ULONG     = Culong
-const UCHAR     = Cuchar
-const FT_STATUS = ULONG
-
+const DWORD     = UInt32
+const UCHAR     = UInt8
+const FT_STATUS = DWORD
 
 # Library Constants
 #
