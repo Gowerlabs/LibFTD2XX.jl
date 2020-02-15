@@ -15,6 +15,6 @@ include("util.jl")
 #   include("hardware/LibFTD2XX.jl")
 # else
 # @info "found $numdevs devices. Running nohardware tests..."
-  # include("nohardware/wrapper.jl")
-  include("nohardware/LibFTD2XX.jl")
+   include("nohardware/wrapper.jl")
+ # include("nohardware/LibFTD2XX.jl")
 # end
