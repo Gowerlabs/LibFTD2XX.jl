@@ -15,9 +15,9 @@ using Libdl
 lpdwNumDevs = Ref{DWORD}(0)
 
 # This will crash
-status = ccall((:FT_CreateDeviceInfoList, libftd2xx), cdecl, FT_STATUS, (Ref{DWORD},),   lpdwNumDevs)
+# status = ccall((:FT_CreateDeviceInfoList, libftd2xx), cdecl, FT_STATUS, (Ref{DWORD},),   lpdwNumDevs)
 
-# Will this crash
+# Will this not crash
 libptr = Libdl.dlsym(Libdl.dlopen(libftd2xx), :FT_CreateDeviceInfoList)
 status = ccall(libptr, cdecl, FT_STATUS, (Ref{DWORD},),lpdwNumDevs)
 
