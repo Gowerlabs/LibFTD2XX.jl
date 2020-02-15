@@ -10,10 +10,12 @@ using Test
 using LibFTD2XX.Wrapper
 using LibFTD2XX.Util
 
+numdevs = FT_CreateDeviceInfoList()
+
 @testset "wrapper" begin
   
   # FT_CreateDeviceInfoList tests...
-  #numdevs = FT_CreateDeviceInfoList()
+  # numdevs = FT_CreateDeviceInfoList()
   #@test numdevs == 0
 
   # # FT_GetDeviceInfoList tests...
