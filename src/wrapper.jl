@@ -13,7 +13,7 @@
 module Wrapper
 
 # Type Aliases
-export DWORD, ULONG, UCHAR
+export DWORD, ULONG, UCHAR, FT_STATUS
 
 # Library Constants
 export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION
