@@ -10,9 +10,18 @@ using Test
 using LibFTD2XX.Wrapper
 using LibFTD2XX.Util
 
-
 lpdwNumDevs = Ref{DWORD}(0)
+
+# This will crash
 status = ccall((:FT_CreateDeviceInfoList, libftd2xx), cdecl, FT_STATUS, (Ref{DWORD},),   lpdwNumDevs)
+
+# Will this crash
+libptr = Libdl.dlsym(Libdl.dlopen(libftd2xx), :FT_CreateDeviceInfoList)
+status = ccall(libptr, cdecl, FT_STATUS, (Ref{DWORD},),lpdwNumDevs)
+
+
+
+
 
 
 @testset "wrapper" begin
