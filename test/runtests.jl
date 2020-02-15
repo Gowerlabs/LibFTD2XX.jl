@@ -6,7 +6,7 @@
 
 using LibFTD2XX
 
-include("util.jl")
+#include("util.jl")
 
 #numdevs = LibFTD2XX.createdeviceinfolist()
 # if numdevs > 0
