@@ -10,7 +10,10 @@ using Test
 using LibFTD2XX.Wrapper
 using LibFTD2XX.Util
 
-numdevs = FT_CreateDeviceInfoList()
+
+lpdwNumDevs = Ref{DWORD}(0)
+status = ccall((:FT_CreateDeviceInfoList, libftd2xx), cdecl, FT_STATUS, (Ref{DWORD},),   lpdwNumDevs)
+
 
 @testset "wrapper" begin
   
