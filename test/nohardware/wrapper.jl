@@ -10,6 +10,8 @@ using Test
 using LibFTD2XX.Wrapper
 using LibFTD2XX.Util
 
+using Libdl
+
 lpdwNumDevs = Ref{DWORD}(0)
 
 # This will crash
