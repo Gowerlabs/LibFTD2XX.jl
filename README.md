@@ -20,7 +20,7 @@ Install LibFTD2XX using the package manager:
 | Linux (x86)     | 32-bit and 64-bit             | 64-bit tested locally ([No CI](https://github.com/Gowerlabs/LibFTD2XX.jl/issues/35)) |
 | Linux (ARM)     | ARMv7 HF and AArch64 (ARMv8)  | Tested locally (No CI)                  |
 | MacOS           | 64-bit                        | CI active (without hardware)            |
-| Windows         | 32-bit and 64-bit             | CI active (without hardware)            |
+| Windows         | 64-bit                        | CI active (without hardware)            |
 
 ## Linux driver details
 
