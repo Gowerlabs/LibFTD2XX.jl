@@ -22,11 +22,9 @@ Install LibFTD2XX using the package manager:
 | MacOS           | 64-bit                        | CI active (without hardware)            |
 | Windows         | 32-bit and 64-bit             | CI active (without hardware)            |
 
-Installation may fail on systems using non-standard `tar`, for example, embedded systems which use the busybox. This is due to a limitation in [BinaryProvider](https://github.com/JuliaPackaging/BinaryProvider.jl/issues/162) which is used to uncompress and install the LibFTD2XX library.
-
 ## Linux driver details
 
-It is likely that the kernel will automatically load VCP drivers when running on linux, which will prevent the D2XX drivers from accessing the device. Follow the guidance in the FTDI Linux driver [README](https://www.ftdichip.com/Drivers/D2XX/Linux/ReadMe-linux.txt) to unload the `ftdio_sio` and `usbserial` kernel modules before use. These can optionally be blacklisted if appropriate.
+It is likely that the kernel will automatically load VCP drivers when running on linux, which will prevent the D2XX drivers from accessing the device. Follow the guidance in the FTDI Linux driver [README](https://www.ftdichip.com/Drivers/D2XX/Linux/ReadMe-linux.txt) to unload the `ftdio_sio` and `usbserial` kernel modules before use. These can optionally be blacklisted if appropriate. If your device has an alternate product name you may prefer to use an alternative approach detailed [here](https://www.elektormagazine.de/news/ftdi-d2xx-and-linux-overcoming-the-big-problem-).
 
 The D2XX drivers use raw USB access through `libusb` which may not be available to non-root users. A udev file is required to enable access to a specified group. A script to create the appropriate file and user group is available, e.g., [here](https://stackoverflow.com/questions/13419691/accessing-a-usb-device-with-libusb-1-0-as-a-non-root-user).
 
