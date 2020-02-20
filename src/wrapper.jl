@@ -13,7 +13,7 @@
 module Wrapper
 
 # Type Aliases
-export DWORD, ULONG, UCHAR
+export DWORD, UCHAR
 
 # Library Constants
 export FT_OPEN_BY_SERIAL_NUMBER, FT_OPEN_BY_DESCRIPTION, FT_OPEN_BY_LOCATION
@@ -27,108 +27,63 @@ export FT_PARITY_NONE, FT_PARITY_ODD, FT_PARITY_EVEN, FT_PARITY_MARK, FT_PARITY_
 # export FT_EVENT_RXCHAR, FT_EVENT_MODEM_STATUS, FT_EVENT_LINE_STATUS not yet implemented
 export FT_PURGE_RX, FT_PURGE_TX
 export FT_STATUS_ENUM,
-        FT_OK,
-        FT_INVALID_HANDLE,
-        FT_DEVICE_NOT_FOUND,
-        FT_DEVICE_NOT_OPENED,
-        FT_IO_ERROR,
-        FT_INSUFFICIENT_RESOURCES,
-        FT_INVALID_PARAMETER,
-        FT_INVALID_BAUD_RATE,
-        FT_DEVICE_NOT_OPENED_FOR_ERASE,
-        FT_DEVICE_NOT_OPENED_FOR_WRITE,
-        FT_FAILED_TO_WRITE_DEVICE,
-        FT_EEPROM_READ_FAILED,
-        FT_EEPROM_WRITE_FAILED,
-        FT_EEPROM_ERASE_FAILED,
-        FT_EEPROM_NOT_PRESENT,
-        FT_EEPROM_NOT_PROGRAMMED,
-        FT_INVALID_ARGS,
-        FT_NOT_SUPPORTED,
-        FT_OTHER_ERROR,
-        FT_DEVICE_LIST_NOT_READY
+       FT_OK,
+       FT_INVALID_HANDLE,
+       FT_DEVICE_NOT_FOUND,
+       FT_DEVICE_NOT_OPENED,
+       FT_IO_ERROR,
+       FT_INSUFFICIENT_RESOURCES,
+       FT_INVALID_PARAMETER,
+       FT_INVALID_BAUD_RATE,
+       FT_DEVICE_NOT_OPENED_FOR_ERASE,
+       FT_DEVICE_NOT_OPENED_FOR_WRITE,
+       FT_FAILED_TO_WRITE_DEVICE,
+       FT_EEPROM_READ_FAILED,
+       FT_EEPROM_WRITE_FAILED,
+       FT_EEPROM_ERASE_FAILED,
+       FT_EEPROM_NOT_PRESENT,
+       FT_EEPROM_NOT_PROGRAMMED,
+       FT_INVALID_ARGS,
+       FT_NOT_SUPPORTED,
+       FT_OTHER_ERROR,
+       FT_DEVICE_LIST_NOT_READY
 
 # Types
 export FT_HANDLE
 
 # Functions
 export FT_CreateDeviceInfoList, 
-        FT_GetDeviceInfoList,
-        FT_GetDeviceInfoDetail,
-        FT_ListDevices,
-        FT_Open,
-        FT_OpenEx,
-        FT_Close,
-        FT_Read,
-        FT_Write,
-        FT_SetBaudRate,
-        FT_SetDataCharacteristics,
-        FT_SetTimeouts,
-        FT_GetModemStatus,
-        FT_GetQueueStatus,
-        FT_GetDeviceInfo,
-        FT_GetDriverVersion,
-        FT_GetLibraryVersion,
-        FT_GetStatus,
-        FT_SetBreakOn,
-        FT_SetBreakOff,
-        FT_Purge,
-        FT_StopInTask,
-        FT_RestartInTask
+       FT_GetDeviceInfoList,
+       FT_GetDeviceInfoDetail,
+       FT_ListDevices,
+       FT_Open,
+       FT_OpenEx,
+       FT_Close,
+       FT_Read,
+       FT_Write,
+       FT_SetBaudRate,
+       FT_SetDataCharacteristics,
+       FT_SetTimeouts,
+       FT_GetModemStatus,
+       FT_GetQueueStatus,
+       FT_GetDeviceInfo,
+       FT_GetDriverVersion,
+       FT_GetLibraryVersion,
+       FT_GetStatus,
+       FT_SetBreakOn,
+       FT_SetBreakOff,
+       FT_Purge,
+       FT_StopInTask,
+       FT_RestartInTask
 
 using Libdl
-
-# Library
-# 
-const depsfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if isfile(depsfile)
-  include(depsfile)
-else
-  error("LibFTD2XX not properly installed. Please run Pkg.build(\"LibFTD2XX\") then restart Julia.")
-end
-
-const lib = Ref{Ptr{Cvoid}}(0)
-const cfunc = Dict{Symbol, Ptr{Cvoid}}()
-
-const cfuncn = [
-  :FT_CreateDeviceInfoList
-  :FT_GetDeviceInfoList
-  :FT_GetDeviceInfoDetail
-  :FT_ListDevices
-  :FT_Open
-  :FT_OpenEx
-  :FT_Close
-  :FT_Read
-  :FT_Write
-  :FT_SetBaudRate
-  :FT_SetDataCharacteristics
-  :FT_SetTimeouts
-  :FT_GetModemStatus
-  :FT_GetQueueStatus
-  :FT_GetDeviceInfo
-  :FT_GetDriverVersion
-  :FT_GetLibraryVersion
-  :FT_GetStatus
-  :FT_SetBreakOn
-  :FT_SetBreakOff
-  :FT_Purge
-  :FT_StopInTask
-  :FT_RestartInTask]
-
-function __init__()
-  lib[] = Libdl.dlopen(libftd2xx)
-  for n in cfuncn
-    cfunc[n] = Libdl.dlsym(lib[], n)
-  end
-end
+using libftd2xx_jll
 
 # Type Aliases
 # 
-const DWORD     = Cuint
-const ULONG     = Culong
-const UCHAR     = Cuchar
-const FT_STATUS = ULONG
-
+const DWORD     = UInt32
+const UCHAR     = UInt8
+const FT_STATUS = DWORD
 
 # Library Constants
 #
@@ -226,9 +181,9 @@ are filled by `FT_GetDeviceInfoList` with null terminated strings. They can be
 converted to julia strings using [`ntuple2string`](@ref).
 """
 struct FT_DEVICE_LIST_INFO_NODE
-  flags::ULONG
-  typ::ULONG
-  id::ULONG
+  flags::DWORD
+  typ::DWORD
+  id::DWORD
   locid::DWORD
   serialnumber::NTuple{16, Cchar}
   description::NTuple{64, Cchar}
@@ -309,7 +264,7 @@ julia> "Number of devices is \$numdevs"
 """
 function FT_CreateDeviceInfoList()
   lpdwNumDevs = Ref{DWORD}(0)
-  status = ccall(cfunc[:FT_CreateDeviceInfoList], cdecl, FT_STATUS, 
+  status = ccall((:FT_CreateDeviceInfoList, libftd2xx), cdecl, FT_STATUS, 
                  (Ref{DWORD},),
                  lpdwNumDevs)
   check(status)
@@ -361,7 +316,7 @@ julia> ntuple2string(devinfolist[1].serialnumber)
 """
 function FT_GetDeviceInfoList(lpdwNumDevs)
   pDest =  Vector{FT_DEVICE_LIST_INFO_NODE}(undef, lpdwNumDevs)
-  status = ccall(cfunc[:FT_GetDeviceInfoList], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetDeviceInfoList, libftd2xx), cdecl, FT_STATUS, 
                  (Ref{FT_DEVICE_LIST_INFO_NODE}, Ref{DWORD}),
                   pDest,                         Ref{DWORD}(lpdwNumDevs))
   check(status)
@@ -392,7 +347,7 @@ function FT_GetDeviceInfoDetail(dwIndex)
   pcDescription  = pointer(Vector{Cchar}(undef, 64))
   ftHandle = FT_HANDLE()
   
-  status = ccall(cfunc[:FT_GetDeviceInfoDetail], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetDeviceInfoDetail, libftd2xx), cdecl, FT_STATUS, 
   (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Cstring,        Cstring,       Ref{FT_HANDLE}),
    dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ftHandle)
   
@@ -447,7 +402,7 @@ Stacktrace:
 function FT_ListDevices(pvArg1, pvArg2, dwFlags)
   dwFlags == FT_LIST_NUMBER_ONLY || throw(ErrorException("FT_ListDevices wrapper does not yet flags other than FT_LIST_NUMBER_ONLY."))
   flagsarg = DWORD(dwFlags)
-  status = ccall(cfunc[:FT_ListDevices], cdecl, FT_STATUS, 
+  status = ccall((:FT_ListDevices, libftd2xx), cdecl, FT_STATUS, 
                  (Ptr{Cvoid}, Ptr{Cvoid}, DWORD),
                   pvArg1,     pvArg2,     dwFlags)
   check(status)
@@ -473,7 +428,7 @@ FT_HANDLE(Ptr{Nothing} @0x00000000000c4970)
 """
 function FT_Open(iDevice)
   ftHandle = FT_HANDLE()
-  status = ccall(cfunc[:FT_Open], cdecl, FT_STATUS, (Int,     Ref{FT_HANDLE}),
+  status = ccall((:FT_Open, libftd2xx), cdecl, FT_STATUS, (Int,     Ref{FT_HANDLE}),
                                                      iDevice, ftHandle)
   if FT_STATUS_ENUM(status) != FT_OK
     _ptr(ftHandle, C_NULL)
@@ -523,7 +478,7 @@ function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
   @assert (dwFlags == FT_OPEN_BY_DESCRIPTION) | (dwFlags == FT_OPEN_BY_SERIAL_NUMBER)
   flagsarg = DWORD(dwFlags)
   handle = FT_HANDLE()
-  status = ccall(cfunc[:FT_OpenEx], cdecl, FT_STATUS, 
+  status = ccall((:FT_OpenEx, libftd2xx), cdecl, FT_STATUS, 
                  (Cstring , DWORD,    Ref{FT_HANDLE}),
                   pvArg1,   flagsarg, handle)
   if FT_STATUS_ENUM(status) != FT_OK
@@ -553,7 +508,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_Close(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_Close], cdecl, FT_STATUS, (FT_HANDLE, ),
+  status = ccall((:FT_Close, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE, ),
                                                       ftHandle)
   check(status)
   _ptr(ftHandle, C_NULL)
@@ -595,7 +550,7 @@ julia> FT_Close(handle)
 function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToRead::Integer)
   @assert 0 <= dwBytesToRead <= length(lpBuffer)
   lpdwBytesReturned = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Read], cdecl, FT_STATUS, 
+  status = ccall((:FT_Read, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,         Ref{DWORD}),
                  ftHandle,   lpBuffer,   dwBytesToRead, lpdwBytesReturned)
   check(status)
@@ -645,7 +600,7 @@ julia> FT_Close(handle)
 function FT_Write(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesToWrite::Integer)
   @assert 0 <= dwBytesToWrite <= length(lpBuffer)
   lpdwBytesWritten = Ref{DWORD}()
-  status = ccall(cfunc[:FT_Write], cdecl, FT_STATUS, 
+  status = ccall((:FT_Write, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{UInt8}, DWORD,          Ref{DWORD}),
                   ftHandle,  lpBuffer,   dwBytesToWrite, lpdwBytesWritten)
   check(status)
@@ -673,7 +628,7 @@ julia> FT_Close(handle)
 """
 function FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
   @assert 0 < dwBaudRate <= typemax(DWORD)
-  status = ccall(cfunc[:FT_SetBaudRate], cdecl, FT_STATUS, 
+  status = ccall((:FT_SetBaudRate, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD),
                   ftHandle,    dwBaudRate)
   check(status)
@@ -712,7 +667,7 @@ function FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, 
   @assert (uParity == FT_PARITY_EVEN) || (uParity == FT_PARITY_ODD) || 
           (uParity == FT_PARITY_MARK) || (uParity == FT_PARITY_SPACE) || 
           (uParity == FT_PARITY_NONE)
-  status = ccall(cfunc[:FT_SetDataCharacteristics], cdecl, FT_STATUS, 
+  status = ccall((:FT_SetDataCharacteristics, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, UCHAR,       UCHAR,     UCHAR),
                   ftHandle,  uWordLength, uStopBits, uParity)
   check(status)
@@ -756,7 +711,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
-  status = ccall(cfunc[:FT_SetTimeouts], cdecl, FT_STATUS, 
+  status = ccall((:FT_SetTimeouts, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, DWORD,         DWORD,),
                   ftHandle,  dwReadTimeout, dwWriteTimeout)
   check(status)
@@ -785,7 +740,7 @@ julia> FT_Close(handle)
 """
 function FT_GetModemStatus(ftHandle::FT_HANDLE)
   lpdwModemStatus = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetModemStatus], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetModemStatus, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD}),
                   ftHandle,  lpdwModemStatus)
   check(status)
@@ -814,7 +769,7 @@ julia> FT_Close(handle)
 """
 function FT_GetQueueStatus(ftHandle::FT_HANDLE)
   lpdwAmountInRxQueue = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetQueueStatus], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetQueueStatus, libftd2xx), cdecl, FT_STATUS, 
                   (FT_HANDLE, Ref{DWORD}),
                    ftHandle,  lpdwAmountInRxQueue)
   check(status)
@@ -847,7 +802,7 @@ function FT_GetDeviceInfo(ftHandle::FT_HANDLE)
   pcDescription  = pointer(Vector{Cchar}(undef, 64))
   pvDummy = C_NULL
 
-  status = ccall(cfunc[:FT_GetDeviceInfo], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetDeviceInfo, libftd2xx), cdecl, FT_STATUS, 
   (FT_HANDLE, Ref{FT_DEVICE}, Ref{DWORD}, Cstring,        Cstring,       Ptr{Cvoid}),
    ftHandle,  pftType,        lpdwID,     pcSerialNumber, pcDescription, pvDummy)
   
@@ -891,7 +846,7 @@ if Sys.iswindows()
   """
   function FT_GetDriverVersion(ftHandle::FT_HANDLE)
     lpdwDriverVersion = Ref{DWORD}()
-    status = ccall(cfunc[:FT_GetDriverVersion], cdecl, FT_STATUS, 
+    status = ccall((:FT_GetDriverVersion, libftd2xx), cdecl, FT_STATUS, 
                   (FT_HANDLE, Ref{DWORD}),
                     ftHandle,  lpdwDriverVersion)
     check(status)
@@ -925,7 +880,7 @@ if Sys.iswindows()
   """
   function FT_GetLibraryVersion()
     lpdwDLLVersion = Ref{DWORD}()
-    status = ccall(cfunc[:FT_GetLibraryVersion], cdecl, FT_STATUS, 
+    status = ccall((:FT_GetLibraryVersion, libftd2xx), cdecl, FT_STATUS, 
                   (Ref{DWORD},),
                     lpdwDLLVersion)
     check(status)
@@ -957,7 +912,7 @@ julia> FT_Close(handle)
 function FT_GetStatus(ftHandle::FT_HANDLE)
   lpdwAmountInRxQueue, lpdwAmountInTxQueue  = Ref{DWORD}(), Ref{DWORD}()
   lpdwEventStatus = Ref{DWORD}()
-  status = ccall(cfunc[:FT_GetStatus], cdecl, FT_STATUS, 
+  status = ccall((:FT_GetStatus, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, Ref{DWORD},          Ref{DWORD},          Ref{DWORD}),
                   ftHandle,  lpdwAmountInRxQueue, lpdwAmountInTxQueue, lpdwEventStatus)
   check(status)
@@ -984,7 +939,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_SetBreakOn(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_SetBreakOn], cdecl, FT_STATUS, (FT_HANDLE,),
+  status = ccall((:FT_SetBreakOn, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
   check(status)
   return
@@ -1010,7 +965,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_SetBreakOff(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE,),
+  status = ccall((:FT_SetBreakOff, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
   check(status)
   return
@@ -1046,7 +1001,7 @@ julia> FT_Close(handle)
 function FT_Purge(ftHandle::FT_HANDLE, dwMask)
   @assert (dwMask == FT_PURGE_RX) || (dwMask == FT_PURGE_TX) || 
           (dwMask == FT_PURGE_RX|FT_PURGE_TX)
-  status = ccall(cfunc[:FT_SetBreakOff], cdecl, FT_STATUS, (FT_HANDLE, DWORD),
+  status = ccall((:FT_SetBreakOff, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE, DWORD),
                                                            ftHandle,   dwMask)
   check(status)
   return
@@ -1074,7 +1029,7 @@ julia> FT_Close(handle)
 ```
 """
 function FT_StopInTask(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_StopInTask], cdecl, FT_STATUS, (FT_HANDLE,),
+  status = ccall((:FT_StopInTask, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
   check(status)
   return
@@ -1090,7 +1045,7 @@ end
 See `FT_StopInTask`.
 """
 function FT_RestartInTask(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_RestartInTask], cdecl, FT_STATUS, (FT_HANDLE,),
+  status = ccall((:FT_RestartInTask, libftd2xx), cdecl, FT_STATUS, (FT_HANDLE,),
                                                            ftHandle)
   check(status)
   return
