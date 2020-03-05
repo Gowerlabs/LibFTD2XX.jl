@@ -118,6 +118,40 @@ using LibFTD2XX.Util
   # FT_StopInTask and FT_RestartInTask tests
   @test_throws FT_INVALID_HANDLE FT_StopInTask(handle)
   @test_throws FT_INVALID_HANDLE FT_RestartInTask(handle)
+
+  # FT_SetFlowControl tests
+  @test_throws FT_INVALID_HANDLE FT_SetFlowControl(handle, FT_FLOW_NONE, 0x00, 0x01)
+  @test_throws AssertionError FT_SetFlowControl(handle, 0xFF, 0x00, 0x01)
+  @test_throws InexactError FT_SetFlowControl(handle, FT_FLOW_NONE, 0x00, -1)
+  
+  # FT_SetDtr and FT_ClrDtr tests
+  @test_throws FT_INVALID_HANDLE FT_SetDtr(handle)
+  @test_throws FT_INVALID_HANDLE FT_ClrDtr(handle)
+
+  # FT_SetRts and FT_ClrRts tests
+  @test_throws FT_INVALID_HANDLE FT_SetRts(handle)
+  @test_throws FT_INVALID_HANDLE FT_SetRts(handle)
+
+  # FT_EventNotification tests
+
+
+  # FT_SetChars tests
+  @test_throws InexactError FT_SetChars(handle, 0x00, 0x00, 0x00, -1)
+  @test_throws FT_INVALID_HANDLE FT_SetChars(handle, 0x00, 0x00, 0x00, 0x00)
+
+  # FT_SetLatencyTimer and FT_GetLatencyTimer tests
+  @test_throws InexactError FT_SetLatencyTimer(handle, 300)
+  @test_throws FT_INVALID_HANDLE FT_SetLatencyTimer(handle, 0x00)
+  @test_throws FT_INVALID_HANDLE FT_GetLatencyTimer(handle)
+
+  # FT_SetBitMode and FT_GetBitMode tests
+  @test_throws AssertionError FT_SetBitMode(handle, 0x00, 0xFF)
+  @test_throws InexactError FT_SetBitMode(handle, -1, FT_MODE_RESET)
+  @test_throws FT_INVALID_HANDLE FT_SetBitMode(handle, 0x00, FT_MODE_RESET)
+  @test_throws FT_INVALID_HANDLE FT_GetBitMode(handle)
+
+  # FT_SetUSBParameters tests
+  @test_throws FT_INVALID_HANDLE FT_SetUSBParameters(handle, 32768, 32768)
   
 end
 
