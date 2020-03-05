@@ -781,7 +781,7 @@ end
 
 """
 function FT_SetDtr(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_SetDtr], cdecl, FT_STATUS, 
+  status = ccall((:FT_SetDtr, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE,),
                   ftHandle,)
   check(status)
@@ -797,7 +797,7 @@ end
 
 """
 function FT_ClrDtr(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_ClrDtr], cdecl, FT_STATUS, 
+  status = ccall((:FT_ClrDtr, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE,),
                   ftHandle,)
   check(status)
@@ -813,7 +813,7 @@ end
 
 """
 function FT_SetRts(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_SetRts], cdecl, FT_STATUS, 
+  status = ccall((:FT_SetRts, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE,),
                   ftHandle,)
   check(status)
@@ -829,7 +829,7 @@ end
 
 """
 function FT_ClrRts(ftHandle::FT_HANDLE)
-  status = ccall(cfunc[:FT_ClrRts], cdecl, FT_STATUS, 
+  status = ccall((:FT_ClrRts, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE,),
                   ftHandle,)
   check(status)
@@ -1076,7 +1076,7 @@ This function allows for inserting specified characters in the data stream to re
 events firing or errors occurring.
 """
 function FT_SetChars(ftHandle::FT_HANDLE, uEventCh, uEventChEn, uErrorCh, uErrorChEn)
-  status = ccall(cfunc[:FT_SetChars], cdecl, FT_STATUS,
+  status = ccall((:FT_SetChars, libftd2xx), cdecl, FT_STATUS,
                  (FT_HANDLE, UCHAR,    UCHAR,      UCHAR,    UCHAR,),
                   ftHandle,  uEventCh, uEventChEn, uErrorCh, uErrorChEn)
   check(status)
