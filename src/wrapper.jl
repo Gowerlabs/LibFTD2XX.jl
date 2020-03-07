@@ -103,6 +103,7 @@ using libftd2xx_jll
 # 
 const DWORD     = UInt32
 const ULONG     = UInt64
+const USHORT    = UInt16
 const UCHAR     = UInt8
 const FT_STATUS = DWORD
 
@@ -303,7 +304,6 @@ function FT_CreateDeviceInfoList()
 end
 
 
-
 """
     FT_GetDeviceInfoList(lpdwNumDevs)
 
@@ -355,7 +355,6 @@ function FT_GetDeviceInfoList(lpdwNumDevs)
 end
 
 
-
 """
     FT_GetDeviceInfoDetail(dwIndex)
 
@@ -385,7 +384,6 @@ function FT_GetDeviceInfoDetail(dwIndex)
   check(status)
   dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription), ftHandle
 end
-
 
 
 """
@@ -441,7 +439,6 @@ function FT_ListDevices(pvArg1, pvArg2, dwFlags)
 end
 
 
-
 """
     FT_Open(iDevice)
 
@@ -467,7 +464,6 @@ function FT_Open(iDevice)
   end
   ftHandle
 end
-
 
 
 """
@@ -520,7 +516,6 @@ function FT_OpenEx(pvArg1::AbstractString, dwFlags::Integer)
 end
 
 
-
 """
     FT_Close(ftHandle::FT_HANDLE)
 
@@ -545,7 +540,6 @@ function FT_Close(ftHandle::FT_HANDLE)
   _ptr(ftHandle, C_NULL)
   return
 end
-
 
 
 """
@@ -587,7 +581,6 @@ function FT_Read(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesTo
   check(status)
   lpdwBytesReturned[]
 end
-
 
 
 """
@@ -639,7 +632,6 @@ function FT_Write(ftHandle::FT_HANDLE, lpBuffer::AbstractVector{UInt8}, dwBytesT
 end
 
 
-
 """
     FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
 
@@ -665,7 +657,6 @@ function FT_SetBaudRate(ftHandle::FT_HANDLE, dwBaudRate::Integer)
   check(status)
   return
 end
-
 
 
 """
@@ -704,7 +695,6 @@ function FT_SetDataCharacteristics(ftHandle::FT_HANDLE, uWordLength, uStopBits, 
   check(status)
   return
 end
-
 
 
 """
@@ -750,7 +740,6 @@ function FT_SetTimeouts(ftHandle::FT_HANDLE, dwReadTimeout, dwWriteTimeout)
 end
 
 
-
 """
     FT_SetFlowControl(ftHandle::FT_HANDLE, usFlowControl, uXon, uXoff)
 
@@ -773,7 +762,6 @@ function FT_SetFlowControl(ftHandle::FT_HANDLE, usFlowControl, uXon, uXoff)
 end
 
 
-
 """
     FT_SetDtr(ftHandle::FT_HANDLE)
 
@@ -787,7 +775,6 @@ function FT_SetDtr(ftHandle::FT_HANDLE)
   check(status)
   return
 end
-
 
 
 """
@@ -805,7 +792,6 @@ function FT_ClrDtr(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_SetRts(ftHandle::FT_HANDLE)
 
@@ -821,7 +807,6 @@ function FT_SetRts(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_ClrRts(ftHandle::FT_HANDLE)
 
@@ -835,7 +820,6 @@ function FT_ClrRts(ftHandle::FT_HANDLE)
   check(status)
   return
 end
-
 
 
 """
@@ -866,7 +850,6 @@ function FT_GetModemStatus(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_GetQueueStatus(ftHandle::FT_HANDLE)
 
@@ -893,7 +876,6 @@ function FT_GetQueueStatus(ftHandle::FT_HANDLE)
   check(status)
   lpdwAmountInRxQueue[]
 end
-
 
 
 """
@@ -927,7 +909,6 @@ function FT_GetDeviceInfo(ftHandle::FT_HANDLE)
   check(status)
   pftType[], lpdwID[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
 end
-
 
 
 if Sys.iswindows()
@@ -972,7 +953,6 @@ if Sys.iswindows()
   end
 
 
-
   """
       FT_GetLibraryVersion()
 
@@ -1008,7 +988,6 @@ if Sys.iswindows()
 end # Sys.iswindows()
 
 
-
 """
     FT_GetStatus(ftHandle::FT_HANDLE)
 
@@ -1038,7 +1017,6 @@ function FT_GetStatus(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_SetEventNotification(ftHandle::FT_HANDLE, dwEventMask, pvArg)
 
@@ -1066,7 +1044,6 @@ function FT_SetEventNotification(ftHandle::FT_HANDLE, dwEventMask, pvArg)
 end
 
 
-
 """
     FT_SetChars(ftHandle::FT_HANDLE, uEventCh, uEventChEn, uErrorCh, uErrorChEn)
 
@@ -1082,7 +1059,6 @@ function FT_SetChars(ftHandle::FT_HANDLE, uEventCh, uEventChEn, uErrorCh, uError
   check(status)
   return
 end
-
 
 
 """
@@ -1110,7 +1086,6 @@ function FT_SetBreakOn(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_SetBreakOff(ftHandle::FT_HANDLE)
 
@@ -1134,7 +1109,6 @@ function FT_SetBreakOff(ftHandle::FT_HANDLE)
   check(status)
   return
 end
-
 
 
 """
@@ -1172,7 +1146,6 @@ function FT_Purge(ftHandle::FT_HANDLE, dwMask)
 end
 
 
-
 """
     FT_ResetDevice(ftHandle::FT_HANDLE)
 
@@ -1187,7 +1160,6 @@ function FT_ResetDevice(ftHandle::FT_HANDLE)
   check(status)
   return
 end
-
 
 
 """
@@ -1217,7 +1189,6 @@ function FT_StopInTask(ftHandle::FT_HANDLE)
 end
 
 
-
 """
     FT_RestartInTask(ftHandle::FT_HANDLE)
 
@@ -1231,7 +1202,6 @@ function FT_RestartInTask(ftHandle::FT_HANDLE)
   check(status)
   return
 end
-
 
 
 """
@@ -1251,7 +1221,6 @@ function FT_GetLatencyTimer(ftHandle::FT_HANDLE)
   check(status)
   pucTimer[]
 end
-
 
 
 """
@@ -1284,7 +1253,6 @@ function FT_SetLatencyTimer(ftHandle::FT_HANDLE, ucTimer)
 end
 
 
-
 """
     FT_GetBitMode(ftHandle::FT_HANDLE)
 
@@ -1302,7 +1270,6 @@ function FT_GetBitMode(ftHandle::FT_HANDLE)
   check(status)
   pucMode[]
 end
-
 
 
 """
@@ -1349,7 +1316,6 @@ function FT_SetBitMode(ftHandle::FT_HANDLE, ucMask, ucMode)
   check(status)
   return
 end
-
 
 
 """

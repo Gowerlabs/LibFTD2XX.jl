@@ -102,8 +102,6 @@ For use with [`datacharacteristics`](@ref).
   PARITY_SPACE = FT_PARITY_SPACE)
 
 
-
-
 """
     @enum(
       FTBitMode,
@@ -140,8 +138,6 @@ struct D2XXException <: Exception
 end
 
 
-
-
 """
     struct D2XXDevice <: IO
 
@@ -163,8 +159,6 @@ struct D2XXDevice <: IO
 end
 
 
-
-
 # D2XXDevice Constructors
 #
 """
@@ -174,8 +168,6 @@ Construct a `D2XXDevice` without opening it. D2XX hardware must pre present to
 work.
 """
 D2XXDevice(deviceidx::Integer) = D2XXDevice(getdeviceinfodetail(deviceidx)...)
-
-
 
 
 """
@@ -198,8 +190,6 @@ function D2XXDevices()
 end
 
 
-
-
 # Port communication functions
 #
 """
@@ -208,8 +198,6 @@ end
 See also: [`D2XXDevice`](@ref)
 """
 Base.isopen(d::D2XXDevice) = isopen(fthandle(d))
-
-
 
 
 """
@@ -236,8 +224,6 @@ function Base.isopen(handle::FT_HANDLE)
 end
 
 
-
-
 """
     Base.open(d::D2XXDevice)
 
@@ -251,8 +237,6 @@ function Base.open(d::D2XXDevice)
   fthandle(d, FT_Open(deviceidx(d)))
   return
 end
-
-
 
 
 """
@@ -270,8 +254,6 @@ See also: [`isopen`](@ref), [`close`](@ref)
 Base.open(str::AbstractString, openby::FTOpenBy) =  FT_OpenEx(str, DWORD(openby))
 
 
-
-
 """
     close(d::D2XXDevice)
 
@@ -279,8 +261,6 @@ Close a [`D2XXDevice`](@ref) using [`FT_Close`](@ref). Does not perform a
 [`flush`](@ref) first.
 """
 Base.close(d::D2XXDevice) = close(fthandle(d))
-
-
 
 
 """
@@ -297,8 +277,6 @@ function Base.close(handle::FT_HANDLE)
 end
 
 
-
-
 """
     bytesavailable(d::D2XXDevice)
 
@@ -306,8 +284,6 @@ See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref),
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
-
-
 
 
 """
@@ -322,8 +298,6 @@ function Base.bytesavailable(handle::FT_HANDLE)
 end
 
 
-
-
 """
     eof(d::D2XXDevice) -> Bool
 
@@ -334,8 +308,6 @@ See also: [`isopen`](@ref), [`open`](@ref),
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.eof(d::D2XXDevice) = eof(fthandle(d))
-
-
 
 
 """
@@ -350,8 +322,6 @@ See also: [`isopen`](@ref), [`open`](@ref),
 Base.eof(handle::FT_HANDLE) = (bytesavailable(handle) == 0)
 
 
-
-
 """
     readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b))
 
@@ -363,8 +333,6 @@ See also: [`D2XXDevice`](@ref).
 """
 Base.readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b)) =
 readbytes!(fthandle(d), b, nb)
-
-
 
 
 """
@@ -385,8 +353,6 @@ function Base.readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(
 end
 
 
-
-
 """
     readavailable(d::D2XXDevice)
 
@@ -394,8 +360,6 @@ Read all available data from an open [`D2XXDevice`](@ref). Does not block if
 nothing is available.
 """
 Base.readavailable(d::D2XXDevice) = readavailable(fthandle(d))
-
-
 
 
 """
@@ -413,16 +377,12 @@ function Base.readavailable(handle::FT_HANDLE)
 end
 
 
-
-
 """
     write(d::D2XXDevice, buffer::Vector{UInt8})
 
 Write `buffer` to an open [`D2XXDevice`](@ref) using [`FT_Write`](@ref).
 """
 Base.write(d::D2XXDevice, buffer::Vector{UInt8}) = write(fthandle(d), buffer)
-
-
 
 
 """
@@ -438,16 +398,12 @@ function Base.write(handle::FT_HANDLE, buffer::Vector{UInt8})
 end
 
 
-
-
 """
     baudrate(d::D2XXDevice, baud)
 
 Set the baudrate of an open [`D2XXDevice`](@ref) using [`FT_SetBaudRate`](@ref).
 """
 baudrate(d::D2XXDevice, baud) = baudrate(fthandle(d), baud)
-
-
 
 
 """
@@ -463,8 +419,6 @@ function baudrate(handle::FT_HANDLE, baud)
   isopen(handle) || throw(D2XXException("Device must be open to set baudrate."))
   FT_SetBaudRate(handle, baud)
 end
-
-
 
 
 """
@@ -492,8 +446,6 @@ datacharacteristics(fthandle(d),
                     parity=parity)
 
 
-
-
 """
     datacharacteristics(handle::FT_HANDLE;
                         wordlength::FTWordLength = BITS_8, 
@@ -514,8 +466,6 @@ FT_SetDataCharacteristics(handle, DWORD(wordlength), DWORD(stopbits), DWORD(pari
 end
 
 
-
-
 """
     timeouts(d::D2XXDevice, timeout_rd, timeout_wr)
 
@@ -523,8 +473,6 @@ Set the timeouts of an open [`D2XXDevice`](@ref) using [`FT_SetTimeouts`](@ref).
 """
 timeouts(d::D2XXDevice, timeout_rd, timeout_wr) = 
   timeouts(fthandle(d) , timeout_rd, timeout_wr)
-
-
 
 
 """
@@ -546,16 +494,12 @@ function timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
 end
 
 
-
-
 """
     reset(d::D2XXDevice)
 
 Reset an [`D2XXDevice`](@ref) using [`FT_ResetDevice`](@ref).
 """
 resetdevice(d::D2XXDevice) = resetdevice(fthandle(d))
-
-
 
 
 """
@@ -569,8 +513,6 @@ function resetdevice(handle::FT_HANDLE)
   end
   return
 end
-
-
 
 
 """
@@ -587,8 +529,6 @@ Note that, at present, only transfersize_in is supported.
 """
 usbparameters(d::D2XXDevice, transfersize_in, transfersize_out) = 
   usbparameters(fthandle(d), transfersize_in, transfersize_out)
-
-
 
 
 """
@@ -615,8 +555,6 @@ function usbparameters(handle::FT_HANDLE, transfersize_in, transfersize_out)
 end
 
 
-
-
 """
     characters(d::D2XXDevice, transfersize_in, transfersize_out)
 
@@ -627,8 +565,6 @@ represent events firing or errors occurring.
 """
 characters(d::D2XXDevice, event_char, event_enable, error_char, error_enable) = 
   characters(fthandle(d), event_char, event_enable, error_char, error_enable)
-
-
 
 
 """
@@ -645,8 +581,6 @@ function characters(handle::FT_HANDLE, event_char, event_enable, error_char, err
 end
 
 
-
-
 """
     latencytimer(d::D2XXDevice, timer_val)
 
@@ -659,8 +593,6 @@ This allows the device to be better optimized for protocols requiring faster res
 times for short data packets.
 """
 latencytimer(d::D2XXDevice, timer_val) = latencytimer(fthandle(d), timer_val)
-
-
 
 
 """
@@ -683,16 +615,12 @@ function latencytimer(handle::FT_HANDLE, timer_val)
 end
 
 
-
-
 """
     latencytimer(d::D2XXDevice)
 
 Return the latency timer in milliseconds of an open [`D2XXDevice`](@ref) using [`FT_GetLatencyTimer`](@ref).
 """
 latencytimer(d::D2XXDevice) = latencytimer(fthandle(d))
-
-
 
 
 """
@@ -706,8 +634,6 @@ function latencytimer(handle::FT_HANDLE)
 end
 
 
-
-
 """
     status(d::D2XXDevice) ->
       mflaglist::Dict{String, Bool}, lflaglist::Dict{String, Bool}
@@ -717,8 +643,6 @@ line status (`lflaglist`) for an open [`D2XXDevice`](@ref) using
 [`FT_GetModemStatus`](@ref).
 """
 status(d::D2XXDevice) = status(fthandle(d))
-
-
 
 
 """
@@ -751,8 +675,6 @@ function status(handle::FT_HANDLE)
 end
 
 
-
-
 if Sys.iswindows()
 
   """
@@ -762,8 +684,6 @@ if Sys.iswindows()
   [`FT_GetDriverVersion`](@ref). Windows only.
   """
   driverversion(d::D2XXDevice) = driverversion(fthandle(d))
-
-
 
 
   """
@@ -784,16 +704,12 @@ if Sys.iswindows()
 end # Sys.iswindows()
 
 
-
-
 """
     bitmode(d::D2XXDevice, direction, mode::FTBitMode)
 
 Set the initial pin direction and bit [`FTBitMode`](@ref) for an open [`D2XXDevice`](@ref).
 """
 bitmode(d::D2XXDevice, direction, mode::FTBitMode) = bitmode(fthandle(d), direction, mode)
-
-
 
 
 """
@@ -808,16 +724,12 @@ function bitmode(handle::FT_HANDLE, direction, mode::FTBitMode)
 end
 
 
-
-
 """
     flush(d::D2XXDevice)
 
 Clear the transmit and receive buffers for an open [`D2XXDevice`](@ref).
 """
 Base.flush(d::D2XXDevice) = flush(fthandle(d))
-
-
 
 
 """
@@ -836,8 +748,6 @@ function Base.flush(handle::FT_HANDLE)
 end
 
 
-
-
 # Other Functions
 #
 function createdeviceinfolist()
@@ -845,15 +755,11 @@ function createdeviceinfolist()
 end
 
 
-
-
 function getdeviceinfodetail(deviceidx)
   0 <= deviceidx || throw(DomainError("0 <= deviceidx"))
   deviceidx < createdeviceinfolist() || throw(D2XXException("Device index $deviceidx not in range."))
   idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetDeviceInfoDetail(deviceidx)
 end
-
-
 
 
 # Library Functions
@@ -876,8 +782,6 @@ if Sys.iswindows()
 end # Sys.iswindows()
 
 
-
-
 # D2XXDevice Accessor Functions
 #
 """
@@ -888,8 +792,6 @@ Get D2XXDevice index.
 See also: [`D2XXDevice`](@ref)
 """
 deviceidx(d::D2XXDevice) = d.idx
-
-
 
 
 """
@@ -914,8 +816,6 @@ See also: [`D2XXDevice`](@ref)
 devicetype(d::D2XXDevice) = d.typ
 
 
-
-
 """
   deviceid(d::D2XXDevice)
 
@@ -924,8 +824,6 @@ Get the D2XXDevice device id.
 See also: [`D2XXDevice`](@ref)
 """
 deviceid(d::D2XXDevice) = d.id
-
-
 
 
 """
@@ -938,8 +836,6 @@ See also: [`D2XXDevice`](@ref)
 locationid(d::D2XXDevice) = d.locid
 
 
-
-
 """
     serialnumber(d::D2XXDevice)
 
@@ -948,8 +844,6 @@ Get the D2XXDevice device serial number.
 See also: [`D2XXDevice`](@ref)
 """
 serialnumber(d::D2XXDevice) = d.serialnumber
-
-
 
 
 """
@@ -962,8 +856,6 @@ See also: [`D2XXDevice`](@ref)
 description(d::D2XXDevice) = d.description
 
 
-
-
 """
     fthandle(d::D2XXDevice)
 
@@ -972,8 +864,6 @@ Get the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
 See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice) = d.fthandle[]
-
-
 
 
 """
