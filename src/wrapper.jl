@@ -1035,7 +1035,7 @@ If `dwEventMask=FT_EVENT_LINE_STATUS`, the event will be set when a change in th
 status has been detected by the device.
 """
 function FT_SetEventNotification(ftHandle::FT_HANDLE, dwEventMask, pvArg)
-  @assert dwEventMask in FT_EVENT_ENUM
+  @assert dwEventMask in (FT_EVENT_RXCHAR,FT_EVENT_MODEM_STATUS,FT_EVENT_LINE_STATUS)
   status = ccall((:FT_SetEventNotification, libftd2xx), cdecl, FT_STATUS,
                  (FT_HANDLE, DWORD,       Ptr{Cvoid}),
                   ftHandle,  dwEventMask, pvArg)
