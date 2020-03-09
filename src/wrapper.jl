@@ -160,6 +160,11 @@ const FT_FLOW_XON_XOFF        = 0x0400
 const FT_EVENT_RXCHAR         = 1
 const FT_EVENT_MODEM_STATUS   = 2
 const FT_EVENT_LINE_STATUS    = 4
+@enum(
+  FT_EVENT_ENUM,
+  FT_EVENT_RXCHAR,
+  FT_EVENT_MODEM_STATUS,
+  FT_EVENT_LINE_STATUS)
 
 # FT_Purge Flags
 const FT_PURGE_RX = 1
@@ -174,6 +179,16 @@ const FT_MODE_MCU_EMULATION  = 0x08
 const FT_MODE_FAST_OPTO      = 0x10
 const FT_MODE_CBUS_BITBANG   = 0x20
 const FT_MODE_SCS_FIFO       = 0x40
+@enum(
+  FT_MODE_ENUM,
+  FT_MODE_RESET,
+  FT_MODE_ASYNC_BITBANG,
+  FT_MODE_MPSSE,
+  FT_MODE_SYNC_BITBANG,
+  FT_MODE_MCU_EMULATION,
+  FT_MODE_FAST_OPTO,
+  FT_MODE_CBUS_BITBANG,
+  FT_MODE_SCS_FIFO)
 
 # FT_STATUS Return Values
 @enum(
@@ -1035,7 +1050,7 @@ If `dwEventMask=FT_EVENT_LINE_STATUS`, the event will be set when a change in th
 status has been detected by the device.
 """
 function FT_SetEventNotification(ftHandle::FT_HANDLE, dwEventMask, pvArg)
-  @assert any(dwEventMask.==[FT_EVENT_RXCHAR,FT_EVENT_MODEM_STATUS,FT_EVENT_LINE_STATUS])
+  @assert dwEventMask in FT_EVENT_ENUM
   status = ccall((:FT_SetEventNotification, libftd2xx), cdecl, FT_STATUS,
                  (FT_HANDLE, DWORD,       Ptr{Cvoid}),
                   ftHandle,  dwEventMask, pvArg)
@@ -1309,7 +1324,7 @@ julia> FT_GetBitMode(handle)
 See [`FT_GetBitMode`](@ref).
 """
 function FT_SetBitMode(ftHandle::FT_HANDLE, ucMask, ucMode)
-  @assert any(ucMode.==[FT_MODE_RESET,FT_MODE_ASYNC_BITBANG,FT_MODE_MPSSE,FT_MODE_SYNC_BITBANG,FT_MODE_MCU_EMULATION,FT_MODE_FAST_OPTO,FT_MODE_CBUS_BITBANG,FT_MODE_SCS_FIFO])
+  @assert ucMode in FT_MODE_ENUM
   status = ccall((:FT_SetBitMode, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, UCHAR,  UCHAR),
                   ftHandle,  ucMask, ucMode)

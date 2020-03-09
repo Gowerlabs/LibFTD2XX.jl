@@ -62,7 +62,7 @@ using LibFTD2XX.Util
   @test handle isa FT_HANDLE
   @test Wrapper._ptr(handle) != C_NULL
   FT_Close(handle)
-  # by serialnumber
+  # # by serialnumber
   handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
   @test handle isa FT_HANDLE
   @test Wrapper._ptr(handle) != C_NULL
