@@ -174,15 +174,6 @@ const FT_MODE_MCU_EMULATION  = 0x08
 const FT_MODE_FAST_OPTO      = 0x10
 const FT_MODE_CBUS_BITBANG   = 0x20
 const FT_MODE_SCS_FIFO       = 0x40
-const FT_MODE_TUPLE = (
-  FT_MODE_RESET,
-  FT_MODE_ASYNC_BITBANG,
-  FT_MODE_MPSSE,
-  FT_MODE_SYNC_BITBANG,
-  FT_MODE_MCU_EMULATION,
-  FT_MODE_FAST_OPTO,
-  FT_MODE_CBUS_BITBANG,
-  FT_MODE_SCS_FIFO)
 
 # FT_STATUS Return Values
 @enum(
@@ -1318,7 +1309,7 @@ julia> FT_GetBitMode(handle)
 See [`FT_GetBitMode`](@ref).
 """
 function FT_SetBitMode(ftHandle::FT_HANDLE, ucMask, ucMode)
-  @assert ucMode in FT_MODE_TUPLE
+  @assert ucMode in (FT_MODE_RESET,FT_MODE_ASYNC_BITBANG,FT_MODE_MPSSE,FT_MODE_SYNC_BITBANG,FT_MODE_MCU_EMULATION,FT_MODE_FAST_OPTO,FT_MODE_CBUS_BITBANG,FT_MODE_SCS_FIFO)
   status = ccall((:FT_SetBitMode, libftd2xx), cdecl, FT_STATUS, 
                  (FT_HANDLE, UCHAR,  UCHAR),
                   ftHandle,  ucMask, ucMode)
