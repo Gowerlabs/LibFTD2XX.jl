@@ -171,14 +171,6 @@ const FT_PURGE_RX = 1
 const FT_PURGE_TX = 2
 
 # Mode Flags
-# const FT_MODE_RESET          = 0x00
-# const FT_MODE_ASYNC_BITBANG  = 0x01
-# const FT_MODE_MPSSE          = 0x02
-# const FT_MODE_SYNC_BITBANG   = 0x04
-# const FT_MODE_MCU_EMULATION  = 0x08
-# const FT_MODE_FAST_OPTO      = 0x10
-# const FT_MODE_CBUS_BITBANG   = 0x20
-# const FT_MODE_SCS_FIFO       = 0x40
 @enum(
   FT_MODE_ENUM,
   FT_MODE_RESET         = 0x00,
