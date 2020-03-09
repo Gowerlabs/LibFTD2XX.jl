@@ -43,20 +43,24 @@ import LibFTD2XX.Wrapper
   @testset "FT_HANDLE" begin
 
     # open by description
-    handle = open(descr, OPEN_BY_DESCRIPTION)
-    @test handle isa FT_HANDLE
-    @test isopen(handle)
-    @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(descr, OPEN_BY_DESCRIPTION) # can't open twice
-    close(handle)
-    @test !isopen(handle)
+    if !isempty(descr)
+      handle = open(descr, OPEN_BY_DESCRIPTION)
+      @test handle isa FT_HANDLE
+      @test isopen(handle)
+      @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(descr, OPEN_BY_DESCRIPTION) # can't open twice
+      close(handle)
+      @test !isopen(handle)
+  end
 
     # open by serialnumber
-    handle = open(serialn, OPEN_BY_SERIAL_NUMBER)
-    @test handle isa FT_HANDLE
-    @test isopen(handle)
-    @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(serialn, OPEN_BY_SERIAL_NUMBER) # can't open twice
-    close(handle)
-    @test !isopen(handle)
+    if !isempty(serialn)
+      handle = open(serialn, OPEN_BY_SERIAL_NUMBER)
+      @test handle isa FT_HANDLE
+      @test isopen(handle)
+      @test_throws Wrapper.FT_DEVICE_NOT_FOUND open(serialn, OPEN_BY_SERIAL_NUMBER) # can't open twice
+      close(handle)
+      @test !isopen(handle)
+  end
 
     
     # bytesavailable
