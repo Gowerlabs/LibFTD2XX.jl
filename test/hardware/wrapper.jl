@@ -58,15 +58,19 @@ using LibFTD2XX.Util
 
   # FT_OpenEx tests...
   # by description
-  handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
-  @test handle isa FT_HANDLE
-  @test Wrapper._ptr(handle) != C_NULL
-  FT_Close(handle)
-  # # by serialnumber
-  handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
-  @test handle isa FT_HANDLE
-  @test Wrapper._ptr(handle) != C_NULL
-  FT_Close(handle)
+  if !isempty(description)
+  	handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
+  	@test handle isa FT_HANDLE
+  	@test Wrapper._ptr(handle) != C_NULL
+  	FT_Close(handle)
+  end
+  # by serialnumber
+  if !isempty(serialnumber)
+  	handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
+  	@test handle isa FT_HANDLE
+  	@test Wrapper._ptr(handle) != C_NULL
+  	FT_Close(handle)
+  end
 
   # FT_Close tests...
   handle = FT_Open(0)
