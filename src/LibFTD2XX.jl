@@ -16,6 +16,8 @@ export FTOpenBy, OPEN_BY_SERIAL_NUMBER, OPEN_BY_DESCRIPTION
 export FTWordLength, BITS_8, BITS_7
 export FTStopBits, STOP_BITS_1, STOP_BITS_2
 export FTParity, PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE
+export FTBitMode, MODE_RESET, MODE_ASYNC_BITBANG, MODE_MPSSE, MODE_SYNC_BITBANG,
+       MODE_MCU_EMULATION, MODE_FAST_OPTO, MODE_CBUS_BITBANG, MODE_SCS_FIFO
 
 # Types and Constructors
 export FT_HANDLE # Exported by .Wrapper
@@ -101,6 +103,32 @@ For use with [`datacharacteristics`](@ref).
 
 
 """
+    @enum(
+      FTBitMode,
+      MODE_RESET = FT_MODE_RESET,
+      MODE_ASYNC_BITBANG = FT_MODE_ASYNC_BITBANG,
+      MODE_MPSSE = FT_MODE_MPSSE,
+      MODE_SYNC_BITBANG = FT_MODE_SYNC_BITBANG,
+      MODE_MCU_EMULATION = FT_MODE_MCU_EMULATION,
+      MODE_FAST_OPTO = FT_MODE_FAST_OPTO,
+      MODE_CBUS_BITBANG = FT_MODE_CBUS_BITBANG,
+      MODE_SCS_FIFO = FT_MODE_SCS_FIFO)
+
+For use with [`bitmode`](@ref).
+"""
+@enum(
+  FTBitMode,
+  MODE_RESET = FT_MODE_RESET,
+  MODE_ASYNC_BITBANG = FT_MODE_ASYNC_BITBANG,
+  MODE_MPSSE = FT_MODE_MPSSE,
+  MODE_SYNC_BITBANG = FT_MODE_SYNC_BITBANG,
+  MODE_MCU_EMULATION = FT_MODE_MCU_EMULATION,
+  MODE_FAST_OPTO = FT_MODE_FAST_OPTO,
+  MODE_CBUS_BITBANG = FT_MODE_CBUS_BITBANG,
+  MODE_SCS_FIFO = FT_MODE_SCS_FIFO)
+
+
+"""
     D2XXException <: Exception
 
 LibFTD2XX High-Level Library Error Type.
@@ -171,6 +199,7 @@ See also: [`D2XXDevice`](@ref)
 """
 Base.isopen(d::D2XXDevice) = isopen(fthandle(d))
 
+
 """
     isopen(handle::FT_HANDLE) -> Bool
 
@@ -209,6 +238,7 @@ function Base.open(d::D2XXDevice)
   return
 end
 
+
 """
     open(str::AbstractString, openby::FTOpenBy) -> FT_HANDLE
 
@@ -232,6 +262,7 @@ Close a [`D2XXDevice`](@ref) using [`FT_Close`](@ref). Does not perform a
 """
 Base.close(d::D2XXDevice) = close(fthandle(d))
 
+
 """
     close(handle::FT_HANDLE)
 
@@ -245,6 +276,7 @@ function Base.close(handle::FT_HANDLE)
   return
 end
 
+
 """
     bytesavailable(d::D2XXDevice)
 
@@ -252,6 +284,7 @@ See also: [`D2XXDevice`](@ref), [`isopen`](@ref), [`open`](@ref),
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.bytesavailable(d::D2XXDevice) = bytesavailable(fthandle(d))
+
 
 """
     bytesavailable(handle::FT_HANDLE)
@@ -264,6 +297,7 @@ function Base.bytesavailable(handle::FT_HANDLE)
   FT_GetQueueStatus(handle)
 end
 
+
 """
     eof(d::D2XXDevice) -> Bool
 
@@ -274,6 +308,7 @@ See also: [`isopen`](@ref), [`open`](@ref),
 [`readavailable`](@ref), [`read`](@ref)
 """
 Base.eof(d::D2XXDevice) = eof(fthandle(d))
+
 
 """
     eof(d::D2XXDevice) -> Bool
@@ -298,6 +333,7 @@ See also: [`D2XXDevice`](@ref).
 """
 Base.readbytes!(d::D2XXDevice, b::AbstractVector{UInt8}, nb=length(b)) =
 readbytes!(fthandle(d), b, nb)
+
 
 """
     readbytes!(handle::FT_HANDLE, b::AbstractVector{UInt8}, nb=length(b))
@@ -325,6 +361,7 @@ nothing is available.
 """
 Base.readavailable(d::D2XXDevice) = readavailable(fthandle(d))
 
+
 """
     readavailable(handle::FT_HANDLE)
 
@@ -347,6 +384,7 @@ Write `buffer` to an open [`D2XXDevice`](@ref) using [`FT_Write`](@ref).
 """
 Base.write(d::D2XXDevice, buffer::Vector{UInt8}) = write(fthandle(d), buffer)
 
+
 """
     write(handle::FT_HANDLE, buffer::Vector{UInt8})
 
@@ -366,6 +404,7 @@ end
 Set the baudrate of an open [`D2XXDevice`](@ref) using [`FT_SetBaudRate`](@ref).
 """
 baudrate(d::D2XXDevice, baud) = baudrate(fthandle(d), baud)
+
 
 """
     baudrate(handle::FT_HANDLE, baud)
@@ -406,6 +445,7 @@ datacharacteristics(fthandle(d),
                     stopbits=stopbits, 
                     parity=parity)
 
+
 """
     datacharacteristics(handle::FT_HANDLE;
                         wordlength::FTWordLength = BITS_8, 
@@ -432,7 +472,8 @@ end
 Set the timeouts of an open [`D2XXDevice`](@ref) using [`FT_SetTimeouts`](@ref).
 """
 timeouts(d::D2XXDevice, timeout_rd, timeout_wr) = 
-timeouts(fthandle(d) , timeout_rd, timeout_wr)
+  timeouts(fthandle(d) , timeout_rd, timeout_wr)
+
 
 """
     timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
@@ -450,7 +491,147 @@ function timeouts(handle::FT_HANDLE, timeout_rd, timeout_wr)
   0 <= timeout_wr || throw(DomainError("0 <= timeout_wr"))
   isopen(handle) || throw(D2XXException("Device must be open to set timeouts."))
   FT_SetTimeouts(handle, timeout_rd, timeout_wr)
-end 
+end
+
+
+"""
+    reset(d::D2XXDevice)
+
+Reset an [`D2XXDevice`](@ref) using [`FT_ResetDevice`](@ref).
+"""
+resetdevice(d::D2XXDevice) = resetdevice(fthandle(d))
+
+
+"""
+    reset(handle::FT_HANDLE)
+
+Reset an [`FT_HANDLE`](@ref) using [`FT_ResetDevice`](@ref).
+"""
+function resetdevice(handle::FT_HANDLE)
+  if isopen(handle)
+    FT_ResetDevice(handle)
+  end
+  return
+end
+
+
+"""
+    usbparameters(d::D2XXDevice, transfersize_in, transfersize_out)
+
+Set the USB input and output transfer buffer sizes in bytes, of an open [`D2XXDevice`](@ref).
+
+Transfer sizes must be set to a multiple of 64 bytes between 64 bytes and 64k bytes.
+`transfersize_in` and `transfersize_out` will be automatically rounded to the nearest
+valid value. When usbparameters is called, the change comes into effect immediately 
+and any data that was held in the driver at the time of the change is lost.
+
+Note that, at present, only transfersize_in is supported.
+"""
+usbparameters(d::D2XXDevice, transfersize_in, transfersize_out) = 
+  usbparameters(fthandle(d), transfersize_in, transfersize_out)
+
+
+"""
+    usbparameters(handle::FT_HANDLE, transfersize_in, transfersize_out)
+
+Set the USB input and output transfer buffer sizes in bytes, of an open [`FT_HANDLE`](@ref).
+
+Transfer sizes must be set to a multiple of 64 bytes between 64 bytes and 64k bytes.
+`transfersize_in` and `transfersize_out` will be automatically rounded to the nearest
+valid value. When `usbparameters` is called, the change comes into effect immediately 
+and any data that was held in the driver at the time of the change is lost.
+
+Note that, at present, only transfersize_in is supported.
+"""
+function usbparameters(handle::FT_HANDLE, transfersize_in, transfersize_out)
+  isopen(handle) || throw(D2XXException("Device must be open to set USB parameters."))
+  transfersize_in = round(transfersize_in/64)*64
+  transfersize_out = round(transfersize_out/64)*64
+  64 <= transfersize_in  || throw(DomainError("transfersize_in < 64"))
+  64 <= transfersize_out || throw(DomainError("transfersize_out < 64"))
+  65536 >= transfersize_in  || throw(DomainError("transfersize_in > 65536"))
+  65536 >= transfersize_out || throw(DomainError("transfersize_out > 65536"))
+  FT_SetUSBParameters(handle, transfersize_in, transfersize_out)
+end
+
+
+"""
+    characters(d::D2XXDevice, transfersize_in, transfersize_out)
+
+Set the event- and error characters of an open [`D2XXDevice`](@ref) using [`FT_SetChars`](@ref).
+
+This function allows for inserting specified characters in the data stream to 
+represent events firing or errors occurring.
+"""
+characters(d::D2XXDevice, event_char, event_enable, error_char, error_enable) = 
+  characters(fthandle(d), event_char, event_enable, error_char, error_enable)
+
+
+"""
+    characters(handle::FT_HANDLE, transfersize_in, transfersize_out)
+
+Set the event- and error characters of an open [`FT_HANDLE`](@ref) using [`FT_SetChars`](@ref).
+
+This function allows for inserting specified characters in the data stream to 
+represent events firing or errors occurring.
+"""
+function characters(handle::FT_HANDLE, event_char, event_enable, error_char, error_enable)
+  isopen(handle) || throw(D2XXException("Device must be open to set event- and error characters."))
+  FT_SetChars(handle, UInt8(event_char), UInt8(event_enable), UInt8(error_char), UInt8(error_enable))
+end
+
+
+"""
+    latencytimer(d::D2XXDevice, timer_val)
+
+Set the latency timer in milliseconds of an open [`D2XXDevice`](@ref) using [`FT_SetLatencyTimer`](@ref).
+
+In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that is used to flush 
+remaining data from the receive buffer was fixed at 16 ms. In all other FTDI devices, this
+timeout is programmable and can be set in 1 ms intervals between 2ms and 255 ms.
+This allows the device to be better optimized for protocols requiring faster response 
+times for short data packets.
+"""
+latencytimer(d::D2XXDevice, timer_val) = latencytimer(fthandle(d), timer_val)
+
+
+"""
+    latencytimer(handle::FT_HANDLE, timer_val)
+
+Set the latency timer in milliseconds of an open [`FT_HANDLE`](@ref) using [`FT_SetLatencyTimer`](@ref).
+
+In the FT8U232AM and FT8U245AM devices, the receive buffer timeout that is used to flush 
+remaining data from the receive buffer was fixed at 16 ms. In all other FTDI devices, this
+timeout is programmable and can be set in 1 ms intervals between 2ms and 255 ms.
+This allows the device to be better optimized for protocols requiring faster response 
+times for short data packets.
+"""
+function latencytimer(handle::FT_HANDLE, timer_val)
+  isopen(handle) || throw(D2XXException("Device must be open to set latency timer."))
+  isinteger(timer_val) || throw(DomainError("latency timer value not an integer"))
+  2 <= timer_val  || throw(DomainError("latency timer < 2"))
+  255 >= timer_val  || throw(DomainError("latency timer > 255"))
+  FT_SetLatencyTimer(handle, UInt8(timer_val))
+end
+
+
+"""
+    latencytimer(d::D2XXDevice)
+
+Return the latency timer in milliseconds of an open [`D2XXDevice`](@ref) using [`FT_GetLatencyTimer`](@ref).
+"""
+latencytimer(d::D2XXDevice) = latencytimer(fthandle(d))
+
+
+"""
+    latencytimer(handle::FT_HANDLE)
+
+Return the latency timer in milliseconds of an open [`FT_HANDLE`](@ref) using [`FT_GetLatencyTimer`](@ref).
+"""
+function latencytimer(handle::FT_HANDLE)
+  isopen(handle) || throw(D2XXException("Device must be open to get latency timer."))
+  return FT_GetLatencyTimer(handle)
+end
 
 
 """
@@ -462,6 +643,7 @@ line status (`lflaglist`) for an open [`D2XXDevice`](@ref) using
 [`FT_GetModemStatus`](@ref).
 """
 status(d::D2XXDevice) = status(fthandle(d))
+
 
 """
     status(d::D2XXDevice) ->
@@ -492,6 +674,7 @@ function status(handle::FT_HANDLE)
   mflaglist, lflaglist
 end
 
+
 if Sys.iswindows()
 
   """
@@ -501,6 +684,7 @@ if Sys.iswindows()
   [`FT_GetDriverVersion`](@ref). Windows only.
   """
   driverversion(d::D2XXDevice) = driverversion(fthandle(d))
+
 
   """
       driverversion(handle::FT_HANDLE)
@@ -519,12 +703,34 @@ if Sys.iswindows()
 
 end # Sys.iswindows()
 
+
+"""
+    bitmode(d::D2XXDevice, direction, mode::FTBitMode)
+
+Set the initial pin direction and bit [`FTBitMode`](@ref) for an open [`D2XXDevice`](@ref).
+"""
+bitmode(d::D2XXDevice, direction, mode::FTBitMode) = bitmode(fthandle(d), direction, mode)
+
+
+"""
+    bitmode(handle::FT_HANDLE, direction, mode::FTBitMode)
+
+Set the initial pin direction and bit [`FTBitMode`](@ref) for an open [`D2XXDevice`](@ref).
+"""
+function bitmode(handle::FT_HANDLE, direction, mode::FTBitMode)
+  isopen(handle) || throw(D2XXException("Device must be open to set bit mode."))
+  FT_SetBitMode(handle, UInt8(direction), UInt8(mode))
+  return
+end
+
+
 """
     flush(d::D2XXDevice)
 
 Clear the transmit and receive buffers for an open [`D2XXDevice`](@ref).
 """
 Base.flush(d::D2XXDevice) = flush(fthandle(d))
+
 
 """
     flush(handle::FT_HANDLE)
@@ -575,6 +781,7 @@ if Sys.iswindows()
 
 end # Sys.iswindows()
 
+
 # D2XXDevice Accessor Functions
 #
 """
@@ -595,6 +802,8 @@ Get the D2XXDevice flags list.
 See also: [`D2XXDevice`](@ref)
 """
 deviceflags(d::D2XXDevice) = d.flags
+
+
 
 
 """
@@ -656,6 +865,7 @@ See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice) = d.fthandle[]
 
+
 """
     fthandle(d::D2XXDevice, fthandle::FT_HANDLE)
 
@@ -664,5 +874,6 @@ Set the D2XXDevice device D2XX handle of type ::FT_HANDLE`.
 See also: [`D2XXDevice`](@ref)
 """
 fthandle(d::D2XXDevice, fthandle::FT_HANDLE) = (d.fthandle[] = fthandle)
+
 
 end # module LibFTD2XX

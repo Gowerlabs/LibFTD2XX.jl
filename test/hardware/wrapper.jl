@@ -58,15 +58,19 @@ using LibFTD2XX.Util
 
   # FT_OpenEx tests...
   # by description
-  handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
-  @test handle isa FT_HANDLE
-  @test Wrapper._ptr(handle) != C_NULL
-  FT_Close(handle)
+  if !isempty(description)
+  	handle = FT_OpenEx(description, FT_OPEN_BY_DESCRIPTION)
+  	@test handle isa FT_HANDLE
+  	@test Wrapper._ptr(handle) != C_NULL
+  	FT_Close(handle)
+  end
   # by serialnumber
-  handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
-  @test handle isa FT_HANDLE
-  @test Wrapper._ptr(handle) != C_NULL
-  FT_Close(handle)
+  if !isempty(serialnumber)
+  	handle = FT_OpenEx(serialnumber, FT_OPEN_BY_SERIAL_NUMBER)
+  	@test handle isa FT_HANDLE
+  	@test Wrapper._ptr(handle) != C_NULL
+  	FT_Close(handle)
+  end
 
   # FT_Close tests...
   handle = FT_Open(0)
@@ -235,7 +239,56 @@ using LibFTD2XX.Util
   FT_Close(handle)
   @test_throws FT_STATUS_ENUM FT_StopInTask(handle)
   @test_throws FT_STATUS_ENUM FT_RestartInTask(handle)
-  
+
+  # FT_FlowControl tests
+  handle = FT_Open(0)
+  @test_throws AssertionError FT_SetFlowControl(handle, 0xFF, 0x00, 0x01)
+  @test_throws InexactError FT_SetFlowControl(handle, FT_FLOW_NONE, 0x00, -1)
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetFlowControl(handle, FT_FLOW_NONE, 0x00, 0x00)
+
+  # FT_SetDtr, FT_ClrDtr, FT_SetRts and FT_ClrRts tests
+  handle = FT_Open(0)
+  retval = FT_SetDtr(handle)
+  @test retval == nothing
+  retval = FT_ClrDtr(handle)
+  @test retval == nothing
+  retval = FT_SetRts(handle)
+  @test retval == nothing
+  retval = FT_ClrRts(handle)
+  @test retval == nothing
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetDtr(handle)
+  @test_throws FT_STATUS_ENUM FT_ClrDtr(handle)
+  @test_throws FT_STATUS_ENUM FT_SetRts(handle)
+  @test_throws FT_STATUS_ENUM FT_ClrRts(handle)
+
+  # FT_EventNotification tests
+
+
+  # FT_SetChars tests
+  handle = FT_Open(0)
+  @test_throws InexactError FT_SetChars(handle, 0x00, 0x00, 0x00, -1)
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetChars(handle, 0x00, 0x00, 0x00, 0x00)
+
+  # FT_SetLatencyTimer and FT_GetLatencyTimer tests
+  handle = FT_Open(0)
+  FT_SetLatencyTimer(handle, 0xAC)
+  retval = FT_GetLatencyTimer(handle)
+  @test retval==0xAC
+  @test_throws InexactError FT_SetLatencyTimer(handle, 300)
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetLatencyTimer(handle, 128)
+
+  # FT_SetBitMode tests
+  handle = FT_Open(0)
+  @test_throws AssertionError FT_SetBitMode(handle, 0x00, 0xFF)
+  @test_throws InexactError FT_SetBitMode(handle, -1, FT_MODE_RESET)
+  FT_Close(handle)
+  @test_throws FT_STATUS_ENUM FT_SetBitMode(handle, 0x00, FT_MODE_RESET)
+  # FT_GetBitMode doesn't return the bit mode, but the pin status. So we can't check against that.
+
 end
 
 end # module TestWrapper
