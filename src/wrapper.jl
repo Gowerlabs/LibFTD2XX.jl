@@ -373,16 +373,20 @@ julia> idx, flags, typ, id, locid, serialnumber, description, fthandle = FT_GetD
 function FT_GetDeviceInfoDetail(dwIndex)
   lpdwFlags, lpdwType  = Ref{DWORD}(), Ref{DWORD}()
   lpdwID,    lpdwLocId = Ref{DWORD}(), Ref{DWORD}()
-  pcSerialNumber = pointer(Vector{Cchar}(undef, 16))
-  pcDescription  = pointer(Vector{Cchar}(undef, 64))
+  pcSerialNumber = zeros(Cchar, 16)
+  pcDescription  = zeros(Cchar, 64)
   ftHandle = FT_HANDLE()
   
   status = ccall((:FT_GetDeviceInfoDetail, libftd2xx), cdecl, FT_STATUS, 
-  (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Cstring,        Cstring,       Ref{FT_HANDLE}),
+  (DWORD,   Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ref{DWORD}, Ptr{Cchar},       Ptr{Cchar},      Ref{FT_HANDLE}),
    dwIndex, lpdwFlags,  lpdwType,   lpdwID,     lpdwLocId,  pcSerialNumber, pcDescription, ftHandle)
   
   check(status)
-  dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription), ftHandle
+
+  serialNumber = GC.@preserve pcSerialNumber unsafe_string(pointer(pcSerialNumber))
+  description = GC.@preserve pcDescription unsafe_string(pointer(pcDescription))
+  
+  dwIndex[], lpdwFlags[], lpdwType[], lpdwID[], lpdwLocId[], serialNumber, description, ftHandle
 end
 
 
@@ -898,16 +902,20 @@ julia> FT_Close(handle)
 function FT_GetDeviceInfo(ftHandle::FT_HANDLE)
   pftType = Ref{FT_DEVICE}()
   lpdwID = Ref{DWORD}()
-  pcSerialNumber = pointer(Vector{Cchar}(undef, 16))
-  pcDescription  = pointer(Vector{Cchar}(undef, 64))
+  pcSerialNumber = zeros(Cchar, 16)
+  pcDescription  = zeros(Cchar, 64)
   pvDummy = C_NULL
 
   status = ccall((:FT_GetDeviceInfo, libftd2xx), cdecl, FT_STATUS, 
-  (FT_HANDLE, Ref{FT_DEVICE}, Ref{DWORD}, Cstring,        Cstring,       Ptr{Cvoid}),
+  (FT_HANDLE, Ref{FT_DEVICE}, Ref{DWORD}, Ptr{Cchar},     Ptr{Cchar},    Ptr{Cvoid}),
    ftHandle,  pftType,        lpdwID,     pcSerialNumber, pcDescription, pvDummy)
   
   check(status)
-  pftType[], lpdwID[], unsafe_string(pcSerialNumber), unsafe_string(pcDescription)
+
+  serialNumber = GC.@preserve pcSerialNumber unsafe_string(pointer(pcSerialNumber))
+  description = GC.@preserve pcDescription unsafe_string(pointer(pcDescription))
+
+  pftType[], lpdwID[], serialNumber, description
 end
 
 
